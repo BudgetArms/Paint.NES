@@ -12,7 +12,7 @@
 			"dbgPath": "${config:NES.dbgPath}",
 			"program": "${config:NES.program}",
 			"sourcePath": "${workspaceFolder}/",
-			"stopOnEntry": true,
+			"stopOnEntry": false,
 			"resetOnEntry": true,
 			"preLaunchTask": "Make NES file"
 		}
