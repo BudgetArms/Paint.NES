@@ -86,7 +86,7 @@ irq:
 .proc main
  	; main application - rendering is currently off
  	; clear 1st name table
- 	jsr clear_nametable
+	jsr clear_nametable
  	; initialize palette table
  	ldx #0
 paletteloop:
@@ -110,7 +110,7 @@ paletteloop:
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
-.byte $0f,$00,$10,$30
+.byte $0f,$30,$21,$11
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29

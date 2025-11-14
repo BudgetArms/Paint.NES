@@ -1,10 +1,12 @@
 .proc reset
-	lda PPU_STATUS
-	lda #0
-	sta PPU_SCROLL
-	sta PPU_SCROLL
+	;lda PPU_STATUS
+	;lda #0
+	;sta PPU_SCROLL
+	;sta PPU_SCROLL
 
 	sei			; mask interrupts
+	cld			; disable decimal mode
+
 	lda #0
 	sta PPU_CONTROL	; disable NMI
 	sta PPU_MASK	; disable rendering
@@ -12,12 +14,10 @@
 	; Initialize APU 
 	lda #$40
 	sta JOYPAD2		; disable APU frame IRQ
-	LDX #$FF 
-	STX $4015 ; Disable all channels 
+	ldx #$FF 
+	stx $4015 ; Disable all channels 
 
-
-	cld			; disable decimal mode
-	ldx #$FF
+	ldx #$ff
 	txs			; initialise stack
 
 	; wait for first vBlank
@@ -27,14 +27,15 @@ wait_vblank:
 	bit PPU_STATUS
 	bpl wait_vblank
 
-	lda PPU_STATUS
-	lda #0
-	sta PPU_SCROLL
-	sta PPU_SCROLL
-		lda PPU_STATUS
-	lda #0
-	sta PPU_SCROLL
-	sta PPU_SCROLL
+	;lda PPU_STATUS
+	;lda #0
+	;sta PPU_SCROLL
+	;sta PPU_SCROLL
+
+	;lda PPU_STATUS
+	;lda #0
+	;sta PPU_SCROLL
+	;sta PPU_SCROLL
 	; clear all RAM to 0
 	lda #0
 	ldx #0
@@ -68,6 +69,11 @@ clear_oam:
 wait_vblank2:
 	bit PPU_STATUS
 	bpl wait_vblank2
+
+	lda PPU_STATUS
+	lda #$00
+	sta PPU_SCROLL
+	sta PPU_SCROLL
 
 	; NES is initialized and ready to begin
 	; - enable the NMI for graphical updates and jump to our main program

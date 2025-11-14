@@ -17,7 +17,7 @@
  	sta PPU_ADDR
 
  	; empty nametable A
- 	lda #0
+ 	lda #$00
  	ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
  	rowloop:
  		ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
@@ -39,4 +39,37 @@
 .endproc
 
 
+; Khine
+; fill the background with tile index 1
+; (just a block of pixel with color index 1)
+.proc setup_canvas
+ 	lda PPU_STATUS ; reset address latch
+ 	lda #$20 ; set PPU address to $2000
+ 	sta PPU_ADDR
+ 	lda #$00
+ 	sta PPU_ADDR
 
+ 	; set to the tile index 1
+ 	lda #$01
+ 	ldy #DISPLAY_SCREEN_HEIGHT ; 30 rows
+ 	rowloop:
+ 		ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
+ 		columnloop:
+ 			sta PPU_DATA
+ 			dex
+ 			bne columnloop
+ 		dey
+ 		bne rowloop
+
+; set to palette 0
+lda #$00
+ldx #$00
+set_attributes:
+    sta PPU_DATA
+    inx
+    cpx #$40
+    bne set_attributes
+
+	rts
+.endproc
+; Khine
