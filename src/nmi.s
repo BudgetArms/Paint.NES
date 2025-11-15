@@ -25,9 +25,6 @@ cont_render:
 	lda #>oam
 	sta PPU_OAMDMA
 
-	; transfer current palette to PPU
-	lda #%10001000 ; set horizontal nametable increment
-	sta PPU_CONTROL
 	lda PPU_STATUS
 	lda #$3F ; set PPU address to $3F00
 	sta PPU_ADDR
@@ -43,6 +40,16 @@ loop:
 	; enable rendering
 	lda #%00011110
 	sta PPU_MASK
+
+	; transfer current palette to PPU
+	lda #%10001000 ; set horizontal nametable increment
+	sta PPU_CONTROL
+
+	lda PPU_STATUS      ; Reset PPU address latch
+	lda #$00
+	sta PPU_SCROLL      ; X scroll
+	sta PPU_SCROLL
+
 	; flag PPU update complete
 	ldx #0
 	stx nmi_ready

@@ -43,6 +43,9 @@ input_released_this_frame:	.res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
 						;this is to do stuff like "every time an 8th frame passes, do this"
 
+arguments: .res 3
+cursor_index: .res 2
+tile_index: .res 2
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
@@ -86,7 +89,7 @@ irq:
 .proc main
  	; main application - rendering is currently off
  	; clear 1st name table
- 	jsr clear_nametable
+ 	jsr setup_canvas
  	; initialize palette table
  	ldx #0
 paletteloop:
@@ -95,6 +98,26 @@ paletteloop:
 	inx
 	cpx #32
 	bcc paletteloop
+
+
+; Khine's test code
+	lda #$00
+	sta cursor_index
+	sta cursor_index + 1
+	sta tile_index
+	sta tile_index + 1
+
+	lda #31
+	sta arguments ; Cursor X
+	lda #29
+	sta arguments + 1 ; Cursor Y
+	lda #$02
+	sta arguments + 2 ; Color index
+	
+	jsr convert_cursor_coordinates_to_tile_index
+	jsr draw_one_block
+; Khine's test code
+
 
  	jsr ppu_update
 
