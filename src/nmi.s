@@ -40,6 +40,18 @@ loop:
 	cpx #32
 	bcc loop
 
+
+    ; nmi.s 42 (after bcc loop)
+    ; --- ADD THIS BLOCK: Reset scroll at the very end ---
+    lda #%10000000
+    sta PPU_CONTROL
+    lda PPU_STATUS      ; Reset PPU address latch
+    lda #$00
+    sta PPU_SCROLL      ; X scroll
+    sta PPU_SCROLL      ; Y scroll
+    ; ---------------------------------------------------
+
+
 	; enable rendering
 	lda #%00011110
 	sta PPU_MASK
