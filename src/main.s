@@ -44,6 +44,10 @@ frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 2
 						;this is to do stuff like "every time an 8th frame passes, do this"
 
 
+; Cursor position (single 8x8 sprite)
+cursor_x: .res 1
+cursor_y: .res 1
+
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -63,6 +67,8 @@ palette: .res 32 ; current palette buffer
 .include "utils/drawing_utils.s"
 .include "utils/input_utils.s"
 .include "draw.s"
+
+.include "cursor.s"
 
 ;***************************************
 ; starting point
@@ -116,7 +122,7 @@ default_palette:
 .byte $0f,$0b,$1a,$29
 
 ;sprites
-.byte $0f,$00,$10,$30
+.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
