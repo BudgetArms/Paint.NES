@@ -43,10 +43,15 @@ input_released_this_frame:	.res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
 						;this is to do stuff like "every time an 8th frame passes, do this"
 
-arguments: .res 3
+arguments: .res 5
 cursor_index: .res 2
 tile_index: .res 2
+temp_swap: .res 2
+circle_brush_size: .res 1
+circle_brush_offset: .res 1
+circle_brush_fill_count: .res 1
 
+current_program_mode: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -99,6 +104,8 @@ paletteloop:
 	cpx #32
 	bcc paletteloop
 
+	lda #$00
+	sta current_program_mode
 
 ; Khine's test code
 	lda #$00
@@ -107,15 +114,19 @@ paletteloop:
 	sta tile_index
 	sta tile_index + 1
 
-	lda #31
+	lda #10
 	sta arguments ; Cursor X
-	lda #29
+	lda #10
 	sta arguments + 1 ; Cursor Y
 	lda #$02
 	sta arguments + 2 ; Color index
+	lda #$02
+	sta arguments + 3 ; Brush size
+	lda #$01
+	sta arguments + 4 ; Brush type (square: 0 or circle: 1)
 	
 	jsr convert_cursor_coordinates_to_tile_index
-	jsr draw_one_block
+	jsr draw_brush
 ; Khine's test code
 
 
