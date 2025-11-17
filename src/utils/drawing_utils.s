@@ -39,4 +39,114 @@
 .endproc
 
 
+; BudgetArms
+.proc UpdateCursorPosition
+
+    lda cursor_type
+
+    cmp #CURSOR_TYPE_SMALL
+    beq @smallCursor
+
+    cmp #CURSOR_TYPE_NORMAL
+    beq @normalCursor
+
+    cmp #CURSOR_TYPE_BIG
+    beq @bigCursor
+
+    ; this should never be reached
+    rts
+
+    @smallCursor:
+        jsr UpdateSmallCursorPosition
+        rts
+
+    @normalCursor:
+        jsr UpdateNormalCursorPosition
+        rts
+
+    @bigCursor:
+        jsr UpdateBigCursorPosition
+        rts
+
+.endproc
+
+
+; BudgetArms
+.proc UpdateSmallCursorPosition
+
+    ; load cursor_y
+    lda cursor_y    
+
+    ; overwrite the Small Cursor's default y-pos with the cursor y-Position 
+    ; sta oam + CURSOR_OFFSET_SMALL
+    sta oam + CURSOR_OFFSET_SMALL
+
+    ; load cursor_x
+    lda cursor_x
+
+    ; overwrite the Small Small Cursor's default x-pos with the cursor x-Position 
+    ; sta oam + CURSOR_OFFSET_SMALL + 3  
+    sta oam + CURSOR_OFFSET_SMALL + 3
+
+    rts
+
+.endproc
+
+; BudgetArms
+.proc UpdateNormalCursorPosition
+    lda cursor_y
+    sta oam + CURSOR_OFFSET_NORMAL
+
+    lda cursor_x
+    sta oam + CURSOR_OFFSET_NORMAL + 3
+
+    rts
+
+.endproc
+
+; BudgetArms
+.proc UpdateBigCursorPosition
+    ldx cursor_y
+
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
+
+    ; top is stored on cursor_y - 1
+    dex
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
+
+    ; bottom is stored on cursor_y + 1
+    inx
+    inx
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
+
+    ldx cursor_x
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP     + 3
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM  + 3
+
+    ; left is stored on cursor_x - 1
+    dex
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT    + 3
+
+    ; right is stored on cursor_x + 1
+    inx
+    inx
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT   + 3
+
+    rts
+
+.endproc
+
+
+; BudgetArms
+.proc UpdateSmileyPosition
+    lda cursor_y 
+    sta oam + SMILEY_OFFSET
+
+    lda cursor_x
+    sta oam + SMILEY_OFFSET + 3
+
+    rts
+
+.endproc
 
