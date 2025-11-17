@@ -43,13 +43,10 @@ input_released_this_frame:	.res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
 						;this is to do stuff like "every time an 8th frame passes, do this"
 
-arguments: .res 5
+arguments: .res 4
 cursor_index: .res 2
 tile_index: .res 2
 temp_swap: .res 2
-circle_brush_size: .res 1
-circle_brush_offset: .res 1
-circle_brush_fill_count: .res 1
 
 current_program_mode: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
@@ -94,7 +91,7 @@ irq:
 .proc main
  	; main application - rendering is currently off
  	; clear 1st name table
- 	jsr setup_canvas
+	jsr load_tilemap
  	; initialize palette table
  	ldx #0
 paletteloop:
@@ -104,29 +101,12 @@ paletteloop:
 	cpx #32
 	bcc paletteloop
 
-	lda #$00
-	sta current_program_mode
 
 ; Khine's test code
 	lda #$00
-	sta cursor_index
-	sta cursor_index + 1
-	sta tile_index
-	sta tile_index + 1
+	sta current_program_mode
 
-	lda #10
-	sta arguments ; Cursor X
-	lda #10
-	sta arguments + 1 ; Cursor Y
-	lda #$02
-	sta arguments + 2 ; Color index
-	lda #$02
-	sta arguments + 3 ; Brush size
-	lda #$01
-	sta arguments + 4 ; Brush type (square: 0 or circle: 1)
-	
-	jsr convert_cursor_coordinates_to_tile_index
-	jsr draw_brush
+
 ; Khine's test code
 
 
@@ -154,3 +134,6 @@ default_palette:
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+main_menu_tilemap:
+	.incbin "./tilemaps/main_menu.nam"
