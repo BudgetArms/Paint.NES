@@ -94,7 +94,7 @@ wait_vblank2:
 	; NES is initialized and ready to begin
 	; - enable the NMI for graphical updates and jump to our main program
 
-	jsr update_cursor ; this is here to initialize OAM with cursor position
+	;jsr update_cursor ; this is here to initialize OAM with cursor position
 
 	lda #%10000000
 	sta PPU_CONTROL

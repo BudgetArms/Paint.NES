@@ -43,10 +43,12 @@ input_released_this_frame:	.res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
 						;this is to do stuff like "every time an 8th frame passes, do this"
 
-
 ; Cursor position (single 8x8 sprite)
 cursor_x: .res 1
 cursor_y: .res 1
+
+cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
+cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
@@ -68,7 +70,7 @@ palette: .res 32 ; current palette buffer
 .include "utils/input_utils.s"
 .include "draw.s"
 
-.include "cursor.s"
+;.include "cursor.s"
 
 ;***************************************
 ; starting point
@@ -102,7 +104,11 @@ paletteloop:
 	cpx #32
 	bcc paletteloop
 
- 	jsr ppu_update
+initialize_cursor_small_direction:
+    lda #$00
+    sta cursor_small_direction
+
+	jsr ppu_update
 
 .ifdef TESTS
 	.include "tests/tests.s"
@@ -121,8 +127,36 @@ default_palette:
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
 
+
 ;sprites
 .byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+
+SMILEY_DATA:
+    .byte $00, SMILEYFACE_TILE, %10000001, $10
+					            ;76543210
+					            ;||||||||
+					            ;||||||++- Palette of sprite
+					            ;|||+++--- Unimplemented
+					            ;||+------ Priority (0: in front of background; 1: behind background)
+					            ;|+------- Flip sprite horizontally
+					            ;+-------- Flip sprite vertically
+
+CURSOR_SMALL_DATA:
+    .byte $00, CURSOR_TILE_SMALL_TOP_LEFT,      %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_TOP_RIGHT,     %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_BOTTOM_LEFT,   %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_BOTTOM_RIGHT,  %00000000, $00
+
+CURSOR_NORMAL_DATA:
+    .byte $00, CURSOR_TILE_NORMAL,  %00000000, $00
+
+CURSOR_BIG_DATA:
+    .byte $00, CURSOR_TILE_BIG_LEFT,    %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_TOP,     %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_RIGHT,   %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_BOTTOM,  %00000000, $00
+
