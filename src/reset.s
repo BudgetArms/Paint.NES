@@ -70,15 +70,15 @@ clear_oam:
 	lda #$40              ; Y position = $40 (64 pixels)
 	sta cursor_y
 
-; Write sprite 0 to OAM buffer (4 bytes per sprite)
-	lda cursor_y
-	sta oam+0             ; Byte 0: Y position
-	lda #$00 
-	sta oam+2             ; Byte 1: tile index (which 8x8 tile to display)
-	lda #$00
-	sta oam+2             ; Byte 2: attributes (palette, flip, priority bits)
-	lda cursor_x
-	sta oam+3             ; Byte 3: X position
+; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
+; 	lda cursor_y
+; 	sta oam+0             ; Byte 0: Y position
+; 	lda #$20 
+; 	sta oam+1             ; Byte 1: tile index (which 8x8 tile to display)
+; 	lda #$00
+; 	sta oam+2             ; Byte 2: attributes (palette, flip, priority bits)
+; 	lda cursor_x
+; 	sta oam+3             ; Byte 3: X position
 	
 ; OAM attribute byte format (%76543210):
 ; Bits 0-1: Palette (0-3)

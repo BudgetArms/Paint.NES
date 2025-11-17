@@ -33,7 +33,7 @@ no_down:
     ; Update sprite 0 in OAM with new cursor position
     lda cursor_y
     sta oam                   ; Byte 0: Y position
-    lda #$00
+    lda #$20
     sta oam+1                 ; Byte 1: tile index
     lda #$00
     sta oam+2                 ; Byte 2: attributes (palette 0, no flip)
