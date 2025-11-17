@@ -8,6 +8,12 @@ mainloop:
 	jsr handle_input
 
 
+    jsr LoadCursor
+    jsr UpdateCursorPosition
+
+    jsr LoadSmileyFace
+    jsr UpdateSmileyPosition
+
 
  	; ensure our changes are rendered
  	lda #1
