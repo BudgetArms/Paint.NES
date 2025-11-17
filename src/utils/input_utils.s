@@ -45,6 +45,89 @@
 ;	`input_released_this_frame` to have it be called only once when releasing the button
 ;*****************************************************************
 .proc handle_input
+
+
+ 	lda #PAD_START
+ 	ora #PAD_LEFT ;create and store a mask for the start + left button being pressed together
+ 	eor input_pressed_this_frame ;XOR the current input with start+left mask
+ 	bne not_pressed_StartAndLeft
+	
+	;inc palleteSwitchValue
+; ; code for when Start + Left is pressed:
+;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
+;STA $2006     ; Set high byte of PPU address
+;LDA #$00      
+;STA $2006     ; Set low byte of PPU address
+
+;LDA #$01      ; Load color index (blue in NES palette)
+;STA $2007
+
+ 	;lda collor_pallete_selection
+ 	;tax ; store quick acces later
+ 	;and #%00000100
+ 	;bne ButtonWasAlreadyPressedLastFrame
+; ;DecrementColourpalletteIndex:
+;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
+;STA $2006     ; Set high byte of PPU address
+;LDA #$00      
+;STA $2006     ; Set low byte of PPU address
+
+;LDA #$01      ; Load color index (blue in NES palette)
+;STA $2007     ; Write color to PPU
+
+ 	;txa
+	;SBC #1 ;decrement the collorpallette indexcounter
+	;bcc Input_Has_Been_Handled
+
+
+	
+
+ 	not_pressed_StartAndLeft:
+	; check StartAndRight
+ 	lda #PAD_START
+ 	ora #PAD_RIGHT ;create and store a mask for the start + left button being pressed together
+ 	eor input_pressed_this_frame ;XOR the current input with start+left mask
+ 	bne CheckOtherButtons ; start checking other buttons
+	
+	;dec palleteSwitchValue
+ ; code for when Start + Right is pressed:
+;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
+;STA $2006     ; Set high byte of PPU address
+;LDA #$00      
+;;STA $2006     ; Set low byte of PPU address
+
+;LDA #$06      ; Load color index (blue in NES palette)
+;STA $2007
+
+ 	;lda collor_pallete_selection
+ 	;tax ; store quick acces later
+ 	;and #%00000100
+ 	;bne ButtonWasAlreadyPressedLastFrame
+;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
+;STA $2006     ; Set high byte of PPU address
+;LDA #$00      
+;STA $2006     ; Set low byte of PPU address
+
+;LDA #$01      ; Load color index (blue in NES palette)
+;STA $2007     ; Write color to PPU
+
+; 	inx ;increment collorpallette indexcounter
+; 	TXA
+; 	ora #%00000100 ;set 3rd bit high.
+; 	sta collor_pallete_selection
+
+
+	;ButtonWasAlreadyPressedLastFrame:
+;;;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
+;STA $2006     ; Set high byte of PPU address
+;LDA #$00      
+;;STA $2006     ; Set low byte of PPU address
+
+;LDA #$05      ; Load color index (blue in NES palette)
+;STA $2007     ; Write color to PPU
+	; nothing should happen
+
+	CheckOtherButtons:
 	; Check A button
 	lda input_pressed_this_frame
 	and #PAD_A
@@ -102,4 +185,7 @@
 	not_pressed_right:
 
 	rts
+
+	Input_Has_Been_Handled:
+
 .endproc
