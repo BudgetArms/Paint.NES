@@ -51,7 +51,19 @@
  	ora #PAD_LEFT ;create and store a mask for the start + left button being pressed together
  	eor input_pressed_this_frame ;XOR the current input with start+left mask
  	bne not_pressed_StartAndLeft
+	;lda $30
+	;sta palleteSwitchValue
+	;lda collor_pallete_selection
+	;TAX ; store quick acces later
+	;and #%00000100
+	;bne ButtonWasPressedLastFrame
+	;txa
+	;CLC
+	;sbc #$01
 	
+	;NV--DIZC
+
+
 	;inc palleteSwitchValue
 ; ; code for when Start + Left is pressed:
 ;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
@@ -88,7 +100,8 @@
  	ora #PAD_RIGHT ;create and store a mask for the start + left button being pressed together
  	eor input_pressed_this_frame ;XOR the current input with start+left mask
  	bne CheckOtherButtons ; start checking other buttons
-	
+	;lda $0f
+	;sta palleteSwitchValue
 	;dec palleteSwitchValue
  ; code for when Start + Right is pressed:
 ;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
@@ -126,19 +139,35 @@
 ;LDA #$05      ; Load color index (blue in NES palette)
 ;STA $2007     ; Write color to PPU
 	; nothing should happen
-
+ButtonWasPressedLastFrame:
 	CheckOtherButtons:
 	; Check A button
 	lda input_pressed_this_frame
 	and #PAD_A
 	beq not_pressed_a
+	paletteloop1:
+	lda switched_palette_1, x
+	sta palette, x
+	inx
+	cpx #32
+	bcc paletteloop1
+	;lda #$30
+	;sta palleteSwitchValue
 		; code for when A is pressed
+		;lda $00
+		;sta palleteSwitchValue
 	not_pressed_a:
 
 	; Check B button
 	lda input_pressed_this_frame
 	and #PAD_B
 	beq not_pressed_b
+	paletteloop2:
+	lda switched_palette_2, x
+	sta palette, x
+	inx
+	cpx #32
+	bcc paletteloop2
 		; code for when B is pressed
 	not_pressed_b:
 
@@ -146,6 +175,24 @@
 	lda input_pressed_this_frame
 	and #PAD_SELECT
 	beq not_pressed_select
+	; point PPU to $2001
+; --- write tile #4 to screen tile #2 ($2001) ---
+;lda #$20
+;sta $2006
+;lda #$02
+;sta $2006
+;lda positionXOnScreen
+;sta $2007
+
+; --- write tile #4 to screen tile #3 ($2002) ---
+;lda #$20
+;sta $2006
+;lda #$02
+;sta $2006
+;lda #$04
+;sta $2007
+
+
 		; code for when Select is pressed
 	not_pressed_select:
 
@@ -160,6 +207,13 @@
 	lda input_pressed_this_frame
 	and #PAD_UP
 	beq not_pressed_up
+	inc positionXOnCHR
+lda #$20
+sta $2006
+lda #$01
+sta $2006
+lda positionXOnCHR
+sta $2007
 		; code for when Up is pressed
 	not_pressed_up:
 
@@ -181,6 +235,13 @@
 	lda input_pressed_this_frame
 	and #PAD_RIGHT
 	beq not_pressed_right
+	inc positionXOnScreen
+lda #$20
+sta $2006
+lda #$02
+sta $2006
+lda positionXOnScreen
+sta $2007
 		; code for when Right is pressed
 	not_pressed_right:
 

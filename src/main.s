@@ -43,6 +43,12 @@ input_released_this_frame:	.res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
 						;this is to do stuff like "every time an 8th frame passes, do this"
 
+collor_pallete_selection: .res 1 ;keeps track of which collor in the pallete we are at
+palleteSwitchValue: .res 1 ;
+positionXOnCHR: .res 1 ;
+positionXOnScreen: .res 1 ;
+;lda #$00
+;sta positionX
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
@@ -89,12 +95,14 @@ irq:
  	jsr clear_nametable
  	; initialize palette table
  	ldx #0
+
+	;
 paletteloop:
-	lda default_palette, x
-	sta palette, x
-	inx
-	cpx #32
-	bcc paletteloop
+	;lda default_palette:, x
+	;sta palette, x
+	;inx
+	;cpx #32
+	;bcc paletteloop
 
  	jsr ppu_update
 
@@ -108,15 +116,67 @@ paletteloop:
 ;***************************************
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
-default_palette:
+;default_palette:
+;bg tiles/ text
+;.byte $0f,$00,$10,$30
+;.byte $0f,$0c,$21,$32
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
+
+;sprites
+;.byte $0f,$00,$10,$30
+;.byte $0f,$0c,$21,$32
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
+
+switched_palette_1:
+;bg tiles/ text
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+
+;sprites
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+
+switched_palette_2:
+;bg tiles/ text
+.byte $32,$05,$16,$27
+.byte $32,$05,$16,$27
+.byte $32,$05,$16,$27
+.byte $32,$05,$16,$27
+
+;sprites
+.byte $32,$05,$16,$27
+.byte $32,$05,$16,$27
+.byte $32,$05,$16,$27
+.byte $32,$05,$16,$27
+
+switched_palette_3:
+;bg tiles/ text
+.byte $1a,$0c,$21,$32
+.byte $1a,$0c,$21,$32
+.byte $1a,$0c,$21,$32
+.byte $1a,$0c,$21,$32
+
+;sprites
+.byte $1a,$0c,$21,$32
+.byte $1a,$0c,$21,$32
+.byte $1a,$0c,$21,$32
+.byte $1a,$0c,$21,$32
+
+switched_palette_4:
 ;bg tiles/ text
 .byte $0f,$00,$10,$30
-.byte $0f,$0c,$21,$32
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+.byte $0f,$00,$10,$30
+.byte $0f,$00,$10,$30
+.byte $0f,$00,$10,$30
 
 ;sprites
 .byte $0f,$00,$10,$30
-.byte $0f,$0c,$21,$32
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+.byte $0f,$00,$10,$30
+.byte $0f,$00,$10,$30
+.byte $0f,$00,$10,$30
