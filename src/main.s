@@ -15,7 +15,8 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-.incbin "game.chr"
+; .incbin "game.chr"
+.incbin "game_better.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
@@ -42,6 +43,13 @@ input_released_this_frame:	.res 1
 
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
 						;this is to do stuff like "every time an 8th frame passes, do this"
+
+cursor_x: .res 1
+cursor_y: .res 1
+
+cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
+cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
+
 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
@@ -96,6 +104,16 @@ paletteloop:
 	cpx #32
 	bcc paletteloop
 
+initialize_cursor_small_direction:
+    lda #$00
+    sta cursor_small_direction
+
+initialize_cursor_pos:
+    lda SMILEY_DATA ; Y-position (1st byte)
+    sta cursor_y
+    lda SMILEY_DATA + 3 ; X-position (4th byte)
+    sta cursor_x
+
  	jsr ppu_update
 
 .ifdef TESTS
@@ -108,15 +126,52 @@ paletteloop:
 ;***************************************
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
-default_palette:
+; default_palette:
 ;bg tiles/ text
-.byte $0f,$00,$10,$30
-.byte $0f,$0c,$21,$32
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+; .byte $0f,$00,$10,$30
+; .byte $0f,$0c,$21,$32
+; .byte $0f,$05,$16,$27
+; .byte $0f,$0b,$1a,$29
+
+default_palette:
+.byte $0F,$15,$26,$37
+.byte $0F,$19,$29,$39
+.byte $0F,$11,$21,$31
+.byte $0F,$00,$10,$30
+.byte $0F,$28,$21,$11
+.byte $0F,$14,$24,$34
+.byte $0F,$1B,$2B,$3B
+.byte $0F,$12,$22,$32
 
 ;sprites
 .byte $0f,$00,$10,$30
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+
+SMILEY_DATA:
+    .byte $00, SMILEYFACE_TILE, %10000001, $10
+					            ;76543210
+					            ;||||||||
+					            ;||||||++- Palette of sprite
+					            ;|||+++--- Unimplemented
+					            ;||+------ Priority (0: in front of background; 1: behind background)
+					            ;|+------- Flip sprite horizontally
+					            ;+-------- Flip sprite vertically
+
+CURSOR_SMALL_DATA:
+    .byte $00, CURSOR_TILE_SMALL_TOP_LEFT,      %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_TOP_RIGHT,     %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_BOTTOM_LEFT,   %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_BOTTOM_RIGHT,  %00000000, $00
+
+CURSOR_NORMAL_DATA:
+    .byte $00, CURSOR_TILE_NORMAL,  %00000000, $00
+
+CURSOR_BIG_DATA:
+    .byte $00, CURSOR_TILE_BIG_LEFT,    %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_TOP,     %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_RIGHT,   %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_BOTTOM,  %00000000, $00
+
