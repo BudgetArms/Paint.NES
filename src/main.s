@@ -50,8 +50,7 @@ cursor_y: .res 1
 cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
 cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
 arguments: .res 5
-cursor_index: .res 2
-tile_index: .res 2
+cursor_tile_position: .res 2
 temp_swap: .res 2
 
 current_program_mode: .res 1
@@ -117,12 +116,6 @@ initialize_cursor_small_direction:
     sta current_program_mode
 
     ; Khine's test code
-    lda #$00
-    sta cursor_index
-    sta cursor_index + 1
-    sta tile_index
-    sta tile_index + 1
-
     lda #10
     sta arguments ; Cursor X
     lda #10
@@ -134,7 +127,7 @@ initialize_cursor_small_direction:
     lda #$01
     sta arguments + 4 ; Brush type (square: 0 or circle: 1)
 
-    jsr convert_cursor_coordinates_to_tile_index
+    jsr convert_cursor_coordinates_to_cursor_tile_position
     jsr draw_brush
 ; Khine's test code
 
