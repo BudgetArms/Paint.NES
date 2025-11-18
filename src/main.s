@@ -41,7 +41,7 @@ input_pressed_this_frame:	.res 1
 input_released_this_frame:	.res 1
 
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
-						;this is to do stuff like "every time an 8th frame passes, do this"
+                        ;this is to do stuff like "every time an 8th frame passes, do this"
 
 ; Cursor position (single 8x8 sprite)
 cursor_x: .res 1
@@ -91,61 +91,61 @@ palette: .res 32 ; current palette buffer
 ; interrupt request
 .segment "CODE"
 irq:
-	;handle interrupt if needed
-	rti
+    ;handle interrupt if needed
+    rti
 
 ;***************************************
 .segment "CODE"
 .proc main
- 	; main application - rendering is currently off
- 	; clear 1st name table
- 	jsr setup_canvas
- 	; initialize palette table
- 	ldx #0
+    ; main application - rendering is currently off
+    ; clear 1st name table
+    jsr setup_canvas
+    ; initialize palette table
+    ldx #0
 paletteloop:
-	lda default_palette, x
-	sta palette, x
-	inx
-	cpx #32
-	bcc paletteloop
+    lda default_palette, x
+    sta palette, x
+    inx
+    cpx #32
+    bcc paletteloop
 
 initialize_cursor_small_direction:
     lda #$00
     sta cursor_small_direction
 
-	lda #$00
-	sta current_program_mode
+    lda #$00
+    sta current_program_mode
 
+    ; Khine's test code
+    lda #$00
+    sta cursor_index
+    sta cursor_index + 1
+    sta tile_index
+    sta tile_index + 1
+
+    lda #10
+    sta arguments ; Cursor X
+    lda #10
+    sta arguments + 1 ; Cursor Y
+    lda #$02
+    sta arguments + 2 ; Color index
+    lda #$02
+    sta arguments + 3 ; Brush size
+    lda #$01
+    sta arguments + 4 ; Brush type (square: 0 or circle: 1)
+
+    jsr convert_cursor_coordinates_to_tile_index
+    jsr draw_brush
 ; Khine's test code
-	lda #$00
-	sta cursor_index
-	sta cursor_index + 1
-	sta tile_index
-	sta tile_index + 1
-
-	lda #10
-	sta arguments ; Cursor X
-	lda #10
-	sta arguments + 1 ; Cursor Y
-	lda #$02
-	sta arguments + 2 ; Color index
-	lda #$02
-	sta arguments + 3 ; Brush size
-	lda #$01
-	sta arguments + 4 ; Brush type (square: 0 or circle: 1)
-	
-	jsr convert_cursor_coordinates_to_tile_index
-	jsr draw_brush
-; Khine's test code
 
 
- 	jsr ppu_update
+    jsr ppu_update
 
 .ifdef TESTS
-	.include "tests/tests.s"
+.include "tests/tests.s"
 .endif
 
-	.include "mainloop.s"
+    .include "mainloop.s"
 .endproc
 
 ;***************************************
@@ -168,13 +168,13 @@ default_palette:
 
 SMILEY_DATA:
     .byte $00, SMILEYFACE_TILE, %10000001, $10
-					            ;76543210
-					            ;||||||||
-					            ;||||||++- Palette of sprite
-					            ;|||+++--- Unimplemented
-					            ;||+------ Priority (0: in front of background; 1: behind background)
-					            ;|+------- Flip sprite horizontally
-					            ;+-------- Flip sprite vertically
+                                ;76543210
+                                ;||||||||
+                                ;||||||++- Palette of sprite
+                                ;|||+++--- Unimplemented
+                                ;||+------ Priority (0: in front of background; 1: behind background)
+                                ;|+------- Flip sprite horizontally
+;+-------- Flip sprite vertically
 
 CURSOR_SMALL_DATA:
     .byte $00, CURSOR_TILE_SMALL_TOP_LEFT,      %00000000, $00
