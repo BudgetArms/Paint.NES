@@ -50,7 +50,6 @@ poll_loop:
 	and #PAD_A
 	beq not_pressed_a
 		; code for when A is pressed
-        
 
 
 	not_pressed_a:

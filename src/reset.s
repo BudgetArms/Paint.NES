@@ -1,8 +1,4 @@
 .proc reset
-	lda PPU_STATUS
-	lda #0
-	sta PPU_SCROLL
-	sta PPU_SCROLL
 
 	sei			; mask interrupts
 	lda #0
@@ -27,14 +23,6 @@ wait_vblank:
 	bit PPU_STATUS
 	bpl wait_vblank
 
-	lda PPU_STATUS
-	lda #0
-	sta PPU_SCROLL
-	sta PPU_SCROLL
-		lda PPU_STATUS
-	lda #0
-	sta PPU_SCROLL
-	sta PPU_SCROLL
 	; clear all RAM to 0
 	lda #0
 	ldx #0
@@ -98,6 +86,6 @@ wait_vblank2:
 
 	lda #%10000000
 	sta PPU_CONTROL
-	
+
 	jmp main
 .endproc

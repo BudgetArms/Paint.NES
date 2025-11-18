@@ -49,7 +49,12 @@ cursor_y: .res 1
 
 cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
 cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
+arguments: .res 5
+cursor_index: .res 2
+tile_index: .res 2
+temp_swap: .res 2
 
+current_program_mode: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -94,7 +99,7 @@ irq:
 .proc main
  	; main application - rendering is currently off
  	; clear 1st name table
- 	jsr clear_nametable
+ 	jsr setup_canvas
  	; initialize palette table
  	ldx #0
 paletteloop:
@@ -108,7 +113,33 @@ initialize_cursor_small_direction:
     lda #$00
     sta cursor_small_direction
 
-	jsr ppu_update
+	lda #$00
+	sta current_program_mode
+
+; Khine's test code
+	lda #$00
+	sta cursor_index
+	sta cursor_index + 1
+	sta tile_index
+	sta tile_index + 1
+
+	lda #10
+	sta arguments ; Cursor X
+	lda #10
+	sta arguments + 1 ; Cursor Y
+	lda #$02
+	sta arguments + 2 ; Color index
+	lda #$02
+	sta arguments + 3 ; Brush size
+	lda #$01
+	sta arguments + 4 ; Brush type (square: 0 or circle: 1)
+	
+	jsr convert_cursor_coordinates_to_tile_index
+	jsr draw_brush
+; Khine's test code
+
+
+ 	jsr ppu_update
 
 .ifdef TESTS
 	.include "tests/tests.s"

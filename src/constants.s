@@ -68,6 +68,9 @@ CURSOR_OFFSET_NORMAL = $10     ; 1 sprites, -> 4 bytes
 CURSOR_OFFSET_BIG = $14        ; 4 sprites, -> 16 bytes
 SMILEY_OFFSET = $24
 
+; program modes
+MAIN_MENU = 0
+CANVAS = 1
 
 CURSOR_OFFSET_BIG_LEFT = $00
 CURSOR_OFFSET_BIG_TOP = $04 

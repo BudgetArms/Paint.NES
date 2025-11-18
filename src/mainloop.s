@@ -10,9 +10,9 @@ mainloop:
 	; update cursor position and write sprite OAM for sprite 0
 	;jsr update_cursor
 
-    jsr LoadCursor
-    jsr UpdateCursorPosition
-    jsr LoadSmileyFace
+	jsr LoadCursor
+	jsr UpdateCursorPosition
+	;jsr LoadSmileyFace
 
 
 	; ensure our changes are rendered

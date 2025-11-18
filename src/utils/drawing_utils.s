@@ -10,33 +10,67 @@
 ;     - Leaves the PPU ready to receive further data if needed
 ;*****************************************************************
 .proc clear_nametable
- 	lda PPU_STATUS ; reset address latch
- 	lda #$20 ; set PPU address to $2000
- 	sta PPU_ADDR
- 	lda #$00
- 	sta PPU_ADDR
+	lda PPU_STATUS ; reset address latch
+	lda #$20 ; set PPU address to $2000
+	sta PPU_ADDR
+	lda #$00
+	sta PPU_ADDR
 
- 	; empty nametable A
- 	lda #0
- 	ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
- 	rowloop:
- 		ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
- 		columnloop:
- 			sta PPU_DATA
- 			dex
- 			bne columnloop
- 		dey
- 		bne rowloop
+	; empty nametable A
+	lda #0
+	ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
+	rowloop:
+		ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
+		columnloop:
+			sta PPU_DATA
+			dex
+			bne columnloop
+		dey
+		bne rowloop
 
- 	; empty attribute table
- 	ldx #64 ; attribute table is 64 bytes
- 	loop:
- 		sta PPU_DATA
- 		dex
- 		bne loop
+	; empty attribute table
+	ldx #64 ; attribute table is 64 bytes
+	loop:
+		sta PPU_DATA
+		dex
+		bne loop
 
- 	rts
+	rts
 .endproc
+
+
+; Khine
+.proc setup_canvas
+	lda PPU_STATUS ; reset address latch
+	lda #$20 ; set PPU address to $2000
+	sta PPU_ADDR
+	lda #$00
+	sta PPU_ADDR
+
+	; setup nametable 0 with index 1
+	lda #$00
+	ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
+	rowloop:
+		ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
+		columnloop:
+			sta PPU_DATA
+			dex
+			bne columnloop
+		dey
+		bne rowloop
+
+	; setting up palette 0 for all the background tiles
+	lda #$00
+	ldx #64 ; attribute table is 64 bytes
+	loop:
+		sta PPU_DATA
+		dex
+		bne loop
+
+	rts
+.endproc
+; Khine
+
 
 
 ; BudgetArms
@@ -149,4 +183,3 @@
     rts
 
 .endproc
-
