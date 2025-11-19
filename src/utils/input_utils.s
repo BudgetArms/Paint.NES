@@ -223,7 +223,7 @@ poll_loop:
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            dec cursor_y
+            jsr MoveCursorUp
 
             rts 
 
@@ -234,7 +234,7 @@ poll_loop:
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            dec cursor_y
+            jsr MoveCursorUp
 
             rts 
 
@@ -262,7 +262,7 @@ poll_loop:
     @normalCursor:
 
         ; Update y-pos (1 step)
-        dec cursor_y
+        jsr MoveCursorUp
 
         rts 
 
@@ -270,8 +270,8 @@ poll_loop:
     @bigCursor:
         
         ; Update y-pos (2 step)
-        dec cursor_y
-        dec cursor_y
+        jsr MoveCursorUp
+        jsr MoveCursorUp
 
         rts 
 
@@ -337,7 +337,7 @@ poll_loop:
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            inc cursor_y
+            jsr MoveCursorDown
 
             rts 
 
@@ -348,7 +348,7 @@ poll_loop:
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            inc cursor_y
+            jsr MoveCursorDown
 
             rts 
 
@@ -356,7 +356,7 @@ poll_loop:
     @normalCursor:
 
         ; Update y-pos (1 step)
-        inc cursor_y
+        jsr MoveCursorDown
 
         rts 
 
@@ -364,8 +364,8 @@ poll_loop:
     @bigCursor:
         
         ; Update y-pos (2 step)
-        inc cursor_y
-        inc cursor_y
+        jsr MoveCursorDown
+        jsr MoveCursorDown
 
         rts 
 
@@ -413,9 +413,7 @@ poll_loop:
             lda #CURSOR_SMALL_DIR_TOP_RIGHT
             sta cursor_small_direction
 
-            ; update cursor x-pos 
-            dec cursor_x
-
+            jsr MoveCursorLeft
             rts 
 
         @TopRight:
@@ -433,7 +431,7 @@ poll_loop:
             sta cursor_small_direction
 
             ; update cursor x-pos 
-            dec cursor_x
+            jsr MoveCursorLeft
 
             rts 
 
@@ -452,7 +450,7 @@ poll_loop:
     @normalCursor:
 
         ; Update x-pos (1 step)
-        dec cursor_x
+        jsr MoveCursorLeft
 
         rts 
 
@@ -460,8 +458,8 @@ poll_loop:
     @bigCursor:
         
         ; Update x-pos (2 step)
-        dec cursor_x
-        dec cursor_x
+        jsr MoveCursorLeft
+        jsr MoveCursorLeft
 
         rts 
 
@@ -519,7 +517,7 @@ poll_loop:
             sta cursor_small_direction
 
             ; update cursor x-pos 
-            inc cursor_x
+            jsr MoveCursorRight
 
             rts 
 
@@ -538,7 +536,7 @@ poll_loop:
             sta cursor_small_direction
 
             ; update cursor x-pos 
-            inc cursor_x
+            jsr MoveCursorRight
 
             rts 
 
@@ -549,7 +547,7 @@ poll_loop:
     @normalCursor:
 
         ; Update x-pos (1 step)
-        inc cursor_x
+        jsr MoveCursorRight
 
         rts 
 
@@ -557,10 +555,73 @@ poll_loop:
     @bigCursor:
         
         ; Update x-pos (2 step)
-        inc cursor_x
-        inc cursor_x
+        jsr MoveCursorRight
+        jsr MoveCursorRight
 
         rts 
 
 .endproc
 
+.proc MoveCursorUp
+    ; Move to left (cursor_y - 8, tile_cursor_y - 1)
+    lda tile_cursor_y
+    cmp #$00
+    bne @ApplyMove
+        rts
+    @ApplyMove:
+    sec
+    lda cursor_y
+    sbc #$08
+    sta cursor_y
+
+    dec tile_cursor_y
+    rts
+.endproc
+
+.proc MoveCursorDown
+    ; Move to right (cursor_y + 8, tile_cursor_y + 1)
+    lda tile_cursor_y
+    cmp #DISPLAY_SCREEN_HEIGHT - 1
+    bmi @ApplyMove
+        rts
+    @ApplyMove:
+    clc
+    lda cursor_y
+    adc #$08
+    sta cursor_y
+
+    inc tile_cursor_y
+    rts
+.endproc
+
+.proc MoveCursorLeft
+    ; Move to left (cursor_x - 8, tile_cursor_x - 1)
+    lda tile_cursor_x
+    cmp #$00
+    bne @ApplyMove
+        rts
+    @ApplyMove:
+    sec
+    lda cursor_x
+    sbc #$08
+    sta cursor_x
+
+    dec tile_cursor_x
+    rts
+.endproc
+
+.proc MoveCursorRight
+    ; Move to right (cursor_x + 8, tile_cursor_x + 1)
+    lda tile_cursor_x
+    cmp #DISPLAY_SCREEN_WIDTH - 1
+    bmi @ApplyMove
+        rts
+    @ApplyMove:
+    clc
+    lda cursor_x
+    adc #$08
+    sta cursor_x
+
+    inc tile_cursor_x
+    rts
+.endproc
