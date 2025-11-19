@@ -41,9 +41,19 @@ input_pressed_this_frame:	.res 1
 input_released_this_frame:	.res 1
 
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
-						;this is to do stuff like "every time an 8th frame passes, do this"
+                        ;this is to do stuff like "every time an 8th frame passes, do this"
 
+; Cursor position (single 8x8 sprite)
+cursor_x: .res 1
+cursor_y: .res 1
 
+cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
+cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
+arguments: .res 5
+cursor_tile_position: .res 2
+temp_swap: .res 2
+
+current_program_mode: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -64,6 +74,8 @@ palette: .res 32 ; current palette buffer
 .include "utils/input_utils.s"
 .include "draw.s"
 
+;.include "cursor.s"
+
 ;***************************************
 ; starting point
 .segment "CODE"
@@ -78,31 +90,55 @@ palette: .res 32 ; current palette buffer
 ; interrupt request
 .segment "CODE"
 irq:
-	;handle interrupt if needed
-	rti
+    ;handle interrupt if needed
+    rti
 
 ;***************************************
 .segment "CODE"
 .proc main
- 	; main application - rendering is currently off
- 	; clear 1st name table
- 	jsr clear_nametable
- 	; initialize palette table
- 	ldx #0
+    ; main application - rendering is currently off
+    ; clear 1st name table
+    jsr setup_canvas
+    ; initialize palette table
+    ldx #0
 paletteloop:
-	lda default_palette, x
-	sta palette, x
-	inx
-	cpx #32
-	bcc paletteloop
+    lda default_palette, x
+    sta palette, x
+    inx
+    cpx #32
+    bcc paletteloop
 
- 	jsr ppu_update
+initialize_cursor_small_direction:
+    lda #$00
+    sta cursor_small_direction
+
+    lda #$00
+    sta current_program_mode
+
+    ; Khine's test code
+    lda #10
+    sta arguments ; Cursor X
+    lda #10
+    sta arguments + 1 ; Cursor Y
+    lda #$02
+    sta arguments + 2 ; Color index
+    lda #$02
+    sta arguments + 3 ; Brush size
+    lda #$01
+    sta arguments + 4 ; Brush type (square: 0 or circle: 1)
+
+    jsr convert_cursor_coordinates_to_cursor_tile_position
+    jsr draw_brush
+; Khine's test code
+
+
+    jsr ppu_update
 
 .ifdef TESTS
-	.include "tests/tests.s"
+.include "tests/tests.s"
 .endif
 
-	.include "mainloop.s"
+    .include "mainloop.s"
 .endproc
 
 ;***************************************
@@ -115,8 +151,36 @@ default_palette:
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
 
+
 ;sprites
-.byte $0f,$00,$10,$30
+.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+
+SMILEY_DATA:
+    .byte $00, SMILEYFACE_TILE, %10000001, $10
+                                ;76543210
+                                ;||||||||
+                                ;||||||++- Palette of sprite
+                                ;|||+++--- Unimplemented
+                                ;||+------ Priority (0: in front of background; 1: behind background)
+                                ;|+------- Flip sprite horizontally
+;+-------- Flip sprite vertically
+
+CURSOR_SMALL_DATA:
+    .byte $00, CURSOR_TILE_SMALL_TOP_LEFT,      %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_TOP_RIGHT,     %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_BOTTOM_LEFT,   %00000000, $00
+    .byte $00, CURSOR_TILE_SMALL_BOTTOM_RIGHT,  %00000000, $00
+
+CURSOR_NORMAL_DATA:
+    .byte $00, CURSOR_TILE_NORMAL,  %00000000, $00
+
+CURSOR_BIG_DATA:
+    .byte $00, CURSOR_TILE_BIG_LEFT,    %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_TOP,     %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_RIGHT,   %00000000, $00
+    .byte $00, CURSOR_TILE_BIG_BOTTOM,  %00000000, $00
+
