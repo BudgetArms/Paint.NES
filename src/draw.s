@@ -1,7 +1,6 @@
 ;file for all drawing functions
 
 
-
 ; BudgetArms
 .proc LoadCursor
 
@@ -57,25 +56,6 @@
 
 .endproc
 
-
-; BudgetArms
-.proc LoadSmileyFace
-    ldx #$00
-
-    @Loop:
-        lda SMILEY_DATA, X      ; load byte from smiley data
-        sta oam+4, X              ; also store in OAM memory for rendering   
-        inx                     ; increment index (next byte)
-
-        ; Each Sprite is 4 bytes, we have one sprite
-        ; 4 (byte, 1 sprite) * 1 (amount of sprites in the big sprite) = 4
-        cpx #$04                ; Loading the smiley face is 4 bytes
-        bne @Loop  ; loop until all bytes are loaded
-
-    ; Now all the smiley face data is loaded into SmileyRam
-    rts
-
-.endproc
 
 ; BudgetArms
 .proc LoadSmallCursor
@@ -134,6 +114,7 @@
 
 .endproc
 
+
 ; BudgetArms
 .proc LoadNormalCursor
 
@@ -152,6 +133,7 @@
     rts
 
 .endproc
+
 
 ; BudgetArms
 .proc LoadBigCursor
@@ -173,4 +155,45 @@
 .endproc
 
 
+; Khine
+.proc draw_brush
+    lda cursor_tile_position
+    sta temp_swap
+    lda cursor_tile_position + 1
+    sta temp_swap + 1
 
+    ; square brush
+    ldy #$00
+    @column_loop:
+
+    lda PPU_STATUS ; reset address latch
+        lda cursor_tile_position + 1 ; High bit of the location
+        sta PPU_ADDR
+        lda cursor_tile_position ; Low bit of the location
+        sta PPU_ADDR
+
+    ldx #$00
+    lda arguments + 2 ; Color index of the tile
+    @row_loop:
+        sta PPU_DATA
+        inx
+        cpx arguments + 3
+        bne @row_loop
+    clc
+    lda cursor_tile_position
+    adc #32
+    sta cursor_tile_position
+    lda cursor_tile_position + 1
+    adc #$00
+    sta cursor_tile_position + 1
+    iny
+    cpy arguments + 3
+    bne @column_loop
+
+    lda temp_swap
+    sta cursor_tile_position
+    lda temp_swap + 1
+    sta cursor_tile_position + 1
+    rts
+.endproc
+; Khine
