@@ -157,6 +157,12 @@
 
 ; Khine
 .proc draw_brush
+    lda input_pressed_this_frame
+    and #PAD_A
+    bne @button_pressed
+        rts
+    @button_pressed:
+
     lda cursor_tile_position
     sta temp_swap
     lda cursor_tile_position + 1
@@ -165,30 +171,29 @@
     ; square brush
     ldy #$00
     @column_loop:
-
-    lda PPU_STATUS ; reset address latch
+        lda PPU_STATUS ; reset address latch
         lda cursor_tile_position + 1 ; High bit of the location
         sta PPU_ADDR
         lda cursor_tile_position ; Low bit of the location
         sta PPU_ADDR
 
-    ldx #$00
-    lda arguments + 2 ; Color index of the tile
-    @row_loop:
-        sta PPU_DATA
-        inx
-        cpx arguments + 3
-        bne @row_loop
-    clc
-    lda cursor_tile_position
-    adc #32
-    sta cursor_tile_position
-    lda cursor_tile_position + 1
-    adc #$00
-    sta cursor_tile_position + 1
-    iny
-    cpy arguments + 3
-    bne @column_loop
+        ldx #$00
+        lda arguments + 2 ; Color index of the tile
+        @row_loop:
+            sta PPU_DATA
+            inx
+            cpx brush_size
+            bne @row_loop
+        clc
+        lda cursor_tile_position
+        adc #32
+        sta cursor_tile_position
+        lda cursor_tile_position + 1
+        adc #$00
+        sta cursor_tile_position + 1
+        iny
+        cpy brush_size
+        bne @column_loop
 
     lda temp_swap
     sta cursor_tile_position

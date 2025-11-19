@@ -40,8 +40,10 @@ loop:
     cpx #32
     bcc loop
 
+    ; Khine
+    jsr draw_brush
+    ; Khine
 
-    ; nmi.s 42 (after bcc loop)
     ; --- ADD THIS BLOCK: Reset scroll at the very end ---
     lda #%10000000
     sta PPU_CONTROL
