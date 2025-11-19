@@ -11,17 +11,17 @@
     sta JOYPAD1
     ; read 8 bytes from the interface at $4016
     ldx #8
-poll_loop:
-    pha
-    lda JOYPAD1
-    ; combine low two bits and store in carry bit
-    and #%00000011
-    cmp #%00000001
-    pla
-    ; rotate carry into gamepad variable
-    ror
-    dex
-    bne poll_loop
+    poll_loop:
+        pha
+        lda JOYPAD1
+        ; combine low two bits and store in carry bit
+        and #%00000011
+        cmp #%00000001
+        pla
+        ; rotate carry into gamepad variable
+        ror
+        dex
+        bne poll_loop
 
     sta current_input
 
@@ -151,7 +151,6 @@ poll_loop:
         lda #CURSOR_TYPE_NORMAL
         sta cursor_type 
 
-
         rts 
 
     @normalCursor:
@@ -159,7 +158,6 @@ poll_loop:
         ; change cursor type to big
         lda #CURSOR_TYPE_BIG
         sta cursor_type 
-
 
         rts
 
@@ -177,7 +175,6 @@ poll_loop:
         rts
 
 .endproc
-
 
 
 .proc Handle_Cursor_Up
