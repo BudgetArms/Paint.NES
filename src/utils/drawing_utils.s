@@ -78,13 +78,13 @@
 
     lda cursor_type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
@@ -112,15 +112,15 @@
     lda cursor_y    
 
     ; overwrite the Small Cursor's default y-pos with the cursor y-Position 
-    ; sta oam + CURSOR_OFFSET_SMALL
-    sta oam + CURSOR_OFFSET_SMALL
+    ; sta oam + OAM_OFFSET_CURSOR_SMALL
+    sta oam + OAM_OFFSET_CURSOR_SMALL
 
     ; load cursor_x
     lda cursor_x
 
     ; overwrite the Small Small Cursor's default x-pos with the cursor x-Position 
-    ; sta oam + CURSOR_OFFSET_SMALL + 3  
-    sta oam + CURSOR_OFFSET_SMALL + 3
+    ; sta oam + OAM_OFFSET_CURSOR_SMALL + 3  
+    sta oam + OAM_OFFSET_CURSOR_SMALL + 3
 
     rts
 
@@ -129,10 +129,10 @@
 ; BudgetArms
 .proc UpdateNormalCursorPosition
     lda cursor_y
-    sta oam + CURSOR_OFFSET_NORMAL
+    sta oam + OAM_OFFSET_CURSOR_NORMAL
 
     lda cursor_x
-    sta oam + CURSOR_OFFSET_NORMAL + 3
+    sta oam + OAM_OFFSET_CURSOR_NORMAL + 3
 
     rts
 
@@ -142,30 +142,30 @@
 .proc UpdateBigCursorPosition
     ldx cursor_y
 
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT
 
     ; top is stored on cursor_y - 1
     dex
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_TOP
 
     ; bottom is stored on cursor_y + 1
     inx
     inx
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM
 
     ldx cursor_x
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP     + 3
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM  + 3
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_TOP     + 3
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM  + 3
 
     ; left is stored on cursor_x - 1
     dex
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT    + 3
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT    + 3
 
     ; right is stored on cursor_x + 1
     inx
     inx
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT   + 3
+    stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT   + 3
 
     rts
 
@@ -175,10 +175,10 @@
 ; BudgetArms
 .proc UpdateSmileyPosition
     lda cursor_y 
-    sta oam + SMILEY_OFFSET
+    sta oam + OAM_OFFSET_SMILEY
 
     lda cursor_x
-    sta oam + SMILEY_OFFSET + 3
+    sta oam + OAM_OFFSET_SMILEY + 3
 
     rts
 

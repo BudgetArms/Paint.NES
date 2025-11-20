@@ -163,27 +163,37 @@ default_palette:
 
 
 SMILEY_DATA:
-    .byte $00, SMILEYFACE_TILE, %10000001, $10
+    .byte $00, TILEINDEX_SMILEY, %10000001, $10
                                 ;76543210
                                 ;||||||||
                                 ;||||||++- Palette of sprite
                                 ;|||+++--- Unimplemented
                                 ;||+------ Priority (0: in front of background; 1: behind background)
                                 ;|+------- Flip sprite horizontally
-;+-------- Flip sprite vertically
+                                ;+-------- Flip sprite vertically
 
 CURSOR_SMALL_DATA:
-    .byte $00, CURSOR_TILE_SMALL_TOP_LEFT,      %00000000, $00
-    .byte $00, CURSOR_TILE_SMALL_TOP_RIGHT,     %00000000, $00
-    .byte $00, CURSOR_TILE_SMALL_BOTTOM_LEFT,   %00000000, $00
-    .byte $00, CURSOR_TILE_SMALL_BOTTOM_RIGHT,  %00000000, $00
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %00000000, $00      ; top-left
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %01000000, $00      ; top-right
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %10000000, $00      ; bottom-left
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %11000000, $00      ; bottom-right
 
 CURSOR_NORMAL_DATA:
-    .byte $00, CURSOR_TILE_NORMAL,  %00000000, $00
+    .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
 
-CURSOR_BIG_DATA:
-    .byte $00, CURSOR_TILE_BIG_LEFT,    %00000000, $00
-    .byte $00, CURSOR_TILE_BIG_TOP,     %00000000, $00
-    .byte $00, CURSOR_TILE_BIG_RIGHT,   %00000000, $00
-    .byte $00, CURSOR_TILE_BIG_BOTTOM,  %00000000, $00
+; CURSOR_BIG_DATA:
+;     .byte $00, TILEINDEX_CURSOR_BIG_LEFT,    %00000000, $00
+;     .byte $00, TILEINDEX_CURSOR_BIG_TOP,     %00000000, $00
+;     .byte $00, TILEINDEX_CURSOR_BIG_RIGHT,   %00000000, $00
+;     .byte $00, TILEINDEX_CURSOR_BIG_BOTTOM,  %00000000, $00
 
+
+CURSOR_BIG_DATA_META:
+    .byte $00, TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000, $00  ; BOTTOM-LEFT: mirrored y
+    .byte $00, TILEINDEX_CURSOR_BIG_LEFT,       %01000000, $00
+    .byte $00, TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000, $00
+    .byte $00, TILEINDEX_CURSOR_BIG_TOP,        %00000000, $00
+    .byte $00, TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000, $00  ; TOP-RIGHT: mirrored x
+    .byte $00, TILEINDEX_CURSOR_BIG_LEFT,       %01000000, $00  ; RIGHT: mirrored x
+    .byte $00, TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000, $00  ; BOTTOM-RIGHT: mirrored x & y
+    .byte $00, TILEINDEX_CURSOR_BIG_TOP,        %10000000, $00  ; BOTTOM: mirrored y

@@ -4,18 +4,15 @@
 ; BudgetArms
 .proc LoadCursor
 
-    ; lda #CURSOR_TYPE_NORMAL   ;test
-    ; sta cursor_type           ;test
-
     lda cursor_type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ;this should never be reached
@@ -24,11 +21,11 @@
     @smallCursor:
         ; Hide normal and big cursors
         lda #$FF
-        sta oam + CURSOR_OFFSET_NORMAL
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
+        sta oam + OAM_OFFSET_CURSOR_NORMAL
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_TOP
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM
 
         jsr LoadSmallCursor
         rts
@@ -36,11 +33,11 @@
     @normalCursor:
         ; Hide normal and big cursors
         lda #$FF
-        sta oam + CURSOR_OFFSET_SMALL
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
+        sta oam + OAM_OFFSET_CURSOR_SMALL
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_TOP
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM
 
         jsr LoadNormalCursor
         rts
@@ -48,8 +45,8 @@
     @bigCursor:
         ; Hide normal and big cursors
         lda #$FF
-        sta oam + CURSOR_OFFSET_SMALL
-        sta oam + CURSOR_OFFSET_NORMAL
+        sta oam + OAM_OFFSET_CURSOR_SMALL
+        sta oam + OAM_OFFSET_CURSOR_NORMAL
 
         jsr LoadBigCursor
         rts
@@ -62,16 +59,16 @@
 
     lda cursor_small_direction
 
-    cmp #CURSOR_SMALL_DIR_TOP_LEFT
+    cmp #DIR_CURSOR_SMALL_TOP_LEFT
     beq @DrawTopLeft
 
-    cmp #CURSOR_SMALL_DIR_TOP_RIGHT
+    cmp #DIR_CURSOR_SMALL_TOP_RIGHT
     beq @DrawTopRight
 
-    cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
+    cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
     beq @DrawBottomLeft
 
-    cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+    cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
     beq @DrawBottomRight
 
     ; this should never be reached
@@ -80,19 +77,19 @@
     ; set x, it's the offset from CURSOR_SMALL_CURSOR to it's current sprite
 
     @DrawTopLeft:
-        ldx #CURSOR_SMALL_DIR_TOP_LEFT
+        ldx #DIR_CURSOR_SMALL_TOP_LEFT
         jmp @DoneSettingStartAddress
 
     @DrawTopRight:
-        ldx #CURSOR_SMALL_DIR_TOP_RIGHT
+        ldx #DIR_CURSOR_SMALL_TOP_RIGHT
         jmp @DoneSettingStartAddress
 
     @DrawBottomLeft:
-        ldx #CURSOR_SMALL_DIR_BOTTOM_LEFT
+        ldx #DIR_CURSOR_SMALL_BOTTOM_LEFT
         jmp @DoneSettingStartAddress
 
     @DrawBottomRight:
-        ldx #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+        ldx #DIR_CURSOR_SMALL_BOTTOM_RIGHT
         jmp @DoneSettingStartAddress
 
 
@@ -102,7 +99,7 @@
 
         @Loop: 
             lda CURSOR_SMALL_DATA, X
-            sta oam + CURSOR_OFFSET_SMALL, Y
+            sta oam + OAM_OFFSET_CURSOR_SMALL, Y
 
             inx     ; so the next sprite get read/written
             iny     ; to keep track of the Nth byte we are reading
@@ -122,7 +119,7 @@
 
     @Loop:
         lda CURSOR_NORMAL_DATA, X
-        sta oam + CURSOR_OFFSET_NORMAL, X
+        sta oam + OAM_OFFSET_CURSOR_NORMAL, X
         inx
 
         ; Each Sprite is 4 bytes, we have one sprite
@@ -141,8 +138,9 @@
     ldx #$00
 
     @Loop:
-        lda CURSOR_BIG_DATA, X
-        sta oam + CURSOR_OFFSET_BIG, X
+        ; lda CURSOR_BIG_DATA, X
+        lda CURSOR_BIG_DATA_META, X
+        sta oam + OAM_OFFSET_CURSOR_BIG, X
         inx
 
         ; Each Sprite is 4 bytes, we have one sprite

@@ -132,13 +132,13 @@ poll_loop:
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
@@ -148,7 +148,7 @@ poll_loop:
     @smallCursor:
             
         ; change cursor type to normal
-        lda #CURSOR_TYPE_NORMAL
+        lda #TYPE_CURSOR_NORMAL
         sta cursor_type 
 
         rts 
@@ -156,7 +156,7 @@ poll_loop:
     @normalCursor:
 
         ; change cursor type to big
-        lda #CURSOR_TYPE_BIG
+        lda #TYPE_CURSOR_BIG
         sta cursor_type 
 
         rts
@@ -165,11 +165,11 @@ poll_loop:
     @bigCursor:
         
         ; change cursor type to small
-        lda #CURSOR_TYPE_SMALL
+        lda #TYPE_CURSOR_SMALL
         sta cursor_type 
 
         ; reset the direction (top left)
-        lda #CURSOR_SMALL_DIR_TOP_LEFT 
+        lda #DIR_CURSOR_SMALL_TOP_LEFT 
         sta cursor_small_direction
 
         rts
@@ -181,13 +181,13 @@ poll_loop:
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
@@ -198,16 +198,16 @@ poll_loop:
 
         lda cursor_small_direction
 
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
         beq @TopLeft
 
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
         beq @TopRight
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
         beq @BottomLeft
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
         beq @BottomRight
 
         ; this should never be reached
@@ -216,7 +216,7 @@ poll_loop:
         @TopLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
             sta cursor_small_direction
 
             ; update cursor y-pos 
@@ -227,7 +227,7 @@ poll_loop:
         @TopRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
             sta cursor_small_direction
 
             ; update cursor y-pos 
@@ -238,7 +238,7 @@ poll_loop:
         @BottomLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
             sta cursor_small_direction
 
             rts 
@@ -246,7 +246,7 @@ poll_loop:
         @BottomRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
             sta cursor_small_direction
 
             rts 
@@ -279,13 +279,13 @@ poll_loop:
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
@@ -296,16 +296,16 @@ poll_loop:
 
         lda cursor_small_direction
 
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
         beq @TopLeft
 
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
         beq @TopRight
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
         beq @BottomLeft
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
         beq @BottomRight
 
         ; this should never be reached
@@ -314,7 +314,7 @@ poll_loop:
         @TopLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
             sta cursor_small_direction
 
             rts 
@@ -322,7 +322,7 @@ poll_loop:
         @TopRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
             sta cursor_small_direction
 
             rts 
@@ -330,7 +330,7 @@ poll_loop:
         @BottomLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
             sta cursor_small_direction
 
             ; update cursor y-pos 
@@ -341,7 +341,7 @@ poll_loop:
         @BottomRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
             sta cursor_small_direction
 
             ; update cursor y-pos 
@@ -373,13 +373,13 @@ poll_loop:
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
@@ -389,16 +389,16 @@ poll_loop:
 
         lda cursor_small_direction  ; load current direction
 
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
         beq @TopLeft
 
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
         beq @TopRight
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
         beq @BottomLeft
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
         beq @BottomRight
 
         ; this should never be reached
@@ -407,7 +407,7 @@ poll_loop:
         @TopLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
             sta cursor_small_direction
 
             jsr MoveCursorLeft
@@ -416,7 +416,7 @@ poll_loop:
         @TopRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
             sta cursor_small_direction
 
             rts 
@@ -424,7 +424,7 @@ poll_loop:
         @BottomLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
             sta cursor_small_direction
 
             ; update cursor x-pos 
@@ -434,7 +434,7 @@ poll_loop:
 
         @BottomRight:
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
             sta cursor_small_direction
 
             rts 
@@ -467,13 +467,13 @@ poll_loop:
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
@@ -484,16 +484,16 @@ poll_loop:
 
         lda cursor_small_direction
 
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
         beq @TopLeft
 
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
         beq @TopRight
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
         beq @BottomLeft
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
         beq @BottomRight
 
         ; this should never be reached
@@ -502,7 +502,7 @@ poll_loop:
         @TopLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
             sta cursor_small_direction
 
             rts 
@@ -510,7 +510,7 @@ poll_loop:
         @TopRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
             sta cursor_small_direction
 
             ; update cursor x-pos 
@@ -521,7 +521,7 @@ poll_loop:
         @BottomLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
             sta cursor_small_direction
 
             rts 
@@ -529,7 +529,7 @@ poll_loop:
         @BottomRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
             sta cursor_small_direction
 
             ; update cursor x-pos 
