@@ -53,10 +53,11 @@ clear_oam:
 	bne clear_oam
 
 ; Initialize cursor starting position
-	lda #$50              ; X position = $50 (80 pixels)
-	sta cursor_x
-	lda #$40              ; Y position = $40 (64 pixels)
-	sta cursor_y
+    lda #$00
+    sta tile_cursor_x
+    sta tile_cursor_y
+    sta cursor_x
+    sta cursor_y
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y

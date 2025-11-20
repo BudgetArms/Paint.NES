@@ -11,17 +11,17 @@
     sta JOYPAD1
     ; read 8 bytes from the interface at $4016
     ldx #8
-    poll_loop:
-        pha
-        lda JOYPAD1
-        ; combine low two bits and store in carry bit
-        and #%00000011
-        cmp #%00000001
-        pla
-        ; rotate carry into gamepad variable
-        ror
-        dex
-        bne poll_loop
+poll_loop:
+    pha
+    lda JOYPAD1
+    ; combine low two bits and store in carry bit
+    and #%00000011
+    cmp #%00000001
+    pla
+    ; rotate carry into gamepad variable
+    ror
+    dex
+    bne poll_loop
 
     sta current_input
 
@@ -220,7 +220,7 @@
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            dec cursor_y
+            jsr MoveCursorUp
 
             rts 
 
@@ -231,7 +231,7 @@
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            dec cursor_y
+            jsr MoveCursorUp
 
             rts 
 
@@ -259,7 +259,7 @@
     @normalCursor:
 
         ; Update y-pos (1 step)
-        dec cursor_y
+        jsr MoveCursorUp
 
         rts 
 
@@ -267,8 +267,8 @@
     @bigCursor:
         
         ; Update y-pos (2 step)
-        dec cursor_y
-        dec cursor_y
+        jsr MoveCursorUp
+        jsr MoveCursorUp
 
         rts 
 
@@ -334,7 +334,7 @@
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            inc cursor_y
+            jsr MoveCursorDown
 
             rts 
 
@@ -345,7 +345,7 @@
             sta cursor_small_direction
 
             ; update cursor y-pos 
-            inc cursor_y
+            jsr MoveCursorDown
 
             rts 
 
@@ -353,7 +353,7 @@
     @normalCursor:
 
         ; Update y-pos (1 step)
-        inc cursor_y
+        jsr MoveCursorDown
 
         rts 
 
@@ -361,8 +361,8 @@
     @bigCursor:
         
         ; Update y-pos (2 step)
-        inc cursor_y
-        inc cursor_y
+        jsr MoveCursorDown
+        jsr MoveCursorDown
 
         rts 
 
@@ -410,9 +410,7 @@
             lda #CURSOR_SMALL_DIR_TOP_RIGHT
             sta cursor_small_direction
 
-            ; update cursor x-pos 
-            dec cursor_x
-
+            jsr MoveCursorLeft
             rts 
 
         @TopRight:
@@ -430,7 +428,7 @@
             sta cursor_small_direction
 
             ; update cursor x-pos 
-            dec cursor_x
+            jsr MoveCursorLeft
 
             rts 
 
@@ -449,7 +447,7 @@
     @normalCursor:
 
         ; Update x-pos (1 step)
-        dec cursor_x
+        jsr MoveCursorLeft
 
         rts 
 
@@ -457,8 +455,8 @@
     @bigCursor:
         
         ; Update x-pos (2 step)
-        dec cursor_x
-        dec cursor_x
+        jsr MoveCursorLeft
+        jsr MoveCursorLeft
 
         rts 
 
@@ -516,7 +514,7 @@
             sta cursor_small_direction
 
             ; update cursor x-pos 
-            inc cursor_x
+            jsr MoveCursorRight
 
             rts 
 
@@ -535,7 +533,7 @@
             sta cursor_small_direction
 
             ; update cursor x-pos 
-            inc cursor_x
+            jsr MoveCursorRight
 
             rts 
 
@@ -546,7 +544,7 @@
     @normalCursor:
 
         ; Update x-pos (1 step)
-        inc cursor_x
+        jsr MoveCursorRight
 
         rts 
 
@@ -554,10 +552,73 @@
     @bigCursor:
         
         ; Update x-pos (2 step)
-        inc cursor_x
-        inc cursor_x
+        jsr MoveCursorRight
+        jsr MoveCursorRight
 
         rts 
 
 .endproc
 
+.proc MoveCursorUp
+    ; Move to left (cursor_y - 8, tile_cursor_y - 1)
+    lda tile_cursor_y
+    cmp #$00
+    bne @ApplyMove
+        rts
+    @ApplyMove:
+    sec
+    lda cursor_y
+    sbc #$08
+    sta cursor_y
+
+    dec tile_cursor_y
+    rts
+.endproc
+
+.proc MoveCursorDown
+    ; Move to right (cursor_y + 8, tile_cursor_y + 1)
+    lda tile_cursor_y
+    cmp #DISPLAY_SCREEN_HEIGHT - 1
+    bmi @ApplyMove
+        rts
+    @ApplyMove:
+    clc
+    lda cursor_y
+    adc #$08
+    sta cursor_y
+
+    inc tile_cursor_y
+    rts
+.endproc
+
+.proc MoveCursorLeft
+    ; Move to left (cursor_x - 8, tile_cursor_x - 1)
+    lda tile_cursor_x
+    cmp #$00
+    bne @ApplyMove
+        rts
+    @ApplyMove:
+    sec
+    lda cursor_x
+    sbc #$08
+    sta cursor_x
+
+    dec tile_cursor_x
+    rts
+.endproc
+
+.proc MoveCursorRight
+    ; Move to right (cursor_x + 8, tile_cursor_x + 1)
+    lda tile_cursor_x
+    cmp #DISPLAY_SCREEN_WIDTH - 1
+    bmi @ApplyMove
+        rts
+    @ApplyMove:
+    clc
+    lda cursor_x
+    adc #$08
+    sta cursor_x
+
+    inc tile_cursor_x
+    rts
+.endproc

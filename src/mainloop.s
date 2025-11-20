@@ -12,6 +12,7 @@ mainloop:
 
     jsr LoadCursor
     jsr UpdateCursorPosition
+    jsr convert_cursor_coordinates_to_cursor_tile_position
     ;jsr LoadSmileyFace
 
 
@@ -19,5 +20,3 @@ mainloop:
     lda #1
     sta nmi_ready
     jmp mainloop
-
-
