@@ -574,7 +574,7 @@ poll_loop:
     @ApplyMove:
     sec
     lda cursor_y
-    sbc #$08
+    sbc #$TILE_PIXEL_SIZE
     sta cursor_y
 
     dec tile_cursor_y
@@ -595,7 +595,7 @@ poll_loop:
     @ApplyMove:
     clc
     lda cursor_y
-    adc #$08
+    adc #$TILE_PIXEL_SIZE
     sta cursor_y
 
     inc tile_cursor_y
@@ -614,7 +614,7 @@ poll_loop:
     @ApplyMove:
     sec
     lda cursor_x
-    sbc #$08
+    sbc #$TILE_PIXEL_SIZE
     sta cursor_x
 
     dec tile_cursor_x
@@ -635,7 +635,7 @@ poll_loop:
     @ApplyMove:
     clc
     lda cursor_x
-    adc #$08
+    adc #$TILE_PIXEL_SIZE
     sta cursor_x
 
     inc tile_cursor_x
