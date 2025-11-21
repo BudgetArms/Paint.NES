@@ -61,6 +61,7 @@ WRAM_END   = $7FFF
 ; display
 DISPLAY_SCREEN_WIDTH  = 32
 DISPLAY_SCREEN_HEIGHT = 30
+TILE_PIXEL_SIZE = $08
 
 ; oam offsets
 CURSOR_OFFSET_SMALL = $00      ; 4 sprites, -> 4 (sprites) * 4 bytes (per sprite) = 16 bytes
