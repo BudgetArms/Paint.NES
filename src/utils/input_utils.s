@@ -45,6 +45,40 @@ poll_loop:
 ;	`input_released_this_frame` to have it be called only once when releasing the button
 ;*****************************************************************
 .proc handle_input
+
+    lda #PAD_START
+ 	ora #PAD_LEFT ;create and store a mask for the start + left button being pressed together
+ 	eor input_pressed_this_frame ;XOR the current input with start+left mask
+ 	bne not_pressed_StartAndLeft
+        ;code for when Start + Left is pressed together
+
+
+    not_pressed_StartAndLeft:
+	; check StartAndRight
+ 	lda #PAD_START
+ 	ora #PAD_RIGHT ;create and store a mask for the start + left button being pressed together
+ 	eor input_pressed_this_frame ;XOR the current input with start+left mask
+ 	bne CheckUpAndStart ; start checking other buttons
+        ;code for when Start + right is pressed together
+
+    CheckUpAndStart:
+    lda #PAD_START
+ 	ora #PAD_UP ;create and store a mask for the start + left button being pressed together
+ 	eor input_pressed_this_frame ;XOR the current input with start+left mask
+ 	bne CheckDownAndStart
+        ;code for when Start + up is pressed together
+
+    CheckDownAndStart:
+    lda #PAD_START
+ 	ora #PAD_DOWN ;create and store a mask for the start + left button being pressed together
+ 	eor input_pressed_this_frame ;XOR the current input with start+left mask
+ 	bne CheckOtherButtons
+        ;code for when Start + down is pressed together
+
+
+
+
+    CheckOtherButtons:
     ; Check A button
     lda input_pressed_this_frame
     and #PAD_A
