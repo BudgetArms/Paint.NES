@@ -563,6 +563,8 @@ poll_loop:
 
 .endproc
 
+
+; Khine
 .proc MoveCursorUp
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
@@ -578,11 +580,16 @@ poll_loop:
     dec tile_cursor_y
     rts
 .endproc
+; Khine
 
+
+; Khine
 .proc MoveCursorDown
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
+    clc
     lda tile_cursor_y
-    cmp #DISPLAY_SCREEN_HEIGHT - 1
+    adc brush_size
+    cmp #DISPLAY_SCREEN_HEIGHT
     bmi @ApplyMove
         rts
     @ApplyMove:
@@ -594,7 +601,10 @@ poll_loop:
     inc tile_cursor_y
     rts
 .endproc
+; Khine
 
+
+; Khine
 .proc MoveCursorLeft
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
@@ -610,11 +620,16 @@ poll_loop:
     dec tile_cursor_x
     rts
 .endproc
+; Khine
 
+
+; Khine
 .proc MoveCursorRight
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
+    clc
     lda tile_cursor_x
-    cmp #DISPLAY_SCREEN_WIDTH - 1
+    adc brush_size
+    cmp #DISPLAY_SCREEN_WIDTH
     bmi @ApplyMove
         rts
     @ApplyMove:
@@ -626,7 +641,10 @@ poll_loop:
     inc tile_cursor_x
     rts
 .endproc
+; Khine
 
+
+; Khine
 .proc CycleBrushSize
     ; Load the brush size and checks if it's already the maximum size
     ; If MAX -> return back to the minimum size
@@ -639,5 +657,30 @@ poll_loop:
         rts
     @not_max:
     inc brush_size
+
+    clc
+    lda tile_cursor_x
+    adc brush_size
+    cmp #DISPLAY_SCREEN_WIDTH
+    bcc @No_X_Move_Needed
+        dec tile_cursor_x
+        sec
+        lda cursor_x
+        sbc #TILE_PIXEL_SIZE
+        sta cursor_x
+    @No_X_Move_Needed:
+
+    clc
+    lda tile_cursor_y
+    adc brush_size
+    cmp #DISPLAY_SCREEN_HEIGHT
+    bcc @No_Y_Move_Needed
+        dec tile_cursor_y
+        sec
+        lda cursor_y
+        sbc #TILE_PIXEL_SIZE
+        sta cursor_y
+    @No_Y_Move_Needed:
     rts
 .endproc
+; Khine
