@@ -61,7 +61,7 @@ clear_oam:
 
     ; Initialize brush variables
     lda #$02
-    sta brush_tile_index ; Color index
+    sta drawing_color_tile_index ; Color index
     lda #$01
     sta brush_size ; Brush size
     lda #$00
@@ -72,6 +72,8 @@ clear_oam:
 
     lda #$00
     sta current_program_mode
+
+    jsr ToggleDrawTool
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y
