@@ -73,4 +73,91 @@
     sta cursor_tile_position + 1
     rts
 .endproc
+
+
+; BudgetArms
+.macro ResetFrameCounterHolder frameCounterHolder
+
+    ; save register a
+    pha
+
+    lda #$00
+    sta frameCounterHolder
+
+    ; restore register a
+    pla
+
+.endmacro
+
+
 ; Khine
+.proc MoveCursorUp
+    ; Move to left (cursor_y - 7, tile_cursor_y - 1)
+    lda tile_cursor_y
+    cmp #$00
+    bne @ApplyMove
+        rts
+    @ApplyMove:
+    sec
+    lda cursor_y
+    sbc #$7
+    sta cursor_y
+
+    dec tile_cursor_y
+    rts
+.endproc
+
+
+; Khine
+.proc MoveCursorDown
+    ; Move to right (cursor_y + 7, tile_cursor_y + 1)
+    lda tile_cursor_y
+    cmp #DISPLAY_SCREEN_HEIGHT - 0
+    bmi @ApplyMove
+        rts
+    @ApplyMove:
+    clc
+    lda cursor_y
+    adc #$7
+    sta cursor_y
+
+    inc tile_cursor_y
+    rts
+.endproc
+
+
+; Khine
+.proc MoveCursorLeft
+    ; Move to left (cursor_x - 7, tile_cursor_x - 1)
+    lda tile_cursor_x
+    cmp #$00
+    bne @ApplyMove
+        rts
+    @ApplyMove:
+    sec
+    lda cursor_x
+    sbc #$7
+    sta cursor_x
+
+    dec tile_cursor_x
+    rts
+.endproc
+
+
+; Khine
+.proc MoveCursorRight
+    ; Move to right (cursor_x + 7, tile_cursor_x + 1)
+    lda tile_cursor_x
+    cmp #DISPLAY_SCREEN_WIDTH - 0
+    bmi @ApplyMove
+        rts
+    @ApplyMove:
+    clc
+    lda cursor_x
+    adc #$7
+    sta cursor_x
+
+    inc tile_cursor_x
+    rts
+.endproc
+
