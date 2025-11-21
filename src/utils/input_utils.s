@@ -4,6 +4,8 @@
 ; conflict with gamepad reading, which may give incorrect results.
 ;*****************************************************************
 .proc poll_gamepad
+    lda current_input
+    sta last_frame_input
     ; strobe the gamepad to latch current button state
     lda #1
     sta JOYPAD1
@@ -59,9 +61,8 @@ poll_loop:
     and #PAD_B
     beq not_pressed_b
         ; code for when B is pressed
-
-        jsr Handle_Cursor_B
-
+        ;jsr Handle_Cursor_B
+                jsr CycleBrushSize
 
     not_pressed_b:
 
@@ -623,5 +624,20 @@ poll_loop:
     sta cursor_x
 
     inc tile_cursor_x
+    rts
+.endproc
+
+.proc CycleBrushSize
+    ; Load the brush size and checks if it's already the maximum size
+    ; If MAX -> return back to the minimum size
+    ; If not -> increment the brush size
+    lda brush_size
+    cmp #MAXIMUM_BRUSH_SIZE
+    bne @not_max
+        lda #MINIMUM_BRUSH_SIZE
+        sta brush_size
+        rts
+    @not_max:
+    inc brush_size
     rts
 .endproc
