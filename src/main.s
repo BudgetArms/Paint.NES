@@ -58,6 +58,13 @@ temp_swap: .res 2
 
 current_program_mode: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
+
+;Joren
+    CollorPallete: .res 32
+    palleteShouldChange: .res 1
+    
+    newPalleteColor: .res 1
+
 .segment "OAM"
 oam: .res 256	; sprite OAM data
 
@@ -104,12 +111,22 @@ irq:
     jsr setup_canvas
     ; initialize palette table
     ldx #0
+
+;paletteloop:
+;    lda default_palette, x
+;    sta palette, x
+;    inx
+;    cpx #32
+;    bcc paletteloop
+
+
 paletteloop:
-    lda default_palette, x
+    lda CollorPallete, x
     sta palette, x
     inx
     cpx #32
     bcc paletteloop
+
 
 initialize_cursor_small_direction:
     lda #$00
@@ -153,6 +170,25 @@ default_palette:
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+
+;sprites
+.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
+.byte $0f,$0c,$21,$32
+.byte $0f,$05,$16,$27
+.byte $0f,$0b,$1a,$29
+
+switched_palette:
+;.byte $idk, $idk, drawColor, $idk
+;bg tiles/ text
+.byte $01,$28,$1c,$2d
+;.byte $00,$00,$00,$00
+.byte $01,$28,$1c,$2d
+.byte $01,$28,$1c,$2d
+.byte $01,$28,$1c,$2d 
+;.byte $0f,$0c,$21,$32
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
 
 ;sprites

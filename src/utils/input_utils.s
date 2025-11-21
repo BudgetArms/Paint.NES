@@ -46,12 +46,16 @@ poll_loop:
 ;*****************************************************************
 .proc handle_input
 
+;Joren
     lda #PAD_START
  	ora #PAD_LEFT ;create and store a mask for the start + left button being pressed together
  	eor input_pressed_this_frame ;XOR the current input with start+left mask
  	bne not_pressed_StartAndLeft
-        ;code for when Start + Left is pressed together
-
+    ;code for when Start + Left is pressed together
+        lda newPalleteColor
+        clc
+        adc #$01
+        sta newPalleteColor
 
     not_pressed_StartAndLeft:
 	; check StartAndRight
@@ -60,6 +64,10 @@ poll_loop:
  	eor input_pressed_this_frame ;XOR the current input with start+left mask
  	bne CheckUpAndStart ; start checking other buttons
         ;code for when Start + right is pressed together
+        lda newPalleteColor
+        clc
+        sbc #$01
+        sta newPalleteColor
 
     CheckUpAndStart:
     lda #PAD_START
@@ -79,6 +87,7 @@ poll_loop:
 
 
     CheckOtherButtons:
+;
     ; Check A button
     lda input_pressed_this_frame
     and #PAD_A
@@ -103,6 +112,52 @@ poll_loop:
     lda input_pressed_this_frame
     and #PAD_SELECT
     beq not_pressed_select
+
+;LDA #$3F      ; Load palette address start ($3F00-$3FFF)
+;STA $2006     ; Set high byte of PPU address
+;LDA #$02      
+;STA $2006     ; Set low byte of PPU address
+
+;LDA newPalleteColor      ; Load color index
+;STA $2007
+
+; to not scroll:
+    ;lda #%10000000
+    ;sta PPU_CONTROL
+    ;lda PPU_STATUS      ; Reset PPU address latch
+    ;lda #$00
+    ;sta PPU_SCROLL      ; X scroll
+    ;sta PPU_SCROLL      ; Y scroll
+
+; Disable rendering
+;* lda #$00
+;* sta $2001   ; PPU_MASK
+
+;* ; Set VRAM address to $3F02
+;* lda #$3F
+;* sta $2006
+;* lda #$02
+;* sta $2006;
+
+;* ; Write new palette color
+;* lda #$06
+;* sta $2007
+
+; Turn rendering back on
+lda #%00011110
+sta $2001
+
+    ;lda #$23
+    ;ldx #$02
+    ;sta CollorPallete, x
+    ;    ChangeCollorpalleteUp_Loop1:
+    ;        lda CollorPallete, x
+    ;        clc
+    ;        adc #$01
+    ;        sta CollorPallete, x
+    ;        inx
+    ;        cpx #32
+    ;    bcc ChangeCollorpalleteUp_Loop1
         ; code for when Select is pressed
 
 
@@ -112,6 +167,19 @@ poll_loop:
     lda input_pressed_this_frame
     and #PAD_START
     beq not_pressed_start
+    ;lda #$00
+    ;sta palleteShouldChange
+    ;lda #$2a
+    ;ldx #$02
+    ;sta CollorPallete, x
+    ;    ChangeCollorpalleteDown_Loop1:
+    ;        lda CollorPallete, x
+    ;        clc
+    ;        sbc #$01
+    ;        sta CollorPallete, x
+    ;        inx
+    ;        cpx #32
+    ;    bcc ChangeCollorpalleteDown_Loop1
         ; code for when Start is pressed
 
 
@@ -122,6 +190,7 @@ poll_loop:
     and #PAD_UP
     beq not_pressed_up
         ; code for when Up is pressed
+        
 
         jsr Handle_Cursor_Up
 
