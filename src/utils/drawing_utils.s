@@ -33,7 +33,7 @@
     loop:
         sta PPU_DATA
         dex
-        bne loop    
+        bne loop
 
     rts
 .endproc
