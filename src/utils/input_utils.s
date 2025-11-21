@@ -80,7 +80,7 @@ poll_loop:
     and #PAD_START
     beq not_pressed_start
         ; code for when Start is pressed
-
+        jsr CycleCanvasModes
 
     not_pressed_start:
 
@@ -569,12 +569,12 @@ poll_loop:
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
     cmp #$00
-    bne @ApplyMove
+    bne @Apply_Move
         rts
-    @ApplyMove:
+    @Apply_Move:
     sec
     lda cursor_y
-    sbc #$TILE_PIXEL_SIZE
+    sbc #TILE_PIXEL_SIZE
     sta cursor_y
 
     dec tile_cursor_y
@@ -590,12 +590,12 @@ poll_loop:
     lda tile_cursor_y
     adc brush_size
     cmp #DISPLAY_SCREEN_HEIGHT
-    bmi @ApplyMove
+    bmi @Apply_Move
         rts
-    @ApplyMove:
+    @Apply_Move:
     clc
     lda cursor_y
-    adc #$TILE_PIXEL_SIZE
+    adc #TILE_PIXEL_SIZE
     sta cursor_y
 
     inc tile_cursor_y
@@ -609,12 +609,12 @@ poll_loop:
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
     cmp #$00
-    bne @ApplyMove
+    bne @Apply_Move
         rts
-    @ApplyMove:
+    @Apply_Move:
     sec
     lda cursor_x
-    sbc #$TILE_PIXEL_SIZE
+    sbc #TILE_PIXEL_SIZE
     sta cursor_x
 
     dec tile_cursor_x
@@ -630,12 +630,12 @@ poll_loop:
     lda tile_cursor_x
     adc brush_size
     cmp #DISPLAY_SCREEN_WIDTH
-    bmi @ApplyMove
+    bmi @Apply_Move
         rts
-    @ApplyMove:
+    @Apply_Move:
     clc
     lda cursor_x
-    adc #$TILE_PIXEL_SIZE
+    adc #TILE_PIXEL_SIZE
     sta cursor_x
 
     inc tile_cursor_x
@@ -651,11 +651,11 @@ poll_loop:
     ; If not -> increment the brush size
     lda brush_size
     cmp #MAXIMUM_BRUSH_SIZE
-    bne @not_max
+    bne @Not_Max
         lda #MINIMUM_BRUSH_SIZE
         sta brush_size
         rts
-    @not_max:
+    @Not_Max:
     inc brush_size
 
     clc
@@ -681,6 +681,46 @@ poll_loop:
         sbc #TILE_PIXEL_SIZE
         sta cursor_y
     @No_Y_Move_Needed:
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc CycleCanvasModes
+    lda canvas_mode
+    cmp #DRAW_MODE
+    bne @Not_Draw_Mode
+        jsr ToggleEraserTool
+        rts
+    @Not_Draw_Mode:
+    cmp #ERASER_MODE
+    bne @Not_Eraser_Mode
+        jsr ToggleDrawTool
+        rts
+    @Not_Eraser_Mode:
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc ToggleEraserTool
+    lda #BACKGROUND_TILE
+    sta brush_tile_index
+    lda #ERASER_MODE
+    sta canvas_mode
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc ToggleDrawTool
+    lda drawing_color_tile_index
+    sta brush_tile_index
+    lda #DRAW_MODE
+    sta canvas_mode
     rts
 .endproc
 ; Khine
