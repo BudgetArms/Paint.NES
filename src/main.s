@@ -60,8 +60,8 @@ current_program_mode: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 
 ;Joren
-    CollorPallete: .res 32
-    palleteShouldChange: .res 1
+    ;CollorPallete: .res 32
+    ;palleteShouldChange: .res 1
     
     newPalleteColor: .res 1
 
@@ -112,20 +112,13 @@ irq:
     ; initialize palette table
     ldx #0
 
-;paletteloop:
-;    lda default_palette, x
-;    sta palette, x
-;    inx
-;    cpx #32
-;    bcc paletteloop
-
-
 paletteloop:
-    lda CollorPallete, x
+    lda default_palette, x
     sta palette, x
     inx
     cpx #32
     bcc paletteloop
+
 
 
 initialize_cursor_small_direction:

@@ -60,15 +60,6 @@ clear_oam:
     sta cursor_y
 
 
-;Joren
-;initialise ColorPallete
-initialize_CollorPallete_Loop:
-    lda default_palette, x
-    sta CollorPallete, x
-    inx
-    cpx #32
-    bcc initialize_CollorPallete_Loop
-
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y
 ; 	sta oam+0             ; Byte 0: Y position
