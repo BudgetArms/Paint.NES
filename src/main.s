@@ -39,9 +39,23 @@ current_input:				.res 1 ; stores the current gamepad values
 last_frame_input:			.res 1
 input_pressed_this_frame:	.res 1
 input_released_this_frame:	.res 1
+input_holding_this_frame:	.res 1
 
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
                         ;this is to do stuff like "every time an 8th frame passes, do this"
+
+; buttons hold-delays
+; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
+; then it executes the button press again
+frame_counter_holding_button_start: .res 1
+frame_counter_holding_button_select: .res 1
+frame_counter_holding_button_a: .res 1
+frame_counter_holding_button_b: .res 1
+frame_counter_holding_button_left: .res 1
+frame_counter_holding_button_right: .res 1
+frame_counter_holding_button_up: .res 1
+frame_counter_holding_button_down: .res 1
+
 
 ; Cursor position (single 8x8 sprite)
 cursor_x: .res 1
@@ -102,23 +116,37 @@ irq:
     ; main application - rendering is currently off
     ; clear 1st name table
     jsr setup_canvas
+
     ; initialize palette table
     ldx #0
-paletteloop:
-    lda default_palette, x
-    sta palette, x
-    inx
-    cpx #32
-    bcc paletteloop
+    paletteloop:
+        lda default_palette, x
+        sta palette, x
+        inx
+        cpx #32
+        bcc paletteloop
 
-initialize_cursor_small_direction:
-    lda #$00
-    sta cursor_small_direction
+    initialize_cursor_small_direction:
+        lda #$00
+        sta cursor_small_direction
 
-    lda #$00
-    sta current_program_mode
+        lda #$00
+        sta current_program_mode
 
-; Khine's test code
+    
+    initialize_button_held_times:
+        lda #00
+        sta frame_counter_holding_button_start
+        sta frame_counter_holding_button_select
+        sta frame_counter_holding_button_a
+        sta frame_counter_holding_button_b
+        sta frame_counter_holding_button_left
+        sta frame_counter_holding_button_right
+        sta frame_counter_holding_button_up
+        sta frame_counter_holding_button_down
+
+
+    ; Khine's test code
     lda #10
     sta arguments ; Cursor X
     lda #10
@@ -132,7 +160,7 @@ initialize_cursor_small_direction:
 
     jsr convert_cursor_coordinates_to_cursor_tile_position
     jsr draw_brush
-; Khine's test code
+    ; Khine's test code
 
 
     jsr ppu_update
