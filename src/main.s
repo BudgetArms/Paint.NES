@@ -51,10 +51,12 @@ tile_cursor_y: .res 1
 
 cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
 cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
-arguments: .res 5
 cursor_tile_position: .res 2
+
+; drawing-related vars
+drawing_tile_position: .res 2
+brush_tile_index: .res 1
 brush_size: .res 1
-temp_swap: .res 2
 
 current_program_mode: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
@@ -110,30 +112,6 @@ paletteloop:
     inx
     cpx #32
     bcc paletteloop
-
-initialize_cursor_small_direction:
-    lda #$00
-    sta cursor_small_direction
-
-    lda #$00
-    sta current_program_mode
-
-; Khine's test code
-    lda #10
-    sta arguments ; Cursor X
-    lda #10
-    sta arguments + 1 ; Cursor Y
-    lda #$02
-    sta arguments + 2 ; Color index
-    lda #$01
-    sta brush_size ; Brush size
-    lda #$00
-    sta arguments + 4 ; Brush type (square: 0 or circle: 1)
-
-    jsr convert_cursor_coordinates_to_cursor_tile_position
-    jsr draw_brush
-; Khine's test code
-
 
     jsr ppu_update
 
