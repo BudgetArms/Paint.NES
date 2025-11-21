@@ -164,6 +164,7 @@ ButtonWasPressedLastFrame:
 	beq not_pressed_b
 	paletteloop2:
 	lda switched_palette_2, x
+	;lda #$14
 	sta palette, x
 	inx
 	cpx #32

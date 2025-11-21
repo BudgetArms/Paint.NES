@@ -142,18 +142,34 @@ switched_palette_1:
 .byte $10,$0b,$1a,$29
 .byte $10,$0b,$1a,$29
 
-switched_palette_2:
+switched_palette_11:
 ;bg tiles/ text
-.byte $32,$05,$16,$27
-.byte $32,$05,$16,$27
-.byte $32,$05,$16,$27
-.byte $32,$05,$16,$27
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
 
 ;sprites
-.byte $32,$05,$16,$27
-.byte $32,$05,$16,$27
-.byte $32,$05,$16,$27
-.byte $32,$05,$16,$27
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+.byte $10,$0b,$1a,$29
+
+switched_palette_2:
+;bg tiles/ text
+.byte $05,$0a,$01,$30 ; r, g, b, w
+.byte $05,$0a,$01,$30 ; r, g, b, w
+.byte $05,$0a,$01,$30 ; r, g, b, w
+.byte $05,$0a,$01,$30 ; r, g, b, w
+;.byte $32,$05,$16,$27
+;.byte $32,$05,$16,$27
+;.byte $32,$05,$16,$27
+
+;sprites
+;.byte $32,$05,$16,$27
+;.byte $32,$05,$16,$27
+;.byte $32,$05,$16,$27
+;.byte $32,$05,$16,$27
 
 switched_palette_3:
 ;bg tiles/ text
