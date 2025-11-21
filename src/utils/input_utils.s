@@ -71,7 +71,7 @@ poll_loop:
     and #PAD_SELECT
     beq not_pressed_select
         ; code for when Select is pressed
-
+        jsr CycleBrushColor
 
     not_pressed_select:
 
@@ -705,11 +705,24 @@ poll_loop:
 
 
 ; Khine
-.proc ToggleEraserTool
-    lda #BACKGROUND_TILE
+.macro ChangeBrushTileIndex    source_tile
+    lda source_tile
     sta brush_tile_index
-    lda #ERASER_MODE
+.endmacro
+; Khine
+
+
+; Khine
+.macro ChangeCanvasMode    new_mode
+    lda new_mode
     sta canvas_mode
+.endmacro
+
+
+; Khine
+.proc ToggleEraserTool
+    ChangeBrushTileIndex #BACKGROUND_TILE
+    ChangeCanvasMode #ERASER_MODE
     rts
 .endproc
 ; Khine
@@ -717,10 +730,25 @@ poll_loop:
 
 ; Khine
 .proc ToggleDrawTool
+    ChangeBrushTileIndex drawing_color_tile_index
+    ChangeCanvasMode #DRAW_MODE
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc CycleBrushColor
     lda drawing_color_tile_index
-    sta brush_tile_index
-    lda #DRAW_MODE
-    sta canvas_mode
+    cmp #COLOR_TILE_END_INDEX
+    bne @Not_End
+        lda #COLOR_TILE_START_INDEX
+        sta drawing_color_tile_index
+        sta brush_tile_index
+        rts
+    @Not_End:
+    inc drawing_color_tile_index
+    inc brush_tile_index
     rts
 .endproc
 ; Khine
