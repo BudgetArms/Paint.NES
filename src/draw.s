@@ -157,48 +157,50 @@
 
 ; Khine
 .proc draw_brush
+    ; Check if the PAD_A has been pressed
+    ; This is not checked in the `input_utils.s` because this can run into issues with
+    ; the program updating the PPU even though PPU has not finished drawing on the screen
+    ; not waiting for the VBLANK
     lda input_pressed_this_frame
     and #PAD_A
     bne @button_pressed
         rts
     @button_pressed:
 
+    ; Store the tile position in a different var
+    ; This is done so that the cursor position can stay on the original spot
+    ; after drawing has completed.
     lda cursor_tile_position
-    sta temp_swap
+    sta drawing_tile_position
     lda cursor_tile_position + 1
-    sta temp_swap + 1
+    sta drawing_tile_position + 1
 
     ; square brush
     ldy #$00
     @column_loop:
         lda PPU_STATUS ; reset address latch
-        lda cursor_tile_position + 1 ; High bit of the location
+        lda drawing_tile_position + 1 ; High bit of the location
         sta PPU_ADDR
-        lda cursor_tile_position ; Low bit of the location
+        lda drawing_tile_position ; Low bit of the location
         sta PPU_ADDR
 
         ldx #$00
-        lda arguments + 2 ; Color index of the tile
+        lda brush_tile_index ; Color index of the tile
         @row_loop:
             sta PPU_DATA
             inx
             cpx brush_size
             bne @row_loop
         clc
-        lda cursor_tile_position
+        lda drawing_tile_position
         adc #32
-        sta cursor_tile_position
-        lda cursor_tile_position + 1
+        sta drawing_tile_position
+        lda drawing_tile_position + 1
         adc #$00
-        sta cursor_tile_position + 1
+        sta drawing_tile_position + 1
         iny
         cpy brush_size
         bne @column_loop
-
-    lda temp_swap
-    sta cursor_tile_position
-    lda temp_swap + 1
-    sta cursor_tile_position + 1
     rts
 .endproc
 ; Khine
