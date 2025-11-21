@@ -54,7 +54,9 @@ cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: b
 cursor_tile_position: .res 2
 
 ; drawing-related vars
+canvas_mode: .res 1
 drawing_tile_position: .res 2
+drawing_color_tile_index: .res 1
 brush_tile_index: .res 1
 brush_size: .res 1
 
