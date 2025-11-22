@@ -16,7 +16,7 @@
     beq @bigCursor
 
     ;this should never be reached
-    rts
+    rts 
 
     @smallCursor:
         ; Hide normal and big cursors
