@@ -7,13 +7,9 @@ mainloop:
     jsr poll_gamepad
     jsr HandleInput
 
-    ; update cursor position and write sprite OAM for sprite 0
-    ;jsr update_cursor
-
     jsr LoadCursor
     jsr UpdateCursorPosition
     jsr convert_cursor_coordinates_to_cursor_tile_position
-    ;jsr LoadSmileyFace
 
 
     ; ensure our changes are rendered
