@@ -71,6 +71,8 @@ brush_size: .res 1
 temp_swap: .res 2
 
 current_program_mode: .res 1
+
+
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -91,7 +93,6 @@ palette: .res 32 ; current palette buffer
 .include "utils/input_utils.s"
 .include "draw.s"
 
-;.include "cursor.s"
 
 ;***************************************
 ; starting point
@@ -126,13 +127,6 @@ irq:
         cpx #32
         bcc paletteloop
 
-    initialize_cursor_small_direction:
-        lda #$00
-        sta cursor_small_direction
-
-        lda #$00
-        sta current_program_mode
-
     
     initialize_button_held_times:
         lda #00
@@ -144,23 +138,6 @@ irq:
         sta frame_counter_holding_button_right
         sta frame_counter_holding_button_up
         sta frame_counter_holding_button_down
-
-
-    ; Khine's test code
-    lda #10
-    sta arguments ; Cursor X
-    lda #10
-    sta arguments + 1 ; Cursor Y
-    lda #$02
-    sta arguments + 2 ; Color index
-    lda #$01
-    sta brush_size ; Brush size
-    lda #$00
-    sta arguments + 4 ; Brush type (square: 0 or circle: 1)
-
-    jsr convert_cursor_coordinates_to_cursor_tile_position
-    jsr draw_brush
-    ; Khine's test code
 
 
     jsr ppu_update
