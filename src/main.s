@@ -126,8 +126,8 @@ irq:
         inx
         cpx #32
         bcc paletteloop
-
     
+
     initialize_button_held_times:
         lda #00
         sta frame_counter_holding_button_start
@@ -138,6 +138,15 @@ irq:
         sta frame_counter_holding_button_right
         sta frame_counter_holding_button_up
         sta frame_counter_holding_button_down
+
+
+
+    ; updated, removed unused stuff
+    ; Khine's test code
+    lda #$02
+    sta arguments + 2 ; Color index
+    lda #$01
+    sta brush_size ; Brush size
 
 
     jsr ppu_update
