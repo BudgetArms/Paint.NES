@@ -42,6 +42,7 @@
 
     lda last_frame_input
     and current_input
+    eor input_released_this_frame
     sta input_holding_this_frame
 
 
@@ -170,7 +171,9 @@
     HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME,   HandleCursorPressedUp
     HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME,   HandleCursorPressedDown
 
+    
 
+    rts 
 
 .endproc
 
@@ -184,6 +187,7 @@
 ; BudgetArms
 .proc HandleCursorPressedStart
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -192,6 +196,7 @@
 ; BudgetArms
 .proc HandleCursorPressedSelect
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -200,6 +205,7 @@
 ; BudgetArms
 .proc HandleCursorPressedA
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -220,7 +226,7 @@
     beq @bigCursor
 
     ; this should never be reached
-    rts
+    rts 
 
 
     @smallCursor:
@@ -270,7 +276,7 @@
     beq @bigCursor
 
     ; this should never be reached
-    rts
+    rts 
 
     @smallCursor:
 
@@ -289,7 +295,7 @@
         beq @BottomRight
 
         ; this should never be reached
-        rts
+        rts 
         
         @TopLeft:
 
@@ -298,6 +304,7 @@
             sta cursor_small_direction
 
             jsr MoveCursorLeft
+
             rts 
 
         @TopRight:
@@ -332,7 +339,6 @@
 
 
     @normalCursor:
-
         ; Update x-pos (1 step)
         jsr MoveCursorLeft
 
@@ -340,7 +346,6 @@
 
 
     @bigCursor:
-        
         ; Update x-pos (2 step)
         jsr MoveCursorLeft
         jsr MoveCursorLeft
@@ -355,6 +360,7 @@
 
     lda cursor_type     ; load cursor type
 
+    ; check the cursor size
     cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
@@ -370,6 +376,7 @@
 
     @smallCursor:
 
+        ; check the cursor direction
         lda cursor_small_direction
 
         cmp #DIR_CURSOR_SMALL_TOP_LEFT
@@ -385,7 +392,7 @@
         beq @BottomRight
 
         ; this should never be reached
-        rts
+        rts 
         
         @TopLeft:
 
@@ -650,6 +657,7 @@
 
 .proc HandleCursorReleasedStart
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -657,6 +665,7 @@
 
 .proc HandleCursorReleasedSelect
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -664,6 +673,7 @@
 
 .proc HandleCursorReleasedA
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -671,6 +681,7 @@
 
 .proc HandleCursorReleasedB
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -678,6 +689,7 @@
 
 .proc HandleCursorReleasedLeft
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -685,6 +697,7 @@
 
 .proc HandleCursorReleasedRight
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -692,6 +705,7 @@
 
 .proc HandleCursorReleasedUp
     ; Empty for now
+    rts 
 
 
 .endproc
@@ -699,6 +713,7 @@
 
 .proc HandleCursorReleasedDown
     ; Empty for now
+    rts 
 
 
 .endproc
