@@ -9,15 +9,24 @@
 ;     - Writes 0s to all 64 bytes of the attribute table
 ;     - Leaves the PPU ready to receive further data if needed
 ;*****************************************************************
-.proc clear_nametable
+.proc ClearCanvas
+    lda tool_use_attr
+    and #CLEAR_CANVAS_TOOL_ON
+    bne @Use_Brush
+        rts
+    @Use_Brush:
+    lda tool_use_attr
+    eor #CLEAR_CANVAS_TOOL_ON
+    sta tool_use_attr
+
     lda PPU_STATUS ; reset address latch
-    lda #$20 ; set PPU address to $2000
+    lda #>NAME_TABLE_1 ; set PPU address to $2000
     sta PPU_ADDR
-    lda #$00
+    lda #<NAME_TABLE_1
     sta PPU_ADDR
 
     ; empty nametable A
-    lda #0
+    lda #BACKGROUND_TILE
     ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
     rowloop:
         ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
@@ -27,25 +36,17 @@
             bne columnloop
         dey
         bne rowloop
-
-    ; empty attribute table
-    ldx #64 ; attribute table is 64 bytes
-    loop:
-        sta PPU_DATA
-        dex
-        bne loop
-
     rts
 .endproc
 
 
 ; Khine
-.proc setup_canvas
+.proc SetupCanvas
     ; Main Canvas
     lda PPU_STATUS ; reset address latch
-    lda #$20 ; set PPU address to $2000
+    lda #>NAME_TABLE_1 ; set PPU address to $2000
     sta PPU_ADDR
-    lda #$00
+    lda #<NAME_TABLE_1
     sta PPU_ADDR
 
     ; setup nametable 0 with index 1
@@ -62,7 +63,7 @@
 
     ; setting up palette 0 for all the background tiles
     lda #$00
-    ldx #64 ; attribute table is 64 bytes
+    ldx #ATTR_TABLE_SIZE ; attribute table is 64 bytes
     loop:
         sta PPU_DATA
         dex
