@@ -10,66 +10,176 @@
 ;     - Leaves the PPU ready to receive further data if needed
 ;*****************************************************************
 .proc clear_nametable
- 	lda PPU_STATUS ; reset address latch
- 	lda #$20 ; set PPU address to $2000
- 	sta PPU_ADDR
- 	lda #$00
- 	sta PPU_ADDR
+    lda PPU_STATUS ; reset address latch
+    lda #$20 ; set PPU address to $2000
+    sta PPU_ADDR
+    lda #$00
+    sta PPU_ADDR
 
- 	; empty nametable A
- 	lda #$00
- 	ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
- 	rowloop:
- 		ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
- 		columnloop:
- 			sta PPU_DATA
- 			dex
- 			bne columnloop
- 		dey
- 		bne rowloop
+    ; empty nametable A
+    lda #0
+    ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
+    rowloop:
+        ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
+        columnloop:
+            sta PPU_DATA
+            dex
+            bne columnloop
+        dey
+        bne rowloop
 
- 	; empty attribute table
- 	ldx #64 ; attribute table is 64 bytes
- 	loop:
- 		sta PPU_DATA
- 		dex
- 		bne loop
+    ; empty attribute table
+    ldx #64 ; attribute table is 64 bytes
+    loop:
+        sta PPU_DATA
+        dex
+        bne loop    
 
- 	rts
+    rts
 .endproc
 
 
 ; Khine
-; fill the background with tile index 1
-; (just a block of pixel with color index 1)
 .proc setup_canvas
- 	lda PPU_STATUS ; reset address latch
- 	lda #$20 ; set PPU address to $2000
- 	sta PPU_ADDR
- 	lda #$00
- 	sta PPU_ADDR
+    lda PPU_STATUS ; reset address latch
+    lda #$20 ; set PPU address to $2000
+    sta PPU_ADDR
+    lda #$00
+    sta PPU_ADDR
 
- 	; set to the tile index 1
- 	lda #$01
- 	ldy #DISPLAY_SCREEN_HEIGHT ; 30 rows
- 	rowloop:
- 		ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
- 		columnloop:
- 			sta PPU_DATA
- 			dex
- 			bne columnloop
- 		dey
- 		bne rowloop
+    ; setup nametable 0 with index 1
+    lda #$00
+    ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
+    rowloop:
+        ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
+        columnloop:
+            sta PPU_DATA
+            dex
+            bne columnloop
+        dey
+        bne rowloop
 
-; set to palette 0
-lda #$00
-ldx #$00
-set_attributes:
-    sta PPU_DATA
-    inx
-    cpx #$40
-    bne set_attributes
+    ; setting up palette 0 for all the background tiles
+    lda #$00
+    ldx #64 ; attribute table is 64 bytes
+    loop:
+        sta PPU_DATA
+        dex
+        bne loop
 
 	rts
 .endproc
 ; Khine
+
+
+
+; BudgetArms
+.proc UpdateCursorPosition
+
+    lda cursor_type
+
+    cmp #CURSOR_TYPE_SMALL
+    beq @smallCursor
+
+    cmp #CURSOR_TYPE_NORMAL
+    beq @normalCursor
+
+    cmp #CURSOR_TYPE_BIG
+    beq @bigCursor
+
+    ; this should never be reached
+    rts
+
+    @smallCursor:
+        jsr UpdateSmallCursorPosition
+        rts
+
+    @normalCursor:
+        jsr UpdateNormalCursorPosition
+        rts
+
+    @bigCursor:
+        jsr UpdateBigCursorPosition
+        rts
+
+.endproc
+
+
+; BudgetArms
+.proc UpdateSmallCursorPosition
+
+    ; load cursor_y
+    lda cursor_y    
+
+    ; overwrite the Small Cursor's default y-pos with the cursor y-Position 
+    ; sta oam + CURSOR_OFFSET_SMALL
+    sta oam + CURSOR_OFFSET_SMALL
+
+    ; load cursor_x
+    lda cursor_x
+
+    ; overwrite the Small Small Cursor's default x-pos with the cursor x-Position 
+    ; sta oam + CURSOR_OFFSET_SMALL + 3  
+    sta oam + CURSOR_OFFSET_SMALL + 3
+
+    rts
+
+.endproc
+
+; BudgetArms
+.proc UpdateNormalCursorPosition
+    lda cursor_y
+    sta oam + CURSOR_OFFSET_NORMAL
+
+    lda cursor_x
+    sta oam + CURSOR_OFFSET_NORMAL + 3
+
+    rts
+
+.endproc
+
+; BudgetArms
+.proc UpdateBigCursorPosition
+    ldx cursor_y
+
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
+
+    ; top is stored on cursor_y - 1
+    dex
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
+
+    ; bottom is stored on cursor_y + 1
+    inx
+    inx
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
+
+    ldx cursor_x
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP     + 3
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM  + 3
+
+    ; left is stored on cursor_x - 1
+    dex
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT    + 3
+
+    ; right is stored on cursor_x + 1
+    inx
+    inx
+    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT   + 3
+
+    rts
+
+.endproc
+
+
+; BudgetArms
+.proc UpdateSmileyPosition
+    lda cursor_y 
+    sta oam + SMILEY_OFFSET
+
+    lda cursor_x
+    sta oam + SMILEY_OFFSET + 3
+
+    rts
+
+.endproc
