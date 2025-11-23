@@ -7,6 +7,7 @@ mainloop:
     jsr poll_gamepad
     jsr HandleInput
 
+    jsr HideInactiveCursors
     jsr LoadCursor
     jsr UpdateCursorPosition
     jsr convert_cursor_coordinates_to_cursor_tile_position
