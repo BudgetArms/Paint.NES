@@ -131,7 +131,7 @@
 ; BudgetArms
 .proc HandleInput
 
-    ; combo example 
+    ; Combo's
 
     ; if holding start, ignore all the other input
     lda input_holding_this_frame
@@ -140,15 +140,20 @@
 
         ; if Holding_start
 
-        ; HandleButtonPressed PAD_LEFT,   ADD_THE_FUNCTION
-        ; HandleButtonPressed PAD_RIGHT,  ADD_THE_FUNCTION
-        ; HandleButtonPressed PAD_UP,     ADD_THE_FUNCTION
-        ; HandleButtonPressed PAD_DOWN,   ADD_THE_FUNCTION
+        ; example
+        HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,     BUTTON_HOLD_TIME_INSTANTLY,  HandleCursorPressedB
+        HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,     BUTTON_HOLD_TIME_NORMAL,     HandleCursorPressedB
+
+        ; HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,  BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
+        ; HandleButtonHeld PAD_RIGHT, frame_counter_holding_button_right, BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
+        ; HandleButtonHeld PAD_UP,    frame_counter_holding_button_up,    BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
+        ; HandleButtonHeld PAD_DOWN,  frame_counter_holding_button_down,  BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
 
         rts 
 
 
     Not_Holding_Start:
+
 
 
     ; Pressed
@@ -179,16 +184,16 @@
 
     ; Pressed
     ; in this case all call the pressed function
-    HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME,   HandleCursorPressedStart
-    HandleButtonHeld PAD_SELECT,    frame_counter_holding_button_select,    BUTTON_HOLD_TIME,   HandleCursorPressedSelect
+    HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
+    HandleButtonHeld PAD_SELECT,    frame_counter_holding_button_select,    BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedSelect
 
-    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME,   HandleCursorPressedA
-    HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME,   HandleCursorPressedB
+    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedA
+    HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedB
 
-    HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME,   HandleCursorPressedLeft
-    HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_right,     BUTTON_HOLD_TIME,   HandleCursorPressedRight
-    HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME,   HandleCursorPressedUp
-    HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME,   HandleCursorPressedDown
+    HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
+    HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_right,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedRight
+    HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
+    HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
 
     
 
@@ -262,7 +267,7 @@
         lda #TYPE_CURSOR_BIG
         sta cursor_type 
 
-        rts
+        rts 
 
 
     @bigCursor:
@@ -275,7 +280,7 @@
         lda #DIR_CURSOR_SMALL_TOP_LEFT 
         sta cursor_small_direction
 
-        rts
+        rts 
 
 .endproc
 
@@ -509,7 +514,7 @@
         beq @BottomRight
 
         ; this should never be reached
-        rts
+        rts 
         
         @TopLeft:
 
@@ -608,7 +613,7 @@
         beq @BottomRight
 
         ; this should never be reached
-        rts
+        rts 
         
         @TopLeft:
 
