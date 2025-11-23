@@ -184,3 +184,65 @@
     rts 
 
 .endproc
+
+
+; BudgetArms
+.proc HideInactiveCursors
+
+    lda cursor_type
+
+    cmp #TYPE_CURSOR_SMALL
+    beq Small_Cursor
+
+    cmp #TYPE_CURSOR_NORMAL
+    beq Normal_Cursor
+
+    cmp #TYPE_CURSOR_BIG
+    beq Big_Cursor
+
+
+    ;this should never be reached
+    rts 
+
+
+    Small_Cursor:
+        ; Hide normal cursor
+        lda #$FF
+        sta oam + OAM_OFFSET_CURSOR_NORMAL
+
+        ; Hide big cursor
+        ldx #$00
+        @Loop:
+            sta oam + OAM_OFFSET_CURSOR_BIG, X
+            inx 
+
+            cpx #OAM_SIZE_CURSOR_BIG
+            beq @Loop   ; Loop until everything is hidden
+
+        rts 
+
+    Normal_Cursor:
+        ; Hide small cursor
+        lda #$FF
+        sta oam + OAM_OFFSET_CURSOR_SMALL
+
+        ; Hide big cursor
+        ldx #$00
+        @Loop:
+            sta oam + OAM_OFFSET_CURSOR_BIG, X
+            inx 
+
+            cpx #OAM_SIZE_CURSOR_BIG
+            beq @Loop   ; Loop until everything is hidden
+
+        rts 
+
+    Big_Cursor:
+        ; Hide small and normal cursor
+        lda #$FF
+        sta oam + OAM_OFFSET_CURSOR_SMALL
+        sta oam + OAM_OFFSET_CURSOR_NORMAL
+
+        rts 
+
+.endproc
