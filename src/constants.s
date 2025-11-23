@@ -100,6 +100,12 @@ TILEINDEX_OFFSET_COLOR_2 = $01      ; Color Pallet 2
 TILEINDEX_OFFSET_COLOR_3 = $02      ; Color Pallet 3
 
 
+; oam data sizes
+OAM_SIZE_CURSOR_SMALL   = $04       ; 4 bytes
+OAM_SIZE_CURSOR_NORMAL  = $04       ; 4 bytes
+OAM_SIZE_CURSOR_BIG     = $20       ; 32 bytes
+
+
 ; oam offsets are not same as tile indexes
 OAM_OFFSET_CURSOR_SMALL = $00       ; 1 sprite (4 bytes)
 OAM_OFFSET_CURSOR_NORMAL = $04      ; 1 sprite (4 bytes)
