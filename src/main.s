@@ -56,7 +56,7 @@ cursor_tile_position: .res 2
 
 ; drawing-related vars
 tool_mode: .res 1
-use_brush: .res 1
+tool_use_attr: .res 1
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
 brush_tile_index: .res 1
@@ -112,7 +112,7 @@ irq:
 .proc main
     ; main application - rendering is currently off
     ; clear 1st name table
-    jsr setup_canvas
+    jsr SetupCanvas
     ; initialize palette table
     ldx #0
 paletteloop:
