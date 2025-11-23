@@ -144,8 +144,8 @@
         inx
 
         ; Each Sprite is 4 bytes, we have one sprite
-        ; 4 (byte, 1 sprite) * 4 (amount of sprites in the big sprite) = 16 bytes
-        cpx #$10
+        ; 4 (byte, 1 sprite) * 8 (amount of sprites in the big sprite) = 32 bytes
+        cpx #$20
         bne @Loop  ; loop until all bytes are loaded
 
     rts
