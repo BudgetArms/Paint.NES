@@ -104,7 +104,7 @@
             inx     ; so the next sprite get read/written
             iny     ; to keep track of the Nth byte we are reading
 
-            cpy #$04    ; sprite is 4 bytes
+            cpy #OAM_SIZE_CURSOR_SMALL
             bne @Loop   ; loop until the whole sprite is loaded in
 
         rts
@@ -122,9 +122,7 @@
         sta oam + OAM_OFFSET_CURSOR_NORMAL, X
         inx
 
-        ; Each Sprite is 4 bytes, we have one sprite
-        ; 4 (byte, 1 sprite) * 1 (amount of sprites in the big sprite) = 4 bytes
-        cpx #$04
+        cpx #OAM_SIZE_CURSOR_NORMAL
         bne @Loop  ; loop until all bytes are loaded
 
     rts
@@ -141,11 +139,9 @@
         ; lda CURSOR_BIG_DATA, X
         lda CURSOR_BIG_DATA_META, X
         sta oam + OAM_OFFSET_CURSOR_BIG, X
-        inx
+        inx 
 
-        ; Each Sprite is 4 bytes, we have one sprite
-        ; 4 (byte, 1 sprite) * 8 (amount of sprites in the big sprite) = 32 bytes
-        cpx #$20
+        cpx #OAM_SIZE_CURSOR_BIG
         bne @Loop  ; loop until all bytes are loaded
 
     rts
