@@ -7,26 +7,26 @@
     lda cursor_type
 
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ;this should never be reached
     rts 
 
-    @smallCursor:
+    Small_Cursor:
         jsr LoadSmallCursor
         rts 
 
-    @normalCursor:
+    Normal_Cursor:
         jsr LoadNormalCursor
         rts 
 
-    @bigCursor:
+    Big_Cursor:
         jsr LoadBigCursor
         rts 
 
@@ -42,40 +42,40 @@
     lda cursor_small_direction
 
     cmp #DIR_CURSOR_SMALL_TOP_LEFT
-    beq @DrawTopLeft
+    beq DrawTopLeft
 
     cmp #DIR_CURSOR_SMALL_TOP_RIGHT
-    beq @DrawTopRight
+    beq DrawTopRight
 
     cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
-    beq @DrawBottomLeft
+    beq DrawBottomLeft
 
     cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-    beq @DrawBottomRight
+    beq DrawBottomRight
 
     ; this should never be reached
-    rts
+    rts 
 
     ; set x, it's the offset from CURSOR_SMALL_CURSOR to it's current sprite
 
-    @DrawTopLeft:
+    DrawTopLeft:
         ldx #DIR_CURSOR_SMALL_TOP_LEFT
-        jmp @DoneSettingStartAddress
+        jmp DoneSettingStartAddress
 
-    @DrawTopRight:
+    DrawTopRight:
         ldx #DIR_CURSOR_SMALL_TOP_RIGHT
-        jmp @DoneSettingStartAddress
+        jmp DoneSettingStartAddress
 
-    @DrawBottomLeft:
+    DrawBottomLeft:
         ldx #DIR_CURSOR_SMALL_BOTTOM_LEFT
-        jmp @DoneSettingStartAddress
+        jmp DoneSettingStartAddress
 
-    @DrawBottomRight:
+    DrawBottomRight:
         ldx #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-        jmp @DoneSettingStartAddress
+        jmp DoneSettingStartAddress
 
 
-    @DoneSettingStartAddress:
+    DoneSettingStartAddress:
 
         ldy #$00
 
@@ -89,7 +89,7 @@
             cpy #OAM_SIZE_CURSOR_SMALL
             bne @Loop   ; loop until the whole sprite is loaded in
 
-        rts
+        rts 
 
 .endproc
 
