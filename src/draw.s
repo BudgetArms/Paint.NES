@@ -161,11 +161,13 @@
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
-    lda input_pressed_this_frame
-    and #PAD_A
-    bne @button_pressed
+    lda use_brush
+    cmp #USE_BRUSH_ON
+    beq @Use_Brush
         rts
-    @button_pressed:
+    @Use_Brush:
+    lda #USE_BRUSH_OFF
+    sta use_brush
 
     ; Store the tile position in a different var
     ; This is done so that the cursor position can stay on the original spot
