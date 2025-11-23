@@ -24,7 +24,7 @@
 
 
 ; Khine
-.proc convert_cursor_coordinates_to_cursor_tile_position
+.proc ConvertCursorPosToTilePositions
     ; Convert the X and Y coordinates of the cursor to
     ; the tile index storied in 'cursor_tile_position' variable
     ; 2 bytes -> LO + HI bytes
