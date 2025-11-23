@@ -78,8 +78,8 @@ clear_oam:
     lda #$00
     sta current_program_mode
 
-    lda #USE_BRUSH_OFF
-    sta use_brush
+    lda #ALL_TOOLS_OFF
+    sta tool_use_attr
 
     jsr ToggleDrawTool
     jsr InitializeSelectionStar
