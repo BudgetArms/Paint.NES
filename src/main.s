@@ -15,7 +15,8 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-.incbin "game.chr"
+;.incbin "game.chr"
+.incbin "game_khine.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
@@ -54,13 +55,19 @@ cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: b
 cursor_tile_position: .res 2
 
 ; drawing-related vars
-canvas_mode: .res 1
+tool_mode: .res 1
+use_brush: .res 1
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
 brush_tile_index: .res 1
 brush_size: .res 1
 
+; misc
+abs_address_to_access: .res 2
 current_program_mode: .res 1
+scroll_x_position: .res 1
+scroll_y_position: .res 1
+
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -142,15 +149,15 @@ default_palette:
 .byte $0f,$0b,$1a,$29
 
 
-SMILEY_DATA:
-    .byte $00, SMILEYFACE_TILE, %10000001, $10
+SAMPLE_SPRITE:
+;    .byte $00,SMILEYFACE_TILE, %10000001, $10
                                 ;76543210
                                 ;||||||||
                                 ;||||||++- Palette of sprite
                                 ;|||+++--- Unimplemented
                                 ;||+------ Priority (0: in front of background; 1: behind background)
                                 ;|+------- Flip sprite horizontally
-;+-------- Flip sprite vertically
+                                ;+-------- Flip sprite vertically
 
 CURSOR_SMALL_DATA:
     .byte $00, CURSOR_TILE_SMALL_TOP_LEFT,      %00000000, $00
@@ -167,3 +174,8 @@ CURSOR_BIG_DATA:
     .byte $00, CURSOR_TILE_BIG_RIGHT,   %00000000, $00
     .byte $00, CURSOR_TILE_BIG_BOTTOM,  %00000000, $00
 
+Seletion_Star_Sprite:
+    .byte OAM_OFFSCREEN, STAR_TILE, $00000000, SELECTION_STAR_X_OFFSET
+
+Selection_Menu_Tilemap:
+    .incbin "./tilemaps/selection_menu.nam"
