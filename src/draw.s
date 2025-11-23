@@ -156,22 +156,6 @@
 ; Khine/BudgetArms
 .proc draw_brush
     
-    ; if pressed
-    lda input_pressed_this_frame
-    and #PAD_A
-    bne @button_pressed
-
-    ; if hold
-    lda input_holding_this_frame
-    and #PAD_A
-    bne @button_pressed
-
-    ; If nothing A is not pressed/held
-    rts 
-
-
-    @button_pressed:
-
     lda cursor_tile_position
     sta temp_swap
     lda cursor_tile_position + 1
