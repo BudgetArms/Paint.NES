@@ -48,8 +48,9 @@ loop:
     lda #%10000000
     sta PPU_CONTROL
     lda PPU_STATUS      ; Reset PPU address latch
-    lda #$00
+    lda scroll_x_position
     sta PPU_SCROLL      ; X scroll
+    lda scroll_y_position
     sta PPU_SCROLL      ; Y scroll
     ; ---------------------------------------------------
 
