@@ -19,37 +19,19 @@
     rts 
 
     @smallCursor:
-        ; Hide normal and big cursors
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_NORMAL
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_TOP
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM
-
         jsr LoadSmallCursor
-        rts
+        rts 
 
     @normalCursor:
-        ; Hide normal and big cursors
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_SMALL
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_TOP
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT
-        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM
-
         jsr LoadNormalCursor
-        rts
+        rts 
 
     @bigCursor:
-        ; Hide normal and big cursors
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_SMALL
-        sta oam + OAM_OFFSET_CURSOR_NORMAL
-
         jsr LoadBigCursor
-        rts
+        rts 
+
+    ; this should never be reached
+    rts 
 
 .endproc
 
