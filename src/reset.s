@@ -70,10 +70,19 @@ clear_oam:
     lda #$00
     sta cursor_small_direction
 
+    ; Initialize scroll positions
+    lda #$00
+    sta scroll_x_position
+    sta scroll_y_position
+
     lda #$00
     sta current_program_mode
 
+    lda #USE_BRUSH_OFF
+    sta use_brush
+
     jsr ToggleDrawTool
+    jsr InitializeSelectionStar
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y
