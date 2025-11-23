@@ -1,3 +1,27 @@
+; Khine
+.macro ChangeBrushTileIndex    source_tile
+    lda source_tile
+    sta brush_tile_index
+.endmacro
+; Khine
+
+
+; Khine
+.macro ChangeCanvasMode    new_mode
+    lda new_mode
+    sta tool_mode
+.endmacro
+; Khine
+
+
+; Khine
+.macro ChangeToolAttr   tool_to_turn_on
+    lda tool_use_attr
+    ora tool_to_turn_on
+    sta tool_use_attr
+.endmacro
+; Khine
+
 ;*****************************************************************
 ; gamepad_poll: this reads the gamepad state into the variable labelled "gamepad"
 ; This only reads the first gamepad, and also if DPCM samples are played they can
@@ -58,8 +82,7 @@ poll_loop:
             jsr SelectTool
             jmp not_pressed_b
         @In_Canvas_Mode:
-        lda #USE_BRUSH_ON
-        sta use_brush
+        ChangeToolAttr #BRUSH_TOOL_ON
 
     not_pressed_a:
 
@@ -721,21 +744,6 @@ poll_loop:
 
 
 ; Khine
-.macro ChangeBrushTileIndex    source_tile
-    lda source_tile
-    sta brush_tile_index
-.endmacro
-; Khine
-
-
-; Khine
-.macro ChangeCanvasMode    new_mode
-    lda new_mode
-    sta tool_mode
-.endmacro
-
-
-; Khine
 .proc ToggleEraserTool
     ChangeBrushTileIndex #BACKGROUND_TILE
     ChangeCanvasMode #ERASER_MODE
@@ -842,6 +850,11 @@ poll_loop:
         jsr ToggleEraserTool
         rts
     @Not_On_Eraser:
+    cmp #SELECTION_MENU_3_CLEAR
+    bne @Not_On_Clear_Canvas
+        ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
+        jsr ppu_off
+        rts
+    @Not_On_Clear_Canvas:
     rts
 .endproc
-
