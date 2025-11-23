@@ -42,8 +42,9 @@ cont_render:
         cpx #32
         bcc loop
 
-    ; Khine
-    jsr draw_brush
+    ; BudgetArms 
+    HandleButtonPressed PAD_A, draw_brush
+    HandleButtonHeld    PAD_A, frame_counter_holding_button_a, BUTTON_HOLD_TIME_INSTANTLY, draw_brush
 
 
 
