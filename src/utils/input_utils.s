@@ -131,6 +131,25 @@
 ; BudgetArms
 .proc HandleInput
 
+    ; combo example 
+
+    ; if holding start, ignore all the other input
+    lda input_holding_this_frame
+    and #PAD_START
+    bne Not_Holding_Start:
+
+        ; if Holding_start
+
+        ; HandleButtonPressed PAD_LEFT,   ADD_THE_FUNCTION
+        ; HandleButtonPressed PAD_RIGHT,  ADD_THE_FUNCTION
+        ; HandleButtonPressed PAD_UP,     ADD_THE_FUNCTION
+        ; HandleButtonPressed PAD_DOWN,   ADD_THE_FUNCTION
+
+        rts 
+
+
+    Not_Holding_Start:
+
 
     ; Pressed
     HandleButtonPressed PAD_START,  HandleCursorPressedStart
