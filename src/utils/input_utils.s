@@ -52,7 +52,14 @@ poll_loop:
     and #PAD_A
     beq not_pressed_a
         ; code for when A is pressed
-
+        lda scroll_y_position
+        cmp #CANVAS_MODE
+        beq @In_Canvas_Mode
+            jsr SelectTool
+            jmp not_pressed_b
+        @In_Canvas_Mode:
+        lda #USE_BRUSH_ON
+        sta use_brush
 
     not_pressed_a:
 
@@ -61,8 +68,7 @@ poll_loop:
     and #PAD_B
     beq not_pressed_b
         ; code for when B is pressed
-        ;jsr Handle_Cursor_B
-                jsr CycleBrushSize
+        jsr CycleBrushSize
 
     not_pressed_b:
 
@@ -71,7 +77,7 @@ poll_loop:
     and #PAD_SELECT
     beq not_pressed_select
         ; code for when Select is pressed
-        jsr CycleBrushColor
+        jsr CycleCanvasModes
 
     not_pressed_select:
 
@@ -80,7 +86,7 @@ poll_loop:
     and #PAD_START
     beq not_pressed_start
         ; code for when Start is pressed
-        jsr CycleCanvasModes
+        jsr CycleToolModes
 
     not_pressed_start:
 
@@ -89,7 +95,12 @@ poll_loop:
     and #PAD_UP
     beq not_pressed_up
         ; code for when Up is pressed
-
+        lda scroll_y_position
+        cmp #CANVAS_MODE
+        beq @In_Canvas_Mode
+            jsr MoveSelectionStarUp
+            jmp not_pressed_up
+        @In_Canvas_Mode:
         jsr Handle_Cursor_Up
 
     not_pressed_up:
@@ -99,7 +110,12 @@ poll_loop:
     and #PAD_DOWN
     beq not_pressed_down
         ; code for when Down is pressed
-
+        lda scroll_y_position
+        cmp #CANVAS_MODE
+        beq @In_Canvas_Mode
+            jsr MoveSelectionStarDown
+            jmp not_pressed_down
+        @In_Canvas_Mode:
         jsr Handle_Cursor_Down
 
     not_pressed_down:
@@ -687,8 +703,8 @@ poll_loop:
 
 
 ; Khine
-.proc CycleCanvasModes
-    lda canvas_mode
+.proc CycleToolModes
+    lda tool_mode
     cmp #DRAW_MODE
     bne @Not_Draw_Mode
         jsr ToggleEraserTool
@@ -715,7 +731,7 @@ poll_loop:
 ; Khine
 .macro ChangeCanvasMode    new_mode
     lda new_mode
-    sta canvas_mode
+    sta tool_mode
 .endmacro
 
 
@@ -752,3 +768,80 @@ poll_loop:
     rts
 .endproc
 ; Khine
+
+
+; Khine
+.proc CycleCanvasModes
+    ; Cycle between canvas mode and selection menu mode
+    lda scroll_y_position
+    cmp #CANVAS_MODE
+    bne @Not_Canvas_Mode
+        lda #SELECTION_MENU_MODE
+        sta scroll_y_position
+        lda tool_mode
+        cmp #DRAW_MODE
+        bne @Not_Draw_Mode
+            lda #SELECTION_MENU_0_DRAW
+        @Not_Draw_Mode:
+        cmp #ERASER_MODE
+        bne @Not_Eraser_Mode
+            lda #SELECTION_MENU_1_ERASER
+        @Not_Eraser_Mode:
+        sta oam + SELECTION_STAR_OFFSET + OAM_Y
+        rts
+    @Not_Canvas_Mode:
+    lda #CANVAS_MODE
+    sta scroll_y_position
+    lda #OAM_OFFSCREEN
+    sta oam + SELECTION_STAR_OFFSET + OAM_Y
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc MoveSelectionStarUp
+    lda oam + SELECTION_STAR_OFFSET + OAM_Y
+    cmp #SELECTION_MENU_0_DRAW
+    bne @Not_In_Start_Pos
+        rts
+    @Not_In_Start_Pos:
+    sec
+    sbc #TILE_PIXEL_SIZE
+    sta oam + SELECTION_STAR_OFFSET + OAM_Y
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc MoveSelectionStarDown
+    lda oam + SELECTION_STAR_OFFSET + OAM_Y
+    cmp #SELECTION_MENU_3_CLEAR
+    bne @Not_In_End_Pos
+        rts
+    @Not_In_End_Pos:
+    clc
+    adc #TILE_PIXEL_SIZE
+    sta oam + SELECTION_STAR_OFFSET + OAM_Y
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc SelectTool
+    lda oam + SELECTION_STAR_OFFSET + OAM_Y
+    cmp #SELECTION_MENU_0_DRAW
+    bne @Not_On_Draw
+        jsr ToggleDrawTool
+        rts
+    @Not_On_Draw:
+    cmp #SELECTION_MENU_1_ERASER
+    bne @Not_On_Eraser
+        jsr ToggleEraserTool
+        rts
+    @Not_On_Eraser:
+    rts
+.endproc
+
