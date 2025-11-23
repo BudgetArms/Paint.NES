@@ -41,6 +41,7 @@ loop:
     bcc loop
 
     ; Khine
+    jsr ClearCanvas
     jsr draw_brush
     ; Khine
 
