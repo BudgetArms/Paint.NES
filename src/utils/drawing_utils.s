@@ -41,6 +41,7 @@
 
 ; Khine
 .proc setup_canvas
+    ; Main Canvas
     lda PPU_STATUS ; reset address latch
     lda #$20 ; set PPU address to $2000
     sta PPU_ADDR
@@ -67,10 +68,50 @@
         dex
         bne loop
 
-	rts
+
+    ; Selection Menu
+    lda PPU_STATUS ; reset address latch
+    lda #>NAME_TABLE_3 ; High bit of the location
+    sta PPU_ADDR
+    lda #<NAME_TABLE_3 ; Low bit of the location
+    sta PPU_ADDR
+
+    ldx #$00
+    lda #<Selection_Menu_Tilemap
+    sta abs_address_to_access
+    lda #>Selection_Menu_Tilemap
+    sta abs_address_to_access + 1
+    @Outer_Loop:
+    ldy #$00
+        @Inner_Loop:
+        lda (abs_address_to_access), y
+        sta PPU_DATA
+        iny
+        bne @Inner_Loop
+    lda abs_address_to_access + 1
+    clc
+    adc #$01
+    sta abs_address_to_access + 1
+    inx
+    cpx #$04
+    bne @Outer_Loop
+
+    rts
 .endproc
 ; Khine
 
+
+; Khine
+.proc InitializeSelectionStar
+    ldx #$00
+    @Load_One_To_OAM:
+        lda Seletion_Star_Sprite, x
+        sta oam + SELECTION_STAR_OFFSET, x
+        inx
+        cpx #$04
+    bne @Load_One_To_OAM
+.endproc
+; Khine
 
 
 ; BudgetArms
@@ -166,19 +207,6 @@
     inx
     inx
     stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT   + 3
-
-    rts
-
-.endproc
-
-
-; BudgetArms
-.proc UpdateSmileyPosition
-    lda cursor_y 
-    sta oam + SMILEY_OFFSET
-
-    lda cursor_x
-    sta oam + SMILEY_OFFSET + 3
 
     rts
 
