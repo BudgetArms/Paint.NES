@@ -136,7 +136,7 @@
     ; if holding start, ignore all the other input
     lda input_holding_this_frame
     and #PAD_START
-    bne Not_Holding_Start
+    beq Not_Holding_Start
 
         ; if Holding_start
 
