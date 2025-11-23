@@ -23,16 +23,16 @@
         ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
         columnloop:
             sta PPU_DATA
-            dex
+            dex 
             bne columnloop
-        dey
+        dey 
         bne rowloop
 
     ; empty attribute table
     ldx #64 ; attribute table is 64 bytes
     loop:
         sta PPU_DATA
-        dex
+        dex 
         bne loop    
 
     rts
@@ -54,9 +54,9 @@
         ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
         columnloop:
             sta PPU_DATA
-            dex
+            dex 
             bne columnloop
-        dey
+        dey 
         bne rowloop
 
     ; setting up palette 0 for all the background tiles
@@ -64,10 +64,10 @@
     ldx #64 ; attribute table is 64 bytes
     loop:
         sta PPU_DATA
-        dex
+        dex 
         bne loop
 
-	rts
+	rts 
 .endproc
 ; Khine
 
@@ -88,19 +88,19 @@
     beq @bigCursor
 
     ; this should never be reached
-    rts
+    rts 
 
     @smallCursor:
         jsr UpdateSmallCursorPosition
-        rts
+        rts 
 
     @normalCursor:
         jsr UpdateNormalCursorPosition
-        rts
+        rts 
 
     @bigCursor:
         jsr UpdateBigCursorPosition
-        rts
+        rts 
 
 .endproc
 
@@ -122,7 +122,7 @@
     ; sta oam + OAM_OFFSET_CURSOR_SMALL + 3  
     sta oam + OAM_OFFSET_CURSOR_SMALL + 3
 
-    rts
+    rts 
 
 .endproc
 
@@ -134,24 +134,25 @@
     lda cursor_x
     sta oam + OAM_OFFSET_CURSOR_NORMAL + 3
 
-    rts
+    rts 
 
 .endproc
 
 ; BudgetArms
 .proc UpdateBigCursorPosition
+
     ldx cursor_y
 
     stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT
     stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT
 
     ; top is stored on cursor_y - 1
-    dex
+    dex 
     stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_TOP
 
     ; bottom is stored on cursor_y + 1
-    inx
-    inx
+    inx 
+    inx 
     stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM
 
     ldx cursor_x
@@ -159,15 +160,15 @@
     stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_BOTTOM  + 3
 
     ; left is stored on cursor_x - 1
-    dex
+    dex 
     stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_LEFT    + 3
 
     ; right is stored on cursor_x + 1
-    inx
-    inx
+    inx 
+    inx 
     stx oam + OAM_OFFSET_CURSOR_BIG + OAM_OFFSET_CURSOR_BIG_RIGHT   + 3
 
-    rts
+    rts 
 
 .endproc
 
@@ -180,6 +181,6 @@
     lda cursor_x
     sta oam + OAM_OFFSET_SMILEY + 3
 
-    rts
+    rts 
 
 .endproc
