@@ -15,7 +15,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-.incbin "game.chr"
+.incbin "game_UI_Update.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
@@ -48,6 +48,12 @@ cursor_x: .res 1
 cursor_y: .res 1
 tile_cursor_x: .res 1
 tile_cursor_y: .res 1
+
+; store zero page for digit conversion (might not need this)
+cursor_x_digits: .res 2
+cursor_y_digits: .res 2
+
+divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
 
 cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
 cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 

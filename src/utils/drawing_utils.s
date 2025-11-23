@@ -183,3 +183,107 @@
     rts
 
 .endproc
+
+; Jeronimas
+.proc UpdateOverlayCursorPosition
+    ; Convert cursor_x to three decimal digits
+    lda cursor_x
+    ldx #100
+    jsr DivideByX ; hundreds in A, remainder in X
+    sta cursor_x_digits      ; hundreds digit
+    txa
+    ldx #10
+    jsr DivideByX ; tens in A, ones in X
+    sta cursor_x_digits + 1  ; tens digit
+    stx cursor_x_digits + 2  ; ones digit
+    
+    ; Convert cursor_y to three decimal digits
+    lda cursor_y
+    ldx #100
+    jsr DivideByX
+    sta cursor_y_digits      ; hundreds digit
+    txa
+    ldx #10
+    jsr DivideByX
+    sta cursor_y_digits + 1  ; tens digit
+    stx cursor_y_digits + 2  ; ones digit
+    
+    ; Write overlay to nametable
+    ; Calculate nametable address: $2000 + (Y * 32) + X
+    ; For top-left, this is $2000 + 0 = $2000
+    lda PPU_STATUS           ; reset address latch
+    lda #>OVERLAY_NAMETABLE_ADDR
+    sta PPU_ADDR
+    lda #<OVERLAY_NAMETABLE_ADDR
+    sta PPU_ADDR
+    
+    ; Write "X: " label
+    lda #OVERLAY_TILE_CURSOR_X_LABEL
+    sta PPU_DATA
+    lda #OVERLAY_TILE_COLON
+    sta PPU_DATA
+    lda #OVERLAY_TILE_SPACE
+    sta PPU_DATA
+    
+    ; Write X digits (3 decimal digits)
+    lda cursor_x_digits
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_x_digits + 1
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_x_digits + 2
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    
+    ; Write " Y: " label
+    lda #OVERLAY_TILE_SPACE
+    sta PPU_DATA
+    lda #OVERLAY_TILE_CURSOR_Y_LABEL
+    sta PPU_DATA
+    lda #OVERLAY_TILE_COLON
+    sta PPU_DATA
+    lda #OVERLAY_TILE_SPACE
+    sta PPU_DATA
+    
+    ; Write Y digits (3 decimal digits)
+    lda cursor_y_digits
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_y_digits + 1
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_y_digits + 2
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    
+    rts
+.endproc
+
+; Jeronimas
+; Simple division: divides A by X, returns quotient in A, remainder in X
+.proc DivideByX
+    ; Input: A = dividend, X = divisor
+    ; Output: A = quotient, X = remainder
+
+    stx divide_by_x_divisor   ; Store divisor in zero page
+    ldy #0                   ; Y will hold quotient
+
+Divide_Loop:
+    cmp divide_by_x_divisor   ; Compare A with divisor
+    bcc Divide_Done           ; If A < divisor, we're done
+    sbc divide_by_x_divisor   ; Subtract divisor from A
+    iny                      ; Increment quotient
+    jmp Divide_Loop
+
+Divide_Done:
+    tya                    ; Move quotient from Y to A
+    tax                    ; Move remainder to X (A already holds remainder after loop)
+    rts
+.endproc
