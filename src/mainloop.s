@@ -12,7 +12,7 @@ mainloop:
 
     jsr LoadCursor
     jsr UpdateCursorPosition
-    jsr convert_cursor_coordinates_to_cursor_tile_position
+    jsr ConvertCursorPosToTilePositions
     ;jsr LoadSmileyFace
 
 
