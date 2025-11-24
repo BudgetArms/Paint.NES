@@ -47,7 +47,9 @@ loop:
     jsr draw_brush
     ; Khine
 
-    ; Resets the PPU Scroll
+    jsr UpdateOverlayCursorPosition
+
+    ; --- ADD THIS BLOCK: Reset scroll at the very end ---
     lda #%10000000
     sta PPU_CONTROL
     lda PPU_STATUS      ; Reset PPU address latch

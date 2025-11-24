@@ -63,6 +63,12 @@ cursor_y: .res 1
 tile_cursor_x: .res 1
 tile_cursor_y: .res 1
 
+; store zero page for digit conversion (might not need this)
+cursor_x_digits: .res 3
+cursor_y_digits: .res 3
+
+divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
+
 cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
 cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
 cursor_tile_position: .res 2

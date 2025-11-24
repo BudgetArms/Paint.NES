@@ -281,3 +281,104 @@
 
 .endproc
 
+
+; Jeronimas
+.proc UpdateOverlayCursorPosition
+    ; Convert cursor_x to three decimal digits
+    lda cursor_x
+    ldx #100
+    jsr DivideByX           ; hundreds in A, remainder in X
+    sta cursor_x_digits     ; hundreds digit (0-2)
+    txa
+    ldx #10
+    jsr DivideByX           ; tens in A, ones in X
+    sta cursor_x_digits + 1 ; tens digit (0-9)
+    stx cursor_x_digits + 2 ; ones digit (0-9)
+    
+    ; Convert cursor_y to three decimal digits
+    lda cursor_y
+    ldx #100
+    jsr DivideByX
+    sta cursor_y_digits     ; hundreds digit (0-2)
+    txa
+    ldx #10
+    jsr DivideByX
+    sta cursor_y_digits + 1 ; tens digit (0-9)
+    stx cursor_y_digits + 2 ; ones digit (0-9)
+    
+    ; Write overlay to nametable during VBlank
+    ; Reset PPU address latch
+    bit PPU_STATUS
+    
+    ; Set PPU address to nametable location
+    lda #>OVERLAY_NAMETABLE_ADDR
+    sta PPU_ADDR
+    lda #<OVERLAY_NAMETABLE_ADDR
+    sta PPU_ADDR
+    
+    ; Write "X:"
+    lda #OVERLAY_TILE_CURSOR_X_LABEL
+    sta PPU_DATA
+    lda #OVERLAY_TILE_COLON
+    sta PPU_DATA
+    
+    ; Write X digits as decimal (000-255)
+    lda cursor_x_digits
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_x_digits + 1
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_x_digits + 2
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    
+    ; Write " Y:"
+    lda #OVERLAY_TILE_SPACE
+    sta PPU_DATA
+    lda #OVERLAY_TILE_CURSOR_Y_LABEL
+    sta PPU_DATA
+    lda #OVERLAY_TILE_COLON
+    sta PPU_DATA
+    
+    ; Write Y digits as decimal (000-240)
+    lda cursor_y_digits
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_y_digits + 1
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    lda cursor_y_digits + 2
+    clc
+    adc #OVERLAY_TILE_DIGIT_0
+    sta PPU_DATA
+    
+    rts
+.endproc
+
+; Jeronimas
+; Simple division: divides A by X, returns quotient in A, remainder in X
+.proc DivideByX
+    ; Input: A = dividend, X = divisor
+    ; Output: A = quotient, X = remainder
+
+    stx divide_by_x_divisor   ; Store divisor in zero page
+    ldy #0                   ; Y will hold quotient
+
+Divide_Loop:
+    cmp divide_by_x_divisor   ; Compare A with divisor
+    bcc Divide_Done           ; If A < divisor, we're done
+    sbc divide_by_x_divisor   ; Subtract divisor from A
+    iny                      ; Increment quotient
+    jmp Divide_Loop
+
+Divide_Done:
+    tax                    ; Move remainder (in A) to X
+    tya                    ; Move quotient (in Y) to A
+    rts
+.endproc
