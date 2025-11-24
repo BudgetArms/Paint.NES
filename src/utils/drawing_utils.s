@@ -144,33 +144,33 @@
     lda cursor_type
 
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
 
     cmp #TYPE_CURSOR_MEDIUM
-    beq @mediumCursor
+    beq Medium_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ; this should never be reached
     rts 
 
-    @smallCursor:
+    Small_Cursor:
         jsr UpdateSmallCursorPosition
         rts 
 
-    @normalCursor:
+    Normal_Cursor:
         jsr UpdateNormalCursorPosition
         rts 
 
-    @mediumCursor:
+    Medium_Cursor:
         jsr UpdateMediumCursorPosition
         rts 
 
-    @bigCursor:
+    Big_Cursor:
         jsr UpdateBigCursorPosition
         rts 
 

@@ -309,40 +309,40 @@
     lda cursor_type     ; load cursor type
 
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
 
     cmp #TYPE_CURSOR_MEDIUM
-    beq @mediumCursor
+    beq Medium_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ; this should never be reached
     rts 
 
-    @smallCursor:
+    Small_Cursor:
 
         lda cursor_small_direction  ; load current direction
 
         cmp #DIR_CURSOR_SMALL_TOP_LEFT
-        beq @TopLeft
+        beq TopLeft
 
         cmp #DIR_CURSOR_SMALL_TOP_RIGHT
-        beq @TopRight
+        beq TopRight
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
-        beq @BottomLeft
+        beq BottomLeft
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-        beq @BottomRight
+        beq BottomRight
 
         ; this should never be reached
         rts 
         
-        @TopLeft:
+        TopLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_RIGHT
@@ -352,7 +352,7 @@
 
             rts 
 
-        @TopRight:
+        TopRight:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_LEFT
@@ -360,7 +360,7 @@
 
             rts 
 
-        @BottomLeft:
+        BottomLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
@@ -371,7 +371,7 @@
 
             rts 
 
-        @BottomRight:
+        BottomRight:
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
             sta cursor_small_direction
@@ -383,14 +383,14 @@
         rts 
 
 
-    @normalCursor:
+    Normal_Cursor:
         ; Update x-pos (1 step)
         jsr MoveCursorLeft
 
         rts 
 
 
-    @mediumCursor:
+    Medium_Cursor:
         ; Update x-pos (2 step)
         jsr MoveCursorLeft
         jsr MoveCursorLeft
@@ -398,7 +398,7 @@
         rts 
 
 
-    @bigCursor:
+    Big_Cursor:
         ; Update x-pos (3 step)
         jsr MoveCursorLeft
         jsr MoveCursorLeft
@@ -416,42 +416,42 @@
 
     ; check the cursor size
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
 
     cmp #TYPE_CURSOR_MEDIUM
-    beq @mediumCursor
+    beq Medium_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ; this should never be reached
     rts 
 
 
-    @smallCursor:
+    Small_Cursor:
 
         ; check the cursor direction
         lda cursor_small_direction
 
         cmp #DIR_CURSOR_SMALL_TOP_LEFT
-        beq @TopLeft
+        beq TopLeft
 
         cmp #DIR_CURSOR_SMALL_TOP_RIGHT
-        beq @TopRight
+        beq TopRight
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
-        beq @BottomLeft
+        beq BottomLeft
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-        beq @BottomRight
+        beq BottomRight
 
         ; this should never be reached
         rts 
         
-        @TopLeft:
+        TopLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_RIGHT
@@ -459,7 +459,7 @@
 
             rts 
 
-        @TopRight:
+        TopRight:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_LEFT
@@ -470,7 +470,7 @@
 
             rts 
 
-        @BottomLeft:
+        BottomLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
@@ -478,7 +478,7 @@
 
             rts 
 
-        @BottomRight:
+        BottomRight:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
@@ -493,7 +493,7 @@
         rts 
 
 
-    @normalCursor:
+    Normal_Cursor:
 
         ; Update x-pos (1 step)
         jsr MoveCursorRight
@@ -501,7 +501,7 @@
         rts 
 
 
-    @mediumCursor:
+    Medium_Cursor:
 
         ; Update x-pos (2 step)
         jsr MoveCursorRight
@@ -510,7 +510,7 @@
         rts 
 
 
-    @bigCursor:
+    Big_Cursor:
         
         ; Update x-pos (3 step)
         jsr MoveCursorRight
@@ -534,41 +534,41 @@
     lda cursor_type     ; load cursor type
 
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
 
     cmp #TYPE_CURSOR_MEDIUM
-    beq @mediumCursor
+    beq Medium_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ; this should never be reached
     rts 
 
 
-    @smallCursor:
+    Small_Cursor:
 
         lda cursor_small_direction
 
         cmp #DIR_CURSOR_SMALL_TOP_LEFT
-        beq @TopLeft
+        beq TopLeft
 
         cmp #DIR_CURSOR_SMALL_TOP_RIGHT
-        beq @TopRight
+        beq TopRight
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
-        beq @BottomLeft
+        beq BottomLeft
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-        beq @BottomRight
+        beq BottomRight
 
         ; this should never be reached
         rts 
         
-        @TopLeft:
+        TopLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
@@ -579,7 +579,7 @@
 
             rts 
 
-        @TopRight:
+        TopRight:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
@@ -590,7 +590,7 @@
 
             rts 
 
-        @BottomLeft:
+        BottomLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_LEFT
@@ -598,7 +598,7 @@
 
             rts 
 
-        @BottomRight:
+        BottomRight:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_RIGHT
@@ -611,14 +611,14 @@
         rts 
 
 
-    @normalCursor:
+    Normal_Cursor:
 
         ; Update y-pos (1 step)
         jsr MoveCursorUp
 
         rts 
 
-    @mediumCursor:
+    Medium_Cursor:
 
         ; Update y-pos (2 step)
         jsr MoveCursorUp
@@ -627,7 +627,7 @@
         rts 
 
 
-    @bigCursor:
+    Big_Cursor:
         
         ; Update y-pos (3 step)
         jsr MoveCursorUp
@@ -651,41 +651,41 @@
     lda cursor_type     ; load cursor type
 
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
 
     cmp #TYPE_CURSOR_MEDIUM
-    beq @mediumCursor
+    beq Medium_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ; this should never be reached
     rts 
 
 
-    @smallCursor:
+    Small_Cursor:
 
         lda cursor_small_direction
 
         cmp #DIR_CURSOR_SMALL_TOP_LEFT
-        beq @TopLeft
+        beq TopLeft
 
         cmp #DIR_CURSOR_SMALL_TOP_RIGHT
-        beq @TopRight
+        beq TopRight
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
-        beq @BottomLeft
+        beq BottomLeft
 
         cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-        beq @BottomRight
+        beq BottomRight
 
         ; this should never be reached
         rts 
         
-        @TopLeft:
+        TopLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
@@ -693,7 +693,7 @@
 
             rts 
 
-        @TopRight:
+        TopRight:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
@@ -701,7 +701,7 @@
 
             rts 
 
-        @BottomLeft:
+        BottomLeft:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_LEFT
@@ -712,7 +712,7 @@
 
             rts 
 
-        @BottomRight:
+        BottomRight:
 
             ; update the small direction
             lda #DIR_CURSOR_SMALL_TOP_RIGHT
@@ -724,7 +724,7 @@
             rts 
 
 
-    @normalCursor:
+    Normal_Cursor:
 
         ; Update y-pos (1 step)
         jsr MoveCursorDown
@@ -732,7 +732,7 @@
         rts 
 
 
-    @mediumCursor:
+    Medium_Cursor:
 
         ; Update y-pos (2 step)
         jsr MoveCursorDown
@@ -741,7 +741,7 @@
         rts 
 
 
-    @bigCursor:
+    Big_Cursor:
         
         ; Update y-pos (3 step)
         jsr MoveCursorDown
