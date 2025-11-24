@@ -369,3 +369,26 @@
     @Not_On_Clear_Canvas:
     rts
 .endproc
+
+
+.proc IncreaseColorPalleteIndex
+        lda newPalleteColor
+        clc
+        adc #$01
+        sta newPalleteColor
+
+        rts
+
+.endproc
+
+
+.proc DecreaseColorPalleteIndex
+        lda newPalleteColor
+        sec
+        sbc #$01
+        sta newPalleteColor
+
+        rts
+
+.endproc
+

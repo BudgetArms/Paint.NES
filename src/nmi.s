@@ -35,7 +35,7 @@ cont_render:
     stx PPU_ADDR
     ldx #0 ; transfer the 32 bytes to VRAM
 
-loop:
+    loop:
         lda palette, x
         sta PPU_DATA
         inx
@@ -48,6 +48,16 @@ loop:
     ; Khine
 
     jsr UpdateOverlayCursorPosition
+
+    ;Joren
+    LDA #$3F ;high byte of 16-bit PPU address
+    STA $2006   ;write to PPU
+    LDA #$02 ;low byte of 16-bit PPU address
+    STA $2006   ;write to PPU
+
+    LDA newPalleteColor ;load collorpallete value
+    STA $2007 ;write to PPU data register
+    ;Joren
 
     ; --- ADD THIS BLOCK: Reset scroll at the very end ---
     lda #%10000000

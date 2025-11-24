@@ -71,6 +71,7 @@
 .endmacro
 
 
+
 ; BudgetArms
 .macro HandleButtonReleased buttonMask, handleFunction
 
@@ -119,6 +120,44 @@
 .endmacro
 
 
+; BudgetArms
+.macro HandleButtonCombo buttonMask1, buttonMask2, holdFramesThreshold, frameCounterHold, handleFunction
+
+    ; to make labels work in macro's
+    .local exit_macro 
+
+    ; Check button is holding
+    lda #buttonMask1
+    ora #buttonMask2
+    eor input_holding_this_frame
+    bne exit_macro
+
+        lda #$01
+        sta is_combo_used
+
+
+        inc frameCounterHold
+        lda frameCounterHold
+
+        ; if frameCounterHold higher than holdFramesThreshold 
+        ; check with carry flag
+        cmp #holdFramesThreshold
+        bcc exit_macro
+
+
+        @press_button:
+            jsr handleFunction  ; call function
+            ResetFrameCounterHolder frameCounterHold ; reset frameCounter 
+            lda #$01
+            sta is_combo_used
+            ;jmp Test
+
+    exit_macro:
+
+.endmacro
+
+
+
 
 ;*****************************************************************
 ; HandleInput: Called every frame, after poll_gamepad. It's used to call 
@@ -129,29 +168,47 @@
 ; BudgetArms
 .proc HandleInput
 
-    ; Combo's
+    ;Joren
+    lda #PAD_START
+    ora #PAD_LEFT ;create and store a mask for the start + left button being pressed together
+    eor input_holding_this_frame ;XOR the current input with start+left mask
+    bne not_pressed_StartAndLeft
+    ;code for when Start + Left is pressed together
+        lda newPalleteColor
+        clc
+        adc #$01
+        sta newPalleteColor
 
-    ; if holding start, ignore all the other input
-    lda input_holding_this_frame
-    and #PAD_START
-    beq Not_Holding_Start
+    not_pressed_StartAndLeft:
+	; check StartAndRight
+    lda #PAD_START
+    ora #PAD_RIGHT ;create and store a mask for the start + left button being pressed together
+    eor input_holding_this_frame ;XOR the current input with start+left mask
+    bne CheckUpAndStart ; start checking other buttons
+        ;code for when Start + right is pressed together
+        lda newPalleteColor
+        clc
+        sbc #$01
+        sta newPalleteColor
 
-        ; if Holding_start
+    CheckUpAndStart:
+    lda #PAD_START
+    ora #PAD_UP ;create and store a mask for the start + left button being pressed together
+    eor input_pressed_this_frame ;XOR the current input with start+left mask
+    bne CheckDownAndStart
+        ;code for when Start + up is pressed together
 
-        ; example
-        HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,     BUTTON_HOLD_TIME_INSTANTLY,  HandleCursorPressedB
-        HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,     BUTTON_HOLD_TIME_NORMAL,     HandleCursorPressedB
-
-        ; HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,  BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
-        ; HandleButtonHeld PAD_RIGHT, frame_counter_holding_button_right, BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
-        ; HandleButtonHeld PAD_UP,    frame_counter_holding_button_up,    BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
-        ; HandleButtonHeld PAD_DOWN,  frame_counter_holding_button_down,  BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
-
-        rts 
+    CheckDownAndStart:
+    lda #PAD_START
+    ora #PAD_DOWN ;create and store a mask for the start + left button being pressed together
+    eor input_pressed_this_frame ;XOR the current input with start+left mask
+    bne CheckOtherButtons
+        ;code for when Start + down is pressed together
 
 
-    Not_Holding_Start:
 
+
+    CheckOtherButtons:
 
     ; Pressed
     HandleButtonPressed PAD_START,  HandleCursorPressedStart
@@ -192,9 +249,9 @@
     HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
     HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
 
-    
-
+    Test:
     rts 
+
 
 .endproc
 
@@ -760,6 +817,5 @@
 
 
 .endproc
-
 
 

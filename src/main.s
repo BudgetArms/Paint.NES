@@ -47,6 +47,8 @@ frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 2
 ; buttons hold-delays
 ; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
 ; then it executes the button press again
+
+frame_counter_holding_button_combo: .res 1
 frame_counter_holding_button_start: .res 1
 frame_counter_holding_button_select: .res 1
 frame_counter_holding_button_a: .res 1
@@ -88,6 +90,11 @@ scroll_x_position: .res 1
 scroll_y_position: .res 1
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
+
+;Joren
+newPalleteColor: .res 1
+is_combo_used: .res 1
+
 .segment "OAM"
 oam: .res 256	; sprite OAM data
 
@@ -172,6 +179,25 @@ default_palette:
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+
+;sprites
+.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
+.byte $0f,$0c,$21,$32
+.byte $0f,$05,$16,$27
+.byte $0f,$0b,$1a,$29
+
+switched_palette:
+;.byte $idk, $idk, drawColor, $idk
+;bg tiles/ text
+.byte $01,$28,$1c,$2d
+;.byte $00,$00,$00,$00
+.byte $01,$28,$1c,$2d
+.byte $01,$28,$1c,$2d
+.byte $01,$28,$1c,$2d 
+;.byte $0f,$0c,$21,$32
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
 
 ;sprites
