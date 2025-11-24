@@ -80,6 +80,7 @@ drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
 brush_tile_index: .res 1
 brush_size: .res 1
+newPaletteColor: .res 1
 
 ; misc
 abs_address_to_access: .res 2

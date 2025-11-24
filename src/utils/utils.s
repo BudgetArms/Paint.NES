@@ -367,5 +367,62 @@
         jsr ppu_off
         rts
     @Not_On_Clear_Canvas:
-    rts
+    rts 
 .endproc
+
+
+; BudgetArms / Joren
+.proc IncreaseColorPaletteIndex
+
+    lda newPaletteColor
+    clc 
+    adc #$01
+    sta newPaletteColor
+
+    rts 
+
+.endproc
+
+; BudgetArms / Joren
+.proc DecreaseColorPaletteIndex
+
+    lda newPaletteColor
+    sec 
+    sbc #$01
+    sta newPaletteColor
+
+    rts 
+
+.endproc
+
+; BudgetArms / Joren
+.proc LoadColorPalette
+
+    lda #$3F        ;high byte of 16-bit PPU address
+    sta PPU_ADDR    ;write to PPU
+    lda #$02        ;low byte of 16-bit PPU address
+    sta PPU_ADDR    ;write to PPU
+
+    lda newPaletteColor ;load collorpalette value
+    sta PPU_DATA        ;write to PPU data register
+
+    rts 
+
+.endproc
+
+
+; BudgetArms
+.proc ResetScroll
+
+    lda #%10000000
+    sta PPU_CONTROL
+    lda PPU_STATUS      ; Reset PPU address latch
+    lda scroll_x_position
+    sta PPU_SCROLL      ; X scroll
+    lda scroll_y_position
+    sta PPU_SCROLL      ; Y scroll
+
+    rts 
+
+.endproc
+
