@@ -56,6 +56,16 @@
 ; BudgetArms
 .macro HandleButtonPressed buttonMask, handleFunction
 
+    .local exit_macro
+
+    ;lda input_pressed_this_frame
+    ;eor #buttonMask
+    ;bne 
+
+    ;exit exit_macro:
+
+
+
     ; to make labels work in macro's
     .local exit_macro 
 
@@ -167,7 +177,7 @@
 
 ; BudgetArms
 .proc HandleInput
-
+;CheckCombos:
     ;Joren
     lda #PAD_START
     ora #PAD_LEFT ;create and store a mask for the start + left button being pressed together
@@ -178,6 +188,7 @@
         clc
         adc #$01
         sta newPalleteColor
+        JMP StopCheckingPressedButtons
 
     not_pressed_StartAndLeft:
 	; check StartAndRight
@@ -190,6 +201,7 @@
         clc
         sbc #$01
         sta newPalleteColor
+        JMP StopCheckingPressedButtons
 
     CheckUpAndStart:
     lda #PAD_START
@@ -197,60 +209,130 @@
     eor input_pressed_this_frame ;XOR the current input with start+left mask
     bne CheckDownAndStart
         ;code for when Start + up is pressed together
+        
+        JMP StopCheckingPressedButtons
 
     CheckDownAndStart:
     lda #PAD_START
     ora #PAD_DOWN ;create and store a mask for the start + left button being pressed together
     eor input_pressed_this_frame ;XOR the current input with start+left mask
-    bne CheckOtherButtons
+    bne CheckNonComboButtons
         ;code for when Start + down is pressed together
+        JMP StopCheckingPressedButtons
 
 
 
 
-    CheckOtherButtons:
+CheckNonComboButtons:
+
+    lda input_pressed_this_frame
+    TXA ;for quick acces later
+
+    ;eor PAD_START
+
+    eor PAD_A
+    bne Check_Pad_B ; if a  is not pressed
+    jmp HandleCursorPressedA ; if a is pressed
+    JMP StopCheckingPressedButtons
+
+    Check_Pad_B:
+    TXA ; lda input_pressed_this_frame
+    eor PAD_B
+    bne Check_Pad_Dpad
+    jmp HandleCursorPressedB
+    JMP StopCheckingPressedButtons
+
+
+    Check_Pad_Dpad:
+    TXA ; lda input_pressed_this_frame
+    eor PAD_RIGHT
+    bne Check_Pad_Up
+    jmp HandleCursorPressedRight
+    rts
+    ;JMP StopCheckingPressedButtons
+
+    Check_Pad_Up:
+    TXA ; lda input_pressed_this_frame
+    eor PAD_UP
+    bne Check_Pad_Left
+    jmp HandleCursorPressedUp
+    rts
+;    JMP StopCheckingPressedButtons
+
+    Check_Pad_Left:
+    TXA ; lda input_pressed_this_frame
+    eor PAD_LEFT
+    bne Check_Pad_Down
+    jmp HandleCursorPressedLeft
+    rts
+    ;JMP StopCheckingPressedButtons
+
+    Check_Pad_Down:
+    TXA ; lda input_pressed_this_frame
+    eor PAD_DOWN
+    bne Check_Pad_Select
+    jmp HandleCursorPressedDown
+    rts
+    ;JMP StopCheckingPressedButtons
+
+    Check_Pad_Select:
+    TXA ; lda input_pressed_this_frame
+    eor PAD_SELECT
+    bne Check_Pad_Start
+    jmp HandleCursorPressedStart
+    JMP StopCheckingPressedButtons
+
+    Check_Pad_Start:
+    TXA ; lda input_pressed_this_frame
+    eor PAD_START
+    bne StopCheckingPressedButtons
+    jmp HandleCursorPressedStart
+    JMP StopCheckingPressedButtons
+    
+    StopCheckingPressedButtons:
+    
 
     ; Pressed
-    HandleButtonPressed PAD_START,  HandleCursorPressedStart
-    HandleButtonPressed PAD_SELECT, HandleCursorPressedSelect
+    ;HandleButtonPressed PAD_START,  HandleCursorPressedStart
+    ;HandleButtonPressed PAD_SELECT, HandleCursorPressedSelect
 
-    HandleButtonPressed PAD_A,      HandleCursorPressedA
-    HandleButtonPressed PAD_B,      HandleCursorPressedB
+    ;HandleButtonPressed PAD_A,      HandleCursorPressedA
+    ;HandleButtonPressed PAD_B,      HandleCursorPressedB
 
-    HandleButtonPressed PAD_LEFT,   HandleCursorPressedLeft
-    HandleButtonPressed PAD_RIGHT,  HandleCursorPressedRight
-    HandleButtonPressed PAD_UP,     HandleCursorPressedUp
-    HandleButtonPressed PAD_DOWN,   HandleCursorPressedDown
+    ;HandleButtonPressed PAD_LEFT,   HandleCursorPressedLeft
+    ;HandleButtonPressed PAD_RIGHT,  HandleCursorPressedRight
+    ;HandleButtonPressed PAD_UP,     HandleCursorPressedUp
+    ;HandleButtonPressed PAD_DOWN,   HandleCursorPressedDown
 
 
     ; Released
-    HandleButtonReleased PAD_START,     HandleCursorReleasedStart
-    HandleButtonReleased PAD_SELECT,    HandleCursorReleasedSelect
+    ;HandleButtonReleased PAD_START,     HandleCursorReleasedStart
+    ;HandleButtonReleased PAD_SELECT,    HandleCursorReleasedSelect
 
-    HandleButtonReleased PAD_A,         HandleCursorReleasedA
-    HandleButtonReleased PAD_B,         HandleCursorReleasedB
+    ;HandleButtonReleased PAD_A,         HandleCursorReleasedA
+    ;HandleButtonReleased PAD_B,         HandleCursorReleasedB
 
-    HandleButtonReleased PAD_LEFT,      HandleCursorReleasedLeft
-    HandleButtonReleased PAD_RIGHT,     HandleCursorReleasedRight
-    HandleButtonReleased PAD_UP,        HandleCursorReleasedUp
-    HandleButtonReleased PAD_DOWN,      HandleCursorReleasedDown
+    ;HandleButtonReleased PAD_LEFT,      HandleCursorReleasedLeft
+    ;HandleButtonReleased PAD_RIGHT,     HandleCursorReleasedRight
+    ;HandleButtonReleased PAD_UP,        HandleCursorReleasedUp
+    ;HandleButtonReleased PAD_DOWN,      HandleCursorReleasedDown
 
 
     ; Pressed
     ; in this case all call the pressed function
-    HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
-    HandleButtonHeld PAD_SELECT,    frame_counter_holding_button_select,    BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedSelect
+    ;HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
+    ;HandleButtonHeld PAD_SELECT,    frame_counter_holding_button_select,    BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedSelect
 
-    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedA
-    HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedB
+    ;HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedA
+    ;HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedB
 
-    HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
-    HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_right,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedRight
-    HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
-    HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
+    ;HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
+    ;HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_right,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedRight
+    ;HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
+    ;HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
 
-    Test:
-    rts 
+    ;Test:
+    ;rts 
 
 
 .endproc
