@@ -118,7 +118,7 @@
     ldx #$00
 
     @Loop:
-        lda CURSOR_BIG_DATA_META, X
+        lda CURSOR_BIG_DATA, X
         sta oam + OAM_OFFSET_CURSOR_BIG, X
         inx 
 
