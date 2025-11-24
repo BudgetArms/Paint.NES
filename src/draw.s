@@ -118,7 +118,6 @@
     ldx #$00
 
     @Loop:
-        ; lda CURSOR_BIG_DATA, X
         lda CURSOR_BIG_DATA_META, X
         sta oam + OAM_OFFSET_CURSOR_BIG, X
         inx 
@@ -126,7 +125,7 @@
         cpx #OAM_SIZE_CURSOR_BIG
         bne @Loop  ; loop until all bytes are loaded
 
-    rts
+    rts 
 
 .endproc
 
