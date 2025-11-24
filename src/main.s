@@ -50,14 +50,8 @@ tile_cursor_x: .res 1
 tile_cursor_y: .res 1
 
 ; store zero page for digit conversion (might not need this)
-cursor_x_digits: .res 2
-cursor_y_digits: .res 2
-
-; Zero page temp variables
-hundreds_digit: .res 1
-tens_digit: .res 1
-ones_digit: .res 1
-temp_byte: .res 1
+cursor_x_digits: .res 3
+cursor_y_digits: .res 3
 
 divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
 
