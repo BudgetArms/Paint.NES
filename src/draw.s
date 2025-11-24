@@ -12,6 +12,9 @@
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
+
     cmp #TYPE_CURSOR_BIG
     beq Big_Cursor
 
@@ -24,6 +27,10 @@
 
     Normal_Cursor:
         jsr LoadNormalCursor
+        rts 
+
+    Medium_Cursor:
+        jsr LoadMediumCursor
         rts 
 
     Big_Cursor:
@@ -102,12 +109,30 @@
     @Loop:
         lda CURSOR_NORMAL_DATA, X
         sta oam + OAM_OFFSET_CURSOR_NORMAL, X
-        inx
+        inx 
 
         cpx #OAM_SIZE_CURSOR_NORMAL
         bne @Loop  ; loop until all bytes are loaded
 
-    rts
+    rts 
+
+.endproc
+
+
+; BudgetArms
+.proc LoadMediumCursor
+
+    ldx #$00
+
+    @Loop:
+        lda CURSOR_MEDIUM_DATA, X
+        sta oam + OAM_OFFSET_CURSOR_MEDIUM, X
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_MEDIUM
+        bne @Loop  ; loop until all bytes are loaded
+
+    rts 
 
 .endproc
 

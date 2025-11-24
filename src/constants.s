@@ -84,7 +84,8 @@ CANVAS = 1
 ; cursor types
 TYPE_CURSOR_SMALL = $00
 TYPE_CURSOR_NORMAL = $01
-TYPE_CURSOR_BIG = $02
+TYPE_CURSOR_MEDIUM = $02
+TYPE_CURSOR_BIG = $03
 
 ; cursor small directions
 DIR_CURSOR_SMALL_TOP_LEFT       = $00
@@ -96,9 +97,10 @@ DIR_CURSOR_SMALL_BOTTOM_RIGHT   = $0C
 ; tile indexes
 TILEINDEX_CURSOR_SMALL_TOP_LEFT = $10
 TILEINDEX_CURSOR_NORMAL = $20
-TILEINDEX_CURSOR_BIG_TOP_LEFT = $30 ; top-left corner
+TILEINDEX_CURSOR_BIG_TOP_LEFT = $30
 TILEINDEX_CURSOR_BIG_TOP = $40
 TILEINDEX_CURSOR_BIG_LEFT = $50
+
 TILEINDEX_SMILEY = $60
 
 TILEINDEX_TRANSPARENT_TILE = $FF    ; Last tile in CHR ROM (transparent)
@@ -110,13 +112,17 @@ TILEINDEX_OFFSET_COLOR_3 = $02      ; Color Pallet 3
 ; oam data sizes
 OAM_SIZE_CURSOR_SMALL   = $04       ; 4 bytes
 OAM_SIZE_CURSOR_NORMAL  = $04       ; 4 bytes
+OAM_SIZE_CURSOR_MEDIUM  = $10       ; 16 bytes
 OAM_SIZE_CURSOR_BIG     = $20       ; 32 bytes
 
 
 ; oam offsets are not same as tile indexes
 OAM_OFFSET_CURSOR_SMALL     = $00   ; 1 sprite (4 bytes)
 OAM_OFFSET_CURSOR_NORMAL    = $04   ; 1 sprite (4 bytes)
-OAM_OFFSET_CURSOR_BIG       = $08   ; 8 sprites (32 bytes)
+; OAM_OFFSET_CURSOR_MEDIUM    = $00   ; 4 sprite (16 bytes), different location to avoid overwriting star
+OAM_OFFSET_CURSOR_MEDIUM    = $08   ; 4 sprite (16 bytes), different location to avoid overwriting star
+; OAM_OFFSET_CURSOR_BIG       = $08   ; 8 sprites (32 bytes)
+OAM_OFFSET_CURSOR_BIG       = $18   ; 8 sprites (32 bytes)
 OAM_OFFSET_SMILEY           = $28   ; 1 sprite (4 bytes) 
 
 OAM_OFFSET_CURSOR_BIG_BOTTOM_LEFT   = $00
@@ -143,7 +149,7 @@ COLOR_TILE_START_INDEX = $01
 COLOR_TILE_END_INDEX = $03
 
 ; Selection Star
-SELECTION_STAR_OFFSET = $30
+SELECTION_STAR_OFFSET = $40
 SELECTION_STAR_X_OFFSET = $0F
 SELECTION_STAR_Y_START_POS = $BF
 SELECTION_STAR_Y_END_POS = $D7

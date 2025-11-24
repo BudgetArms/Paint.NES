@@ -114,6 +114,29 @@
 .endproc
 ; Khine
 
+; BudgetArms
+.macro HideCursor oamOffset, oamSize
+
+    ; to make labels work in macro's
+    .local Loop
+
+    ; Hide medium cursor
+    lda #$FF
+    ldx #$00
+    Loop:
+        sta oam + oamOffset, X
+        
+        ; Got to next sprite (Y-pos)
+        inx 
+        inx 
+        inx 
+        inx 
+
+        cpx #oamSize
+        bne Loop   ; Loop until everything is hidden
+
+.endmacro
+
 
 ; BudgetArms
 .proc UpdateCursorPosition
@@ -125,6 +148,9 @@
 
     cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq @mediumCursor
 
     cmp #TYPE_CURSOR_BIG
     beq @bigCursor
@@ -138,6 +164,10 @@
 
     @normalCursor:
         jsr UpdateNormalCursorPosition
+        rts 
+
+    @mediumCursor:
+        jsr UpdateMediumCursorPosition
         rts 
 
     @bigCursor:
@@ -154,14 +184,12 @@
     lda cursor_y    
 
     ; overwrite the Small Cursor's default y-pos with the cursor y-Position 
-    ; sta oam + OAM_OFFSET_CURSOR_SMALL
     sta oam + OAM_OFFSET_CURSOR_SMALL
 
     ; load cursor_x
     lda cursor_x
 
     ; overwrite the Small Small Cursor's default x-pos with the cursor x-Position 
-    ; sta oam + OAM_OFFSET_CURSOR_SMALL + 3  
     sta oam + OAM_OFFSET_CURSOR_SMALL + 3
 
     rts 
@@ -181,10 +209,38 @@
 .endproc
 
 ; BudgetArms
+.proc UpdateMediumCursorPosition
+
+    ldx #$00
+    Loop:
+        ; Increase cursor_y with oam data's y-pos
+        lda cursor_y
+        adc oam + OAM_OFFSET_CURSOR_MEDIUM, X 
+        sta oam + OAM_OFFSET_CURSOR_MEDIUM, X 
+
+        ; Increase cursor_x with oam data's x-pos
+        lda cursor_x
+        adc oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
+        sta oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
+
+        ; x += 4 bytes, to go to the next sprite
+        inx 
+        inx 
+        inx 
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_MEDIUM
+        bne Loop
+
+    rts 
+
+.endproc
+
+; BudgetArms
 .proc UpdateBigCursorPosition
 
     ldx #$00
-    @Loop:
+    Loop:
         ; Increase cursor_y with oam data's y-pos
         lda cursor_y
         adc oam + OAM_OFFSET_CURSOR_BIG, X 
@@ -202,7 +258,7 @@
         inx 
 
         cpx #OAM_SIZE_CURSOR_BIG
-        bne @Loop
+        bne Loop
 
     rts 
 
@@ -233,8 +289,11 @@
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
+
     cmp #TYPE_CURSOR_BIG
-    beq Big_Cursor
+    beq Big_Cursor_Jump
 
 
     ;this should never be reached
@@ -242,42 +301,47 @@
 
 
     Small_Cursor:
-        ; Hide normal cursor
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_NORMAL
+        ; Hide normal, medium and big cursor
+        HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
 
-        jmp HideBigCursor 
+        rts 
 
 
     Normal_Cursor:
-        ; Hide small cursor
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_SMALL
+        ; Hide small, medium and big cursor
+        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
 
-        jmp HideBigCursor
+        rts 
+
+    ; to fix range error
+    Big_Cursor_Jump:
+        jmp Big_Cursor
+
+
+    Medium_Cursor:
+        ; Hide small, normal and big cursor
+        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
+        HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
+
+        rts 
 
 
     Big_Cursor:
-        ; Hide small and normal cursor
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_SMALL
-        sta oam + OAM_OFFSET_CURSOR_NORMAL
+        ; Hide small, normal and medium cursor
+        HideCursor OAM_OFFSET_CURSOR_SMALL, OAM_SIZE_CURSOR_SMALL
+        HideCursor OAM_OFFSET_CURSOR_NORMAL, OAM_SIZE_CURSOR_NORMAL
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM, OAM_SIZE_CURSOR_MEDIUM
 
         rts 
 
 
-    HideBigCursor:
-        ; Hide big cursor
-        ldx #$FF
-        @Loop:
-            sta oam + OAM_OFFSET_CURSOR_BIG, X
-            inx 
-
-            cpx #OAM_SIZE_CURSOR_BIG
-            bne @Loop   ; Loop until everything is hidden
-        
-        rts 
-
+    ; this should never be reached
+    rts 
 
 .endproc
 

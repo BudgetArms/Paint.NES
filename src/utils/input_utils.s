@@ -180,7 +180,6 @@
 
 
     ; Pressed
-    ; in this case all call the pressed function
     HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
     HandleButtonHeld PAD_SELECT,    frame_counter_holding_button_select,    BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedSelect
 
@@ -245,19 +244,22 @@
     lda cursor_type     ; load cursor type
 
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ; this should never be reached
     rts 
 
 
-    @smallCursor:
+    Small_Cursor:
             
         ; change cursor type to normal
         lda #TYPE_CURSOR_NORMAL
@@ -265,7 +267,15 @@
 
         rts 
 
-    @normalCursor:
+    Normal_Cursor:
+
+        ; change cursor type to medium
+        lda #TYPE_CURSOR_MEDIUM
+        sta cursor_type 
+
+        rts 
+
+    Medium_Cursor:
 
         ; change cursor type to big
         lda #TYPE_CURSOR_BIG
@@ -274,7 +284,7 @@
         rts 
 
 
-    @bigCursor:
+    Big_Cursor:
         
         ; change cursor type to small
         lda #TYPE_CURSOR_SMALL
@@ -285,6 +295,10 @@
         sta cursor_small_direction
 
         rts 
+
+
+    ; this should never be reached
+    rts 
 
 .endproc
 
@@ -299,6 +313,9 @@
 
     cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq @mediumCursor
 
     cmp #TYPE_CURSOR_BIG
     beq @bigCursor
@@ -373,8 +390,17 @@
         rts 
 
 
-    @bigCursor:
+    @mediumCursor:
         ; Update x-pos (2 step)
+        jsr MoveCursorLeft
+        jsr MoveCursorLeft
+
+        rts 
+
+
+    @bigCursor:
+        ; Update x-pos (3 step)
+        jsr MoveCursorLeft
         jsr MoveCursorLeft
         jsr MoveCursorLeft
 
@@ -394,6 +420,9 @@
 
     cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq @mediumCursor
 
     cmp #TYPE_CURSOR_BIG
     beq @bigCursor
@@ -472,9 +501,19 @@
         rts 
 
 
+    @mediumCursor:
+
+        ; Update x-pos (2 step)
+        jsr MoveCursorRight
+        jsr MoveCursorRight
+
+        rts 
+
+
     @bigCursor:
         
-        ; Update x-pos (2 step)
+        ; Update x-pos (3 step)
+        jsr MoveCursorRight
         jsr MoveCursorRight
         jsr MoveCursorRight
 
@@ -499,6 +538,9 @@
 
     cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq @mediumCursor
 
     cmp #TYPE_CURSOR_BIG
     beq @bigCursor
@@ -576,10 +618,19 @@
 
         rts 
 
+    @mediumCursor:
+
+        ; Update y-pos (2 step)
+        jsr MoveCursorUp
+        jsr MoveCursorUp
+
+        rts 
+
 
     @bigCursor:
         
-        ; Update y-pos (2 step)
+        ; Update y-pos (3 step)
+        jsr MoveCursorUp
         jsr MoveCursorUp
         jsr MoveCursorUp
 
@@ -604,6 +655,9 @@
 
     cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq @mediumCursor
 
     cmp #TYPE_CURSOR_BIG
     beq @bigCursor
@@ -678,16 +732,24 @@
         rts 
 
 
-    @bigCursor:
-        
+    @mediumCursor:
+
         ; Update y-pos (2 step)
         jsr MoveCursorDown
         jsr MoveCursorDown
 
         rts 
 
+
+    @bigCursor:
+        
+        ; Update y-pos (3 step)
+        jsr MoveCursorDown
+        jsr MoveCursorDown
+
+        rts 
+
 .endproc
-; Khine
 
 
 
@@ -702,7 +764,6 @@
 
 
 .endproc
-; Khine
 
 
 .proc HandleCursorReleasedSelect
@@ -711,7 +772,6 @@
 
 
 .endproc
-; Khine
 
 
 .proc HandleCursorReleasedA
