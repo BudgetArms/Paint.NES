@@ -32,9 +32,9 @@
         ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
         columnloop:
             sta PPU_DATA
-            dex
+            dex 
             bne columnloop
-        dey
+        dey 
         bne rowloop
     rts
 .endproc
@@ -56,9 +56,9 @@
         ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
         columnloop:
             sta PPU_DATA
-            dex
+            dex 
             bne columnloop
-        dey
+        dey 
         bne rowloop
 
     ; setting up palette 0 for all the background tiles
@@ -66,7 +66,7 @@
     ldx #ATTR_TABLE_SIZE ; attribute table is 64 bytes
     loop:
         sta PPU_DATA
-        dex
+        dex 
         bne loop
 
 
@@ -120,29 +120,29 @@
 
     lda cursor_type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
-    rts
+    rts 
 
     @smallCursor:
         jsr UpdateSmallCursorPosition
-        rts
+        rts 
 
     @normalCursor:
         jsr UpdateNormalCursorPosition
-        rts
+        rts 
 
     @bigCursor:
         jsr UpdateBigCursorPosition
-        rts
+        rts 
 
 .endproc
 
@@ -154,61 +154,130 @@
     lda cursor_y    
 
     ; overwrite the Small Cursor's default y-pos with the cursor y-Position 
-    ; sta oam + CURSOR_OFFSET_SMALL
-    sta oam + CURSOR_OFFSET_SMALL
+    ; sta oam + OAM_OFFSET_CURSOR_SMALL
+    sta oam + OAM_OFFSET_CURSOR_SMALL
 
     ; load cursor_x
     lda cursor_x
 
     ; overwrite the Small Small Cursor's default x-pos with the cursor x-Position 
-    ; sta oam + CURSOR_OFFSET_SMALL + 3  
-    sta oam + CURSOR_OFFSET_SMALL + 3
+    ; sta oam + OAM_OFFSET_CURSOR_SMALL + 3  
+    sta oam + OAM_OFFSET_CURSOR_SMALL + 3
 
-    rts
+    rts 
 
 .endproc
 
 ; BudgetArms
 .proc UpdateNormalCursorPosition
     lda cursor_y
-    sta oam + CURSOR_OFFSET_NORMAL
+    sta oam + OAM_OFFSET_CURSOR_NORMAL
 
     lda cursor_x
-    sta oam + CURSOR_OFFSET_NORMAL + 3
+    sta oam + OAM_OFFSET_CURSOR_NORMAL + 3
 
-    rts
+    rts 
 
 .endproc
 
 ; BudgetArms
 .proc UpdateBigCursorPosition
-    ldx cursor_y
 
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
+    ldx #$00
+    @Loop:
+        ; Increase cursor_y with oam data's y-pos
+        lda cursor_y
+        adc oam + OAM_OFFSET_CURSOR_BIG, X 
+        sta oam + OAM_OFFSET_CURSOR_BIG, X 
 
-    ; top is stored on cursor_y - 1
-    dex
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
+        ; Increase cursor_x with oam data's x-pos
+        lda cursor_x
+        adc oam + OAM_OFFSET_CURSOR_BIG + 3, X 
+        sta oam + OAM_OFFSET_CURSOR_BIG + 3, X 
 
-    ; bottom is stored on cursor_y + 1
-    inx
-    inx
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
+        ; x += 4 bytes, to go to the next sprite
+        inx 
+        inx 
+        inx 
+        inx 
 
-    ldx cursor_x
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP     + 3
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM  + 3
+        cpx #OAM_SIZE_CURSOR_BIG
+        bne @Loop
 
-    ; left is stored on cursor_x - 1
-    dex
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT    + 3
-
-    ; right is stored on cursor_x + 1
-    inx
-    inx
-    stx oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT   + 3
-
-    rts
+    rts 
 
 .endproc
+
+
+; BudgetArms
+.proc UpdateSmileyPosition
+    lda cursor_y 
+    sta oam + OAM_OFFSET_SMILEY
+
+    lda cursor_x
+    sta oam + OAM_OFFSET_SMILEY + 3
+
+    rts 
+
+.endproc
+
+
+; BudgetArms
+.proc HideInactiveCursors
+
+    lda cursor_type
+
+    cmp #TYPE_CURSOR_SMALL
+    beq Small_Cursor
+
+    cmp #TYPE_CURSOR_NORMAL
+    beq Normal_Cursor
+
+    cmp #TYPE_CURSOR_BIG
+    beq Big_Cursor
+
+
+    ;this should never be reached
+    rts 
+
+
+    Small_Cursor:
+        ; Hide normal cursor
+        lda #$FF
+        sta oam + OAM_OFFSET_CURSOR_NORMAL
+
+        jmp HideBigCursor 
+
+
+    Normal_Cursor:
+        ; Hide small cursor
+        lda #$FF
+        sta oam + OAM_OFFSET_CURSOR_SMALL
+
+        jmp HideBigCursor
+
+
+    Big_Cursor:
+        ; Hide small and normal cursor
+        lda #$FF
+        sta oam + OAM_OFFSET_CURSOR_SMALL
+        sta oam + OAM_OFFSET_CURSOR_NORMAL
+
+        rts 
+
+
+    HideBigCursor:
+        ; Hide big cursor
+        ldx #$FF
+        @Loop:
+            sta oam + OAM_OFFSET_CURSOR_BIG, X
+            inx 
+
+            cpx #OAM_SIZE_CURSOR_BIG
+            bne @Loop   ; Loop until everything is hidden
+        
+        rts 
+
+
+.endproc
+

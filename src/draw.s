@@ -4,55 +4,34 @@
 ; BudgetArms
 .proc LoadCursor
 
-    ; lda #CURSOR_TYPE_NORMAL   ;test
-    ; sta cursor_type           ;test
-
     lda cursor_type
 
-    cmp #CURSOR_TYPE_SMALL
-    beq @smallCursor
+    cmp #TYPE_CURSOR_SMALL
+    beq Small_Cursor
 
-    cmp #CURSOR_TYPE_NORMAL
-    beq @normalCursor
+    cmp #TYPE_CURSOR_NORMAL
+    beq Normal_Cursor
 
-    cmp #CURSOR_TYPE_BIG
-    beq @bigCursor
+    cmp #TYPE_CURSOR_BIG
+    beq Big_Cursor
 
     ;this should never be reached
-    rts
+    rts 
 
-    @smallCursor:
-        ; Hide normal and big cursors
-        lda #$FF
-        sta oam + CURSOR_OFFSET_NORMAL
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
-
+    Small_Cursor:
         jsr LoadSmallCursor
-        rts
+        rts 
 
-    @normalCursor:
-        ; Hide normal and big cursors
-        lda #$FF
-        sta oam + CURSOR_OFFSET_SMALL
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_LEFT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_TOP
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_RIGHT
-        sta oam + CURSOR_OFFSET_BIG + CURSOR_OFFSET_BIG_BOTTOM
-
+    Normal_Cursor:
         jsr LoadNormalCursor
-        rts
+        rts 
 
-    @bigCursor:
-        ; Hide normal and big cursors
-        lda #$FF
-        sta oam + CURSOR_OFFSET_SMALL
-        sta oam + CURSOR_OFFSET_NORMAL
-
+    Big_Cursor:
         jsr LoadBigCursor
-        rts
+        rts 
+
+    ; this should never be reached
+    rts 
 
 .endproc
 
@@ -62,55 +41,55 @@
 
     lda cursor_small_direction
 
-    cmp #CURSOR_SMALL_DIR_TOP_LEFT
-    beq @DrawTopLeft
+    cmp #DIR_CURSOR_SMALL_TOP_LEFT
+    beq DrawTopLeft
 
-    cmp #CURSOR_SMALL_DIR_TOP_RIGHT
-    beq @DrawTopRight
+    cmp #DIR_CURSOR_SMALL_TOP_RIGHT
+    beq DrawTopRight
 
-    cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
-    beq @DrawBottomLeft
+    cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
+    beq DrawBottomLeft
 
-    cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
-    beq @DrawBottomRight
+    cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
+    beq DrawBottomRight
 
     ; this should never be reached
-    rts
+    rts 
 
     ; set x, it's the offset from CURSOR_SMALL_CURSOR to it's current sprite
 
-    @DrawTopLeft:
-        ldx #CURSOR_SMALL_DIR_TOP_LEFT
-        jmp @DoneSettingStartAddress
+    DrawTopLeft:
+        ldx #DIR_CURSOR_SMALL_TOP_LEFT
+        jmp DoneSettingStartAddress
 
-    @DrawTopRight:
-        ldx #CURSOR_SMALL_DIR_TOP_RIGHT
-        jmp @DoneSettingStartAddress
+    DrawTopRight:
+        ldx #DIR_CURSOR_SMALL_TOP_RIGHT
+        jmp DoneSettingStartAddress
 
-    @DrawBottomLeft:
-        ldx #CURSOR_SMALL_DIR_BOTTOM_LEFT
-        jmp @DoneSettingStartAddress
+    DrawBottomLeft:
+        ldx #DIR_CURSOR_SMALL_BOTTOM_LEFT
+        jmp DoneSettingStartAddress
 
-    @DrawBottomRight:
-        ldx #CURSOR_SMALL_DIR_BOTTOM_RIGHT
-        jmp @DoneSettingStartAddress
+    DrawBottomRight:
+        ldx #DIR_CURSOR_SMALL_BOTTOM_RIGHT
+        jmp DoneSettingStartAddress
 
 
-    @DoneSettingStartAddress:
+    DoneSettingStartAddress:
 
         ldy #$00
 
         @Loop: 
             lda CURSOR_SMALL_DATA, X
-            sta oam + CURSOR_OFFSET_SMALL, Y
+            sta oam + OAM_OFFSET_CURSOR_SMALL, Y
 
             inx     ; so the next sprite get read/written
             iny     ; to keep track of the Nth byte we are reading
 
-            cpy #$04    ; sprite is 4 bytes
+            cpy #OAM_SIZE_CURSOR_SMALL
             bne @Loop   ; loop until the whole sprite is loaded in
 
-        rts
+        rts 
 
 .endproc
 
@@ -122,12 +101,10 @@
 
     @Loop:
         lda CURSOR_NORMAL_DATA, X
-        sta oam + CURSOR_OFFSET_NORMAL, X
+        sta oam + OAM_OFFSET_CURSOR_NORMAL, X
         inx
 
-        ; Each Sprite is 4 bytes, we have one sprite
-        ; 4 (byte, 1 sprite) * 1 (amount of sprites in the big sprite) = 4 bytes
-        cpx #$04
+        cpx #OAM_SIZE_CURSOR_NORMAL
         bne @Loop  ; loop until all bytes are loaded
 
     rts
@@ -142,20 +119,18 @@
 
     @Loop:
         lda CURSOR_BIG_DATA, X
-        sta oam + CURSOR_OFFSET_BIG, X
-        inx
+        sta oam + OAM_OFFSET_CURSOR_BIG, X
+        inx 
 
-        ; Each Sprite is 4 bytes, we have one sprite
-        ; 4 (byte, 1 sprite) * 4 (amount of sprites in the big sprite) = 16 bytes
-        cpx #$10
+        cpx #OAM_SIZE_CURSOR_BIG
         bne @Loop  ; loop until all bytes are loaded
 
-    rts
+    rts 
 
 .endproc
 
 
-; Khine
+; Khine/BudgetArms
 .proc draw_brush
     ; Check if the PAD_A has been pressed
     ; This is not checked in the `input_utils.s` because this can run into issues with

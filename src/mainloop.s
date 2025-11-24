@@ -5,15 +5,12 @@ mainloop:
     bne mainloop
     ; read the gamepad (updates current_input, input_pressed_this_frame and input_released_this_frame )
     jsr poll_gamepad
-    jsr handle_input
+    jsr HandleInput
 
-    ; update cursor position and write sprite OAM for sprite 0
-    ;jsr update_cursor
-
+    jsr HideInactiveCursors
     jsr LoadCursor
     jsr UpdateCursorPosition
     jsr ConvertCursorPosToTilePositions
-    ;jsr LoadSmileyFace
 
 
     ; ensure our changes are rendered

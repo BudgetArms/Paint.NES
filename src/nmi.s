@@ -17,6 +17,7 @@
         ldx #0
         stx nmi_ready
         jmp ppu_update_end
+
 cont_render:
 
     ; transfer sprite OAM data using DMA
@@ -33,19 +34,20 @@ cont_render:
     sta PPU_ADDR
     stx PPU_ADDR
     ldx #0 ; transfer the 32 bytes to VRAM
+
 loop:
-    lda palette, x
-    sta PPU_DATA
-    inx
-    cpx #32
-    bcc loop
+        lda palette, x
+        sta PPU_DATA
+        inx
+        cpx #32
+        bcc loop
 
     ; Khine
     jsr ClearCanvas
     jsr draw_brush
     ; Khine
 
-    ; --- ADD THIS BLOCK: Reset scroll at the very end ---
+    ; Resets the PPU Scroll
     lda #%10000000
     sta PPU_CONTROL
     lda PPU_STATUS      ; Reset PPU address latch
@@ -53,7 +55,6 @@ loop:
     sta PPU_SCROLL      ; X scroll
     lda scroll_y_position
     sta PPU_SCROLL      ; Y scroll
-    ; ---------------------------------------------------
 
     ; enable rendering
     lda #%00011110
@@ -71,3 +72,4 @@ loop:
     pla
     rti
 .endproc
+

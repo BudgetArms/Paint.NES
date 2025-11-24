@@ -15,8 +15,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-;.incbin "game.chr"
-.incbin "game_khine.chr"
+.incbin "game.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
@@ -40,9 +39,23 @@ current_input:				.res 1 ; stores the current gamepad values
 last_frame_input:			.res 1
 input_pressed_this_frame:	.res 1
 input_released_this_frame:	.res 1
+input_holding_this_frame:	.res 1
 
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
                         ;this is to do stuff like "every time an 8th frame passes, do this"
+
+; buttons hold-delays
+; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
+; then it executes the button press again
+frame_counter_holding_button_start: .res 1
+frame_counter_holding_button_select: .res 1
+frame_counter_holding_button_a: .res 1
+frame_counter_holding_button_b: .res 1
+frame_counter_holding_button_left: .res 1
+frame_counter_holding_button_right: .res 1
+frame_counter_holding_button_up: .res 1
+frame_counter_holding_button_down: .res 1
+
 
 ; Cursor position (single 8x8 sprite)
 cursor_x: .res 1
@@ -88,7 +101,6 @@ palette: .res 32 ; current palette buffer
 .include "utils/input_utils.s"
 .include "draw.s"
 
-;.include "cursor.s"
 
 ;***************************************
 ; starting point
@@ -113,14 +125,28 @@ irq:
     ; main application - rendering is currently off
     ; clear 1st name table
     jsr SetupCanvas
+
     ; initialize palette table
     ldx #0
-paletteloop:
-    lda default_palette, x
-    sta palette, x
-    inx
-    cpx #32
-    bcc paletteloop
+    paletteloop:
+        lda default_palette, x
+        sta palette, x
+        inx
+        cpx #32
+        bcc paletteloop
+    
+
+    initialize_button_held_times:
+        lda #00
+        sta frame_counter_holding_button_start
+        sta frame_counter_holding_button_select
+        sta frame_counter_holding_button_a
+        sta frame_counter_holding_button_b
+        sta frame_counter_holding_button_left
+        sta frame_counter_holding_button_right
+        sta frame_counter_holding_button_up
+        sta frame_counter_holding_button_down
+
 
     jsr ppu_update
 
@@ -160,22 +186,35 @@ SAMPLE_SPRITE:
                                 ;+-------- Flip sprite vertically
 
 CURSOR_SMALL_DATA:
-    .byte $00, CURSOR_TILE_SMALL_TOP_LEFT,      %00000000, $00
-    .byte $00, CURSOR_TILE_SMALL_TOP_RIGHT,     %00000000, $00
-    .byte $00, CURSOR_TILE_SMALL_BOTTOM_LEFT,   %00000000, $00
-    .byte $00, CURSOR_TILE_SMALL_BOTTOM_RIGHT,  %00000000, $00
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %00000000, $00      ; top-left
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %01000000, $00      ; top-right
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %10000000, $00      ; bottom-left
+    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %11000000, $00      ; bottom-right
 
 CURSOR_NORMAL_DATA:
-    .byte $00, CURSOR_TILE_NORMAL,  %00000000, $00
+    .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
+
 
 CURSOR_BIG_DATA:
-    .byte $00, CURSOR_TILE_BIG_LEFT,    %00000000, $00
-    .byte $00, CURSOR_TILE_BIG_TOP,     %00000000, $00
-    .byte $00, CURSOR_TILE_BIG_RIGHT,   %00000000, $00
-    .byte $00, CURSOR_TILE_BIG_BOTTOM,  %00000000, $00
+    .byte   $0F,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %00000000,     $00     ; LEFT
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP,        %00000000,     $08     ; TOP
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000,     $10     ; TOP-RIGHT: mirrored x
+    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
+    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
+    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
 
 Seletion_Star_Sprite:
     .byte OAM_OFFSCREEN, STAR_TILE, $00000000, SELECTION_STAR_X_OFFSET
 
 Selection_Menu_Tilemap:
     .incbin "./tilemaps/selection_menu.nam"
+    .byte   $0F,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %00000000,     $00     ; LEFT
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP,        %00000000,     $08     ; TOP
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000,     $10     ; TOP-RIGHT: mirrored x
+    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
+    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
+    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y

@@ -1,27 +1,3 @@
-; Khine
-.macro ChangeBrushTileIndex    source_tile
-    lda source_tile
-    sta brush_tile_index
-.endmacro
-; Khine
-
-
-; Khine
-.macro ChangeCanvasMode    new_mode
-    lda new_mode
-    sta tool_mode
-.endmacro
-; Khine
-
-
-; Khine
-.macro ChangeToolAttr   tool_to_turn_on
-    lda tool_use_attr
-    ora tool_to_turn_on
-    sta tool_use_attr
-.endmacro
-; Khine
-
 ;*****************************************************************
 ; gamepad_poll: this reads the gamepad state into the variable labelled "gamepad"
 ; This only reads the first gamepad, and also if DPCM samples are played they can
@@ -37,17 +13,18 @@
     sta JOYPAD1
     ; read 8 bytes from the interface at $4016
     ldx #8
-poll_loop:
-    pha
-    lda JOYPAD1
-    ; combine low two bits and store in carry bit
-    and #%00000011
-    cmp #%00000001
-    pla
-    ; rotate carry into gamepad variable
-    ror
-    dex
-    bne poll_loop
+
+    poll_loop:
+        pha
+        lda JOYPAD1
+        ; combine low two bits and store in carry bit
+        and #%00000011
+        cmp #%00000001
+        pla
+        ; rotate carry into gamepad variable
+        ror
+        dex
+        bne poll_loop
 
     sta current_input
 
@@ -61,405 +38,307 @@ poll_loop:
     and last_frame_input
     sta input_released_this_frame
 
+    lda last_frame_input
+    and current_input
+    eor input_released_this_frame
+    sta input_holding_this_frame
+
+
     rts
 .endproc
 
+
+
 ;*****************************************************************
-; handle_input: handles controller input for the current frame
-;   Reads from `input_pressed_this_frame` and gives a branch where you can write code for when its pressed
-;   This one only updates when you start pressing the button, use `current_input` for having it be called every tick or
-;	`input_released_this_frame` to have it be called only once when releasing the button
+;                       Macro's
 ;*****************************************************************
-.proc handle_input
-    ; Check A button
+
+; BudgetArms
+.macro HandleButtonPressed buttonMask, handleFunction
+
+    ; to make labels work in macro's
+    .local exit_macro 
+
+    ; Check button is pressed
     lda input_pressed_this_frame
-    and #PAD_A
-    beq not_pressed_a
-        ; code for when A is pressed
-        lda scroll_y_position
-        cmp #CANVAS_MODE
-        beq @In_Canvas_Mode
-            jsr SelectTool
-            jmp not_pressed_b
-        @In_Canvas_Mode:
-        ChangeToolAttr #BRUSH_TOOL_ON
+    and #buttonMask
+    beq exit_macro
+        ; code for when button is pressed
+        jsr handleFunction
 
-    not_pressed_a:
+    exit_macro:
 
-    ; Check B button
-    lda input_pressed_this_frame
-    and #PAD_B
-    beq not_pressed_b
-        ; code for when B is pressed
-        jsr CycleBrushSize
+.endmacro
 
-    not_pressed_b:
 
-    ; Check Select button
-    lda input_pressed_this_frame
-    and #PAD_SELECT
-    beq not_pressed_select
-        ; code for when Select is pressed
-        jsr CycleCanvasModes
+; BudgetArms
+.macro HandleButtonReleased buttonMask, handleFunction
 
-    not_pressed_select:
+    ; to make labels work in macro's
+    .local exit_macro 
 
-    ; Check Start button
-    lda input_pressed_this_frame
+    ; Check button is released
+    lda input_released_this_frame
+    and #buttonMask
+    beq exit_macro
+        ; code for when button is released
+        jsr handleFunction
+
+    exit_macro:
+
+.endmacro
+
+
+; BudgetArms
+.macro HandleButtonHeld buttonMask, frameCounterHold, holdFramesThreshold, handleFunction 
+
+    ; to make labels work in macro's
+    .local exit_macro 
+
+    ; Check button is holding
+    lda input_holding_this_frame
+    and #buttonMask
+    beq exit_macro
+    
+
+        inc frameCounterHold
+        lda frameCounterHold
+
+        ; if frameCounterHold higher than holdFramesThreshold 
+        ; check with carry flag
+        cmp #holdFramesThreshold
+        bcc exit_macro
+
+        @press_button:
+            jsr handleFunction  ; call function
+            ResetFrameCounterHolder frameCounterHold ; reset frameCounter 
+
+
+    exit_macro:
+
+.endmacro
+
+
+
+;*****************************************************************
+; HandleInput: Called every frame, after poll_gamepad. It's used to call 
+; the Pressed, Released and Held functions with Help of macro's
+; HandleButtonPressed, HandleButtonReleased and HandleButtonHeld.
+;*****************************************************************
+
+; BudgetArms
+.proc HandleInput
+
+    ; Combo's
+
+    ; if holding start, ignore all the other input
+    lda input_holding_this_frame
     and #PAD_START
-    beq not_pressed_start
-        ; code for when Start is pressed
-        jsr CycleToolModes
+    beq Not_Holding_Start
 
-    not_pressed_start:
+        ; if Holding_start
 
-    ; Check Up
-    lda input_pressed_this_frame
-    and #PAD_UP
-    beq not_pressed_up
-        ; code for when Up is pressed
-        lda scroll_y_position
-        cmp #CANVAS_MODE
-        beq @In_Canvas_Mode
-            jsr MoveSelectionStarUp
-            jmp not_pressed_up
-        @In_Canvas_Mode:
-        jsr Handle_Cursor_Up
+        ; example
+        HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,     BUTTON_HOLD_TIME_INSTANTLY,  HandleCursorPressedB
+        HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,     BUTTON_HOLD_TIME_NORMAL,     HandleCursorPressedB
 
-    not_pressed_up:
+        ; HandleButtonHeld PAD_LEFT,  frame_counter_holding_button_left,  BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
+        ; HandleButtonHeld PAD_RIGHT, frame_counter_holding_button_right, BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
+        ; HandleButtonHeld PAD_UP,    frame_counter_holding_button_up,    BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
+        ; HandleButtonHeld PAD_DOWN,  frame_counter_holding_button_down,  BUTTON_HOLD_TIME_NORMAL,   ADD_THE_FUNCTION
 
-    ; Check Down
-    lda input_pressed_this_frame
-    and #PAD_DOWN
-    beq not_pressed_down
-        ; code for when Down is pressed
-        lda scroll_y_position
-        cmp #CANVAS_MODE
-        beq @In_Canvas_Mode
-            jsr MoveSelectionStarDown
-            jmp not_pressed_down
-        @In_Canvas_Mode:
-        jsr Handle_Cursor_Down
+        rts 
 
-    not_pressed_down:
 
-    ; Check Left
-    lda input_pressed_this_frame
-    and #PAD_LEFT
-    beq not_pressed_left
-        ; code for when Left is pressed
+    Not_Holding_Start:
 
-        jsr Handle_Cursor_Left
 
-    not_pressed_left:
+    ; Pressed
+    HandleButtonPressed PAD_START,  HandleCursorPressedStart
+    HandleButtonPressed PAD_SELECT, HandleCursorPressedSelect
 
-    ; Check Right
-    lda input_pressed_this_frame
-    and #PAD_RIGHT
-    beq not_pressed_right
-        ; code for when Right is pressed
+    HandleButtonPressed PAD_A,      HandleCursorPressedA
+    HandleButtonPressed PAD_B,      HandleCursorPressedB
 
-        jsr Handle_Cursor_Right
+    HandleButtonPressed PAD_LEFT,   HandleCursorPressedLeft
+    HandleButtonPressed PAD_RIGHT,  HandleCursorPressedRight
+    HandleButtonPressed PAD_UP,     HandleCursorPressedUp
+    HandleButtonPressed PAD_DOWN,   HandleCursorPressedDown
 
-    not_pressed_right:
+
+    ; Released
+    HandleButtonReleased PAD_START,     HandleCursorReleasedStart
+    HandleButtonReleased PAD_SELECT,    HandleCursorReleasedSelect
+
+    HandleButtonReleased PAD_A,         HandleCursorReleasedA
+    HandleButtonReleased PAD_B,         HandleCursorReleasedB
+
+    HandleButtonReleased PAD_LEFT,      HandleCursorReleasedLeft
+    HandleButtonReleased PAD_RIGHT,     HandleCursorReleasedRight
+    HandleButtonReleased PAD_UP,        HandleCursorReleasedUp
+    HandleButtonReleased PAD_DOWN,      HandleCursorReleasedDown
+
+
+    ; Pressed
+    ; in this case all call the pressed function
+    HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
+    HandleButtonHeld PAD_SELECT,    frame_counter_holding_button_select,    BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedSelect
+
+    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedA
+    HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedB
+
+    HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
+    HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_right,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedRight
+    HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
+    HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
+
+    
 
     rts 
+
 .endproc
 
 
 
-.proc Handle_Cursor_B
+;*****************************************************************
+;                       PRESSED
+;*****************************************************************
+
+
+; BudgetArms
+.proc HandleCursorPressedStart
+    jsr CycleToolModes
+    rts 
+
+
+.endproc
+
+
+; BudgetArms
+.proc HandleCursorPressedSelect
+    jsr CycleCanvasModes
+    rts 
+
+
+.endproc
+
+
+; BudgetArms
+.proc HandleCursorPressedA
+    lda scroll_y_position
+    cmp #CANVAS_MODE
+    beq @In_Canvas_Mode
+        jsr SelectTool
+        rts
+    @In_Canvas_Mode:
+    ChangeToolAttr #BRUSH_TOOL_ON
+    rts 
+
+
+.endproc
+
+
+; BudgetArms
+.proc HandleCursorPressedB
+    jsr CycleBrushSize
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
-    rts
+    rts 
 
 
     @smallCursor:
             
         ; change cursor type to normal
-        lda #CURSOR_TYPE_NORMAL
+        lda #TYPE_CURSOR_NORMAL
         sta cursor_type 
-
 
         rts 
 
     @normalCursor:
 
         ; change cursor type to big
-        lda #CURSOR_TYPE_BIG
+        lda #TYPE_CURSOR_BIG
         sta cursor_type 
 
-
-        rts
+        rts 
 
 
     @bigCursor:
         
         ; change cursor type to small
-        lda #CURSOR_TYPE_SMALL
+        lda #TYPE_CURSOR_SMALL
         sta cursor_type 
 
         ; reset the direction (top left)
-        lda #CURSOR_SMALL_DIR_TOP_LEFT 
+        lda #DIR_CURSOR_SMALL_TOP_LEFT 
         sta cursor_small_direction
 
-        rts
+        rts 
 
 .endproc
 
 
-
-.proc Handle_Cursor_Up
+; BudgetArms
+.proc HandleCursorPressedLeft
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
     rts 
-
-
-    @smallCursor:
-
-        lda cursor_small_direction
-
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
-        beq @TopLeft
-
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
-        beq @TopRight
-
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
-        beq @BottomLeft
-
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
-        beq @BottomRight
-
-        ; this should never be reached
-        rts
-        
-        @TopLeft:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
-            sta cursor_small_direction
-
-            ; update cursor y-pos 
-            jsr MoveCursorUp
-
-            rts 
-
-        @TopRight:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
-            sta cursor_small_direction
-
-            ; update cursor y-pos 
-            jsr MoveCursorUp
-
-            rts 
-
-        @BottomLeft:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
-            sta cursor_small_direction
-
-            rts 
-
-        @BottomRight:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
-            sta cursor_small_direction
-
-            rts 
-
-
-        ; should never reach this
-        rts 
-
-
-    @normalCursor:
-
-        ; Update y-pos (1 step)
-        jsr MoveCursorUp
-
-        rts 
-
-
-    @bigCursor:
-        
-        ; Update y-pos (2 step)
-        jsr MoveCursorUp
-        jsr MoveCursorUp
-
-        rts 
-
-.endproc
-
-
-.proc Handle_Cursor_Down
-
-    lda cursor_type     ; load cursor type
-
-    cmp #CURSOR_TYPE_SMALL
-    beq @smallCursor
-
-    cmp #CURSOR_TYPE_NORMAL
-    beq @normalCursor
-
-    cmp #CURSOR_TYPE_BIG
-    beq @bigCursor
-
-    ; this should never be reached
-    rts 
-
-
-    @smallCursor:
-
-        lda cursor_small_direction
-
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
-        beq @TopLeft
-
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
-        beq @TopRight
-
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
-        beq @BottomLeft
-
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
-        beq @BottomRight
-
-        ; this should never be reached
-        rts
-        
-        @TopLeft:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
-            sta cursor_small_direction
-
-            rts 
-
-        @TopRight:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
-            sta cursor_small_direction
-
-            rts 
-
-        @BottomLeft:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
-            sta cursor_small_direction
-
-            ; update cursor y-pos 
-            jsr MoveCursorDown
-
-            rts 
-
-        @BottomRight:
-
-            ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
-            sta cursor_small_direction
-
-            ; update cursor y-pos 
-            jsr MoveCursorDown
-
-            rts 
-
-
-    @normalCursor:
-
-        ; Update y-pos (1 step)
-        jsr MoveCursorDown
-
-        rts 
-
-
-    @bigCursor:
-        
-        ; Update y-pos (2 step)
-        jsr MoveCursorDown
-        jsr MoveCursorDown
-
-        rts 
-
-.endproc
-
-
-.proc Handle_Cursor_Left
-
-    lda cursor_type     ; load cursor type
-
-    cmp #CURSOR_TYPE_SMALL
-    beq @smallCursor
-
-    cmp #CURSOR_TYPE_NORMAL
-    beq @normalCursor
-
-    cmp #CURSOR_TYPE_BIG
-    beq @bigCursor
-
-    ; this should never be reached
-    rts
 
     @smallCursor:
 
         lda cursor_small_direction  ; load current direction
 
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
         beq @TopLeft
 
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
         beq @TopRight
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
         beq @BottomLeft
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
         beq @BottomRight
 
         ; this should never be reached
-        rts
+        rts 
         
         @TopLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
             sta cursor_small_direction
 
             jsr MoveCursorLeft
+
             rts 
 
         @TopRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
             sta cursor_small_direction
 
             rts 
@@ -467,7 +346,7 @@ poll_loop:
         @BottomLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
             sta cursor_small_direction
 
             ; update cursor x-pos 
@@ -477,7 +356,7 @@ poll_loop:
 
         @BottomRight:
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
             sta cursor_small_direction
 
             rts 
@@ -488,7 +367,6 @@ poll_loop:
 
 
     @normalCursor:
-
         ; Update x-pos (1 step)
         jsr MoveCursorLeft
 
@@ -496,7 +374,6 @@ poll_loop:
 
 
     @bigCursor:
-        
         ; Update x-pos (2 step)
         jsr MoveCursorLeft
         jsr MoveCursorLeft
@@ -506,17 +383,124 @@ poll_loop:
 .endproc
 
 
-.proc Handle_Cursor_Right
+; BudgetArms
+.proc HandleCursorPressedRight
 
     lda cursor_type     ; load cursor type
 
-    cmp #CURSOR_TYPE_SMALL
+    ; check the cursor size
+    cmp #TYPE_CURSOR_SMALL
     beq @smallCursor
 
-    cmp #CURSOR_TYPE_NORMAL
+    cmp #TYPE_CURSOR_NORMAL
     beq @normalCursor
 
-    cmp #CURSOR_TYPE_BIG
+    cmp #TYPE_CURSOR_BIG
+    beq @bigCursor
+
+    ; this should never be reached
+    rts 
+
+
+    @smallCursor:
+
+        ; check the cursor direction
+        lda cursor_small_direction
+
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
+        beq @TopLeft
+
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
+        beq @TopRight
+
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
+        beq @BottomLeft
+
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
+        beq @BottomRight
+
+        ; this should never be reached
+        rts 
+        
+        @TopLeft:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
+            sta cursor_small_direction
+
+            rts 
+
+        @TopRight:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
+            sta cursor_small_direction
+
+            ; update cursor x-pos 
+            jsr MoveCursorRight
+
+            rts 
+
+        @BottomLeft:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
+            sta cursor_small_direction
+
+            rts 
+
+        @BottomRight:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
+            sta cursor_small_direction
+
+            ; update cursor x-pos 
+            jsr MoveCursorRight
+
+            rts 
+
+        ; should never reach this
+        rts 
+
+
+    @normalCursor:
+
+        ; Update x-pos (1 step)
+        jsr MoveCursorRight
+
+        rts 
+
+
+    @bigCursor:
+        
+        ; Update x-pos (2 step)
+        jsr MoveCursorRight
+        jsr MoveCursorRight
+
+        rts 
+
+.endproc
+
+
+; BudgetArms
+.proc HandleCursorPressedUp
+    lda scroll_y_position
+    cmp #CANVAS_MODE
+    beq @In_Canvas_Mode
+        jsr MoveSelectionStarUp
+        rts
+    @In_Canvas_Mode:
+
+    lda cursor_type     ; load cursor type
+
+    cmp #TYPE_CURSOR_SMALL
+    beq @smallCursor
+
+    cmp #TYPE_CURSOR_NORMAL
+    beq @normalCursor
+
+    cmp #TYPE_CURSOR_BIG
     beq @bigCursor
 
     ; this should never be reached
@@ -527,44 +511,47 @@ poll_loop:
 
         lda cursor_small_direction
 
-        cmp #CURSOR_SMALL_DIR_TOP_LEFT
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
         beq @TopLeft
 
-        cmp #CURSOR_SMALL_DIR_TOP_RIGHT
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
         beq @TopRight
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_LEFT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
         beq @BottomLeft
 
-        cmp #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
         beq @BottomRight
 
         ; this should never be reached
-        rts
+        rts 
         
         @TopLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_RIGHT
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
             sta cursor_small_direction
+
+            ; update cursor y-pos 
+            jsr MoveCursorUp
 
             rts 
 
         @TopRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_TOP_LEFT
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
             sta cursor_small_direction
 
-            ; update cursor x-pos 
-            jsr MoveCursorRight
+            ; update cursor y-pos 
+            jsr MoveCursorUp
 
             rts 
 
         @BottomLeft:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_RIGHT
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
             sta cursor_small_direction
 
             rts 
@@ -572,13 +559,11 @@ poll_loop:
         @BottomRight:
 
             ; update the small direction
-            lda #CURSOR_SMALL_DIR_BOTTOM_LEFT
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
             sta cursor_small_direction
 
-            ; update cursor x-pos 
-            jsr MoveCursorRight
-
             rts 
+
 
         ; should never reach this
         rts 
@@ -586,275 +571,195 @@ poll_loop:
 
     @normalCursor:
 
-        ; Update x-pos (1 step)
-        jsr MoveCursorRight
+        ; Update y-pos (1 step)
+        jsr MoveCursorUp
 
         rts 
 
 
     @bigCursor:
         
-        ; Update x-pos (2 step)
-        jsr MoveCursorRight
-        jsr MoveCursorRight
+        ; Update y-pos (2 step)
+        jsr MoveCursorUp
+        jsr MoveCursorUp
 
         rts 
 
 .endproc
 
 
-; Khine
-.proc MoveCursorUp
-    ; Move to left (cursor_y - 8, tile_cursor_y - 1)
-    lda tile_cursor_y
-    cmp #$00
-    bne @Apply_Move
-        rts
-    @Apply_Move:
-    sec
-    lda cursor_y
-    sbc #TILE_PIXEL_SIZE
-    sta cursor_y
-
-    dec tile_cursor_y
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc MoveCursorDown
-    ; Move to right (cursor_y + 8, tile_cursor_y + 1)
-    clc
-    lda tile_cursor_y
-    adc brush_size
-    cmp #DISPLAY_SCREEN_HEIGHT
-    bmi @Apply_Move
-        rts
-    @Apply_Move:
-    clc
-    lda cursor_y
-    adc #TILE_PIXEL_SIZE
-    sta cursor_y
-
-    inc tile_cursor_y
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc MoveCursorLeft
-    ; Move to left (cursor_x - 8, tile_cursor_x - 1)
-    lda tile_cursor_x
-    cmp #$00
-    bne @Apply_Move
-        rts
-    @Apply_Move:
-    sec
-    lda cursor_x
-    sbc #TILE_PIXEL_SIZE
-    sta cursor_x
-
-    dec tile_cursor_x
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc MoveCursorRight
-    ; Move to right (cursor_x + 8, tile_cursor_x + 1)
-    clc
-    lda tile_cursor_x
-    adc brush_size
-    cmp #DISPLAY_SCREEN_WIDTH
-    bmi @Apply_Move
-        rts
-    @Apply_Move:
-    clc
-    lda cursor_x
-    adc #TILE_PIXEL_SIZE
-    sta cursor_x
-
-    inc tile_cursor_x
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc CycleBrushSize
-    ; Load the brush size and checks if it's already the maximum size
-    ; If MAX -> return back to the minimum size
-    ; If not -> increment the brush size
-    lda brush_size
-    cmp #MAXIMUM_BRUSH_SIZE
-    bne @Not_Max
-        lda #MINIMUM_BRUSH_SIZE
-        sta brush_size
-        rts
-    @Not_Max:
-    inc brush_size
-
-    clc
-    lda tile_cursor_x
-    adc brush_size
-    cmp #DISPLAY_SCREEN_WIDTH
-    bcc @No_X_Move_Needed
-        dec tile_cursor_x
-        sec
-        lda cursor_x
-        sbc #TILE_PIXEL_SIZE
-        sta cursor_x
-    @No_X_Move_Needed:
-
-    clc
-    lda tile_cursor_y
-    adc brush_size
-    cmp #DISPLAY_SCREEN_HEIGHT
-    bcc @No_Y_Move_Needed
-        dec tile_cursor_y
-        sec
-        lda cursor_y
-        sbc #TILE_PIXEL_SIZE
-        sta cursor_y
-    @No_Y_Move_Needed:
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc CycleToolModes
-    lda tool_mode
-    cmp #DRAW_MODE
-    bne @Not_Draw_Mode
-        jsr ToggleEraserTool
-        rts
-    @Not_Draw_Mode:
-    cmp #ERASER_MODE
-    bne @Not_Eraser_Mode
-        jsr ToggleDrawTool
-        rts
-    @Not_Eraser_Mode:
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc ToggleEraserTool
-    ChangeBrushTileIndex #BACKGROUND_TILE
-    ChangeCanvasMode #ERASER_MODE
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc ToggleDrawTool
-    ChangeBrushTileIndex drawing_color_tile_index
-    ChangeCanvasMode #DRAW_MODE
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc CycleBrushColor
-    lda drawing_color_tile_index
-    cmp #COLOR_TILE_END_INDEX
-    bne @Not_End
-        lda #COLOR_TILE_START_INDEX
-        sta drawing_color_tile_index
-        sta brush_tile_index
-        rts
-    @Not_End:
-    inc drawing_color_tile_index
-    inc brush_tile_index
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc CycleCanvasModes
-    ; Cycle between canvas mode and selection menu mode
+; BudgetArms
+.proc HandleCursorPressedDown
     lda scroll_y_position
     cmp #CANVAS_MODE
-    bne @Not_Canvas_Mode
-        lda #SELECTION_MENU_MODE
-        sta scroll_y_position
-        lda tool_mode
-        cmp #DRAW_MODE
-        bne @Not_Draw_Mode
-            lda #SELECTION_MENU_0_DRAW
-        @Not_Draw_Mode:
-        cmp #ERASER_MODE
-        bne @Not_Eraser_Mode
-            lda #SELECTION_MENU_1_ERASER
-        @Not_Eraser_Mode:
-        sta oam + SELECTION_STAR_OFFSET + OAM_Y
+    beq @In_Canvas_Mode
+        jsr MoveSelectionStarDown
         rts
-    @Not_Canvas_Mode:
-    lda #CANVAS_MODE
-    sta scroll_y_position
-    lda #OAM_OFFSCREEN
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+    @In_Canvas_Mode:
+
+    lda cursor_type     ; load cursor type
+
+    cmp #TYPE_CURSOR_SMALL
+    beq @smallCursor
+
+    cmp #TYPE_CURSOR_NORMAL
+    beq @normalCursor
+
+    cmp #TYPE_CURSOR_BIG
+    beq @bigCursor
+
+    ; this should never be reached
+    rts 
+
+
+    @smallCursor:
+
+        lda cursor_small_direction
+
+        cmp #DIR_CURSOR_SMALL_TOP_LEFT
+        beq @TopLeft
+
+        cmp #DIR_CURSOR_SMALL_TOP_RIGHT
+        beq @TopRight
+
+        cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
+        beq @BottomLeft
+
+        cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
+        beq @BottomRight
+
+        ; this should never be reached
+        rts 
+        
+        @TopLeft:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_BOTTOM_LEFT
+            sta cursor_small_direction
+
+            rts 
+
+        @TopRight:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_BOTTOM_RIGHT
+            sta cursor_small_direction
+
+            rts 
+
+        @BottomLeft:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_TOP_LEFT
+            sta cursor_small_direction
+
+            ; update cursor y-pos 
+            jsr MoveCursorDown
+
+            rts 
+
+        @BottomRight:
+
+            ; update the small direction
+            lda #DIR_CURSOR_SMALL_TOP_RIGHT
+            sta cursor_small_direction
+
+            ; update cursor y-pos 
+            jsr MoveCursorDown
+
+            rts 
+
+
+    @normalCursor:
+
+        ; Update y-pos (1 step)
+        jsr MoveCursorDown
+
+        rts 
+
+
+    @bigCursor:
+        
+        ; Update y-pos (2 step)
+        jsr MoveCursorDown
+        jsr MoveCursorDown
+
+        rts 
+
 .endproc
 ; Khine
 
 
-; Khine
-.proc MoveSelectionStarUp
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_In_Start_Pos
-        rts
-    @Not_In_Start_Pos:
-    sec
-    sbc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+
+;*****************************************************************
+;                       RELEASED
+;*****************************************************************
+
+
+.proc HandleCursorReleasedStart
+    ; Empty for now
+    rts 
+
+
 .endproc
 ; Khine
 
 
-; Khine
-.proc MoveSelectionStarDown
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_3_CLEAR
-    bne @Not_In_End_Pos
-        rts
-    @Not_In_End_Pos:
-    clc
-    adc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+.proc HandleCursorReleasedSelect
+    ; Empty for now
+    rts 
+
+
 .endproc
 ; Khine
 
 
-; Khine
-.proc SelectTool
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_On_Draw
-        jsr ToggleDrawTool
-        rts
-    @Not_On_Draw:
-    cmp #SELECTION_MENU_1_ERASER
-    bne @Not_On_Eraser
-        jsr ToggleEraserTool
-        rts
-    @Not_On_Eraser:
-    cmp #SELECTION_MENU_3_CLEAR
-    bne @Not_On_Clear_Canvas
-        ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
-        jsr ppu_off
-        rts
-    @Not_On_Clear_Canvas:
-    rts
+.proc HandleCursorReleasedA
+    ; Empty for now
+    rts 
+
+
 .endproc
+
+
+.proc HandleCursorReleasedB
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
+.proc HandleCursorReleasedLeft
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
+.proc HandleCursorReleasedRight
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
+.proc HandleCursorReleasedUp
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
+.proc HandleCursorReleasedDown
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
+
