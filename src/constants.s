@@ -106,15 +106,15 @@ SMILEYFACE_TILE = $24
 
 ; UI overlay
 OVERLAY_NAMETABLE_ADDR = $2000
-OVERLAY_X_POS = 0                   ; Column 0
-OVERLAY_Y_POS = 0                   ; Row 0
+;OVERLAY_X_POS = 0                   ; Column 0
+;OVERLAY_Y_POS = 0                   ; Row 0
 OVERLAY_TILE_CURSOR_X_LABEL = $E0   ; ASCII 'X'
 OVERLAY_TILE_CURSOR_Y_LABEL = $E1   ; ASCII 'Y'
 OVERLAY_TILE_COLON = $E2            ; ASCII ':'
 OVERLAY_TILE_SPACE = $E3            ; ASCII ' '
 OVERLAY_TILE_DIGIT_0 = $D0          ; Start of digit tiles in CHR
-OVERLAY_DIGIT_TILE_OFFSET = $00     ; Offset for digit tiles
-OVERLAY_CURSOR_X_LABEL_POS_X = 0    ; First tile in overlay row
-OVERLAY_CURSOR_X_VALUE_POS = 2      ; After label and colon
-OVERLAY_CURSOR_Y_LABEL_POS = 6      ; After X value
-OVERLAY_CURSOR_Y_VALUE_POS = 8      ; After label and colon
+;OVERLAY_DIGIT_TILE_OFFSET = $00     ; Offset for digit tiles
+;OVERLAY_CURSOR_X_LABEL_POS_X = 0    ; First tile in overlay row
+;OVERLAY_CURSOR_X_VALUE_POS = 2      ; After label and colon
+;OVERLAY_CURSOR_Y_LABEL_POS = 6      ; After X value
+;OVERLAY_CURSOR_Y_VALUE_POS = 8      ; After label and colon
