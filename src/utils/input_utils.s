@@ -129,6 +129,46 @@
 ; BudgetArms
 .proc HandleInput
 
+    ; if in menu
+    lda #01
+    cmp #MAIN_MENU
+    bne Not_In_Menu
+
+        jsr HandleMenuInput
+        rts 
+
+    Not_In_Menu:
+
+    ; else
+    ; if in canvas
+    lda scroll_y_position
+    cmp #CANVAS_MODE
+    bne Not_In_Canvas
+
+        jsr HandleCanvasInput
+        rts 
+
+    Not_In_Canvas:
+
+    jsr HandleSelectionMenuInput
+    rts 
+
+
+.endproc
+
+
+
+; BudgetArms
+.proc HandleMenuInput
+
+    rts 
+
+.endproc
+
+
+; BudgetArms
+.proc HandleCanvasInput
+
     ; Combo's
 
     ; if holding start, ignore all the other input
@@ -171,11 +211,10 @@
     HandleButtonReleased PAD_DOWN,      HandleCursorReleasedDown
 
 
-    ; Pressed
+    ; Held
     HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
-    HandleButtonHeld PAD_SELECT,    frame_counter_holding_button_select,    BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedSelect
 
-    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedA
+    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_INSTANTLY,   HandleCursorPressedA
     HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedB
 
     HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
@@ -190,6 +229,66 @@
 .endproc
 
 
+; BudgetArms
+.proc HandleSelectionMenuInput
+
+    ; Pressed
+    HandleButtonPressed PAD_SELECT,     HandleSelectionMenuPressedSelect
+
+    HandleButtonPressed PAD_A,          HandleSelectionMenuPressedA
+
+    HandleButtonReleased PAD_UP,        HandleSelectionMenuPressedUp
+    HandleButtonReleased PAD_DOWN,      HandleSelectionMenuPressedDown
+
+
+
+    ; Released
+
+
+    ; Held
+
+
+    rts 
+
+.endproc
+
+
+
+
+;*****************************************************************
+;                       MENU
+;*****************************************************************
+
+;*****************************************************************
+;                       PRESSED
+;*****************************************************************
+
+
+; BudgetArms
+.proc HandleMainMenuPressedSelect
+
+
+    rts 
+.endproc
+
+; BudgetArms
+.proc HandleMainMenuPressedUp
+
+
+    rts 
+.endproc
+
+; BudgetArms
+.proc HandleMainMenuPressedDown
+
+
+    rts 
+.endproc
+
+
+;*****************************************************************
+;                       CANVAS
+;*****************************************************************
 
 ;*****************************************************************
 ;                       PRESSED
@@ -198,30 +297,25 @@
 
 ; BudgetArms
 .proc HandleCursorPressedStart
+
     jsr CycleToolModes
     rts 
-
 
 .endproc
 
 
 ; BudgetArms
 .proc HandleCursorPressedSelect
+
     jsr CycleCanvasModes
     rts 
-
 
 .endproc
 
 
 ; BudgetArms
 .proc HandleCursorPressedA
-    lda scroll_y_position
-    cmp #CANVAS_MODE
-    beq @In_Canvas_Mode
-        jsr SelectTool
-        rts
-    @In_Canvas_Mode:
+    
     ChangeToolAttr #BRUSH_TOOL_ON
     rts 
 
@@ -516,12 +610,6 @@
 
 ; BudgetArms
 .proc HandleCursorPressedUp
-    lda scroll_y_position
-    cmp #CANVAS_MODE
-    beq @In_Canvas_Mode
-        jsr MoveSelectionStarUp
-        rts
-    @In_Canvas_Mode:
 
     lda cursor_type     ; load cursor type
 
@@ -633,12 +721,6 @@
 
 ; BudgetArms
 .proc HandleCursorPressedDown
-    lda scroll_y_position
-    cmp #CANVAS_MODE
-    beq @In_Canvas_Mode
-        jsr MoveSelectionStarDown
-        rts
-    @In_Canvas_Mode:
 
     lda cursor_type     ; load cursor type
 
@@ -744,7 +826,6 @@
 .endproc
 
 
-
 ;*****************************************************************
 ;                       RELEASED
 ;*****************************************************************
@@ -815,3 +896,40 @@
 
 
 
+;*****************************************************************
+;                       SELECTION_MENU
+;*****************************************************************
+
+
+; BudgetArms
+.proc HandleSelectionMenuPressedSelect
+
+    jsr CycleCanvasModes
+    rts 
+
+.endproc
+
+; BudgetArms
+.proc HandleSelectionMenuPressedA
+
+    jsr SelectTool
+    rts 
+
+.endproc
+
+; BudgetArms
+.proc HandleSelectionMenuPressedUp
+
+    jsr MoveSelectionStarUp
+    rts 
+
+.endproc
+
+
+; BudgetArms
+.proc HandleSelectionMenuPressedDown
+
+    jsr MoveSelectionStarDown
+    rts 
+
+.endproc
