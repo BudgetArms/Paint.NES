@@ -121,7 +121,7 @@
     .local Loop
 
     ; Hide medium cursor
-    lda #$FF
+    lda #OAM_OFFSCREEN
     ldx #$00
     Loop:
         sta oam + oamOffset, X
