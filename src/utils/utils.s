@@ -236,22 +236,27 @@
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc CycleToolModes
     lda tool_mode
     cmp #DRAW_MODE
     bne @Not_Draw_Mode
         jsr ToggleEraserTool
-        rts
+        rts 
     @Not_Draw_Mode:
     cmp #ERASER_MODE
     bne @Not_Eraser_Mode
-        jsr ToggleDrawTool
-        rts
+        jsr ToggleFillTool
+        rts 
     @Not_Eraser_Mode:
-    rts
+    cmp #FILL_MODE
+    bne @Not_Fill_Mode
+        jsr ToggleDrawTool
+        rts 
+    @Not_Fill_Mode:
+    rts 
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
 ; Khine
@@ -263,11 +268,21 @@
 ; Khine
 
 
+; BudgetArms
+.proc ToggleFillTool
+    ChangeBrushTileIndex drawing_color_tile_index
+    ChangeCanvasMode #FILL_MODE
+
+    rts 
+.endproc
+; BudgetArms
+
+
 ; Khine
 .proc ToggleDrawTool
     ChangeBrushTileIndex drawing_color_tile_index
     ChangeCanvasMode #DRAW_MODE
-    rts
+    rts 
 .endproc
 ; Khine
 
@@ -284,12 +299,12 @@
     @Not_End:
     inc drawing_color_tile_index
     inc brush_tile_index
-    rts
+    rts 
 .endproc
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc CycleCanvasModes
     ; Cycle between canvas mode and selection menu mode
     lda scroll_y_position
@@ -306,8 +321,14 @@
         bne @Not_Eraser_Mode
             lda #SELECTION_MENU_1_ERASER
         @Not_Eraser_Mode:
+        cmp #FILL_MODE
+        bne @Not_Fill_Mode
+            lda #SELECTION_MENU_2_FILL
+        @Not_Fill_Mode:
         sta oam + SELECTION_STAR_OFFSET + OAM_Y
-        rts
+
+        rts 
+
     @Not_Canvas_Mode:
     lda #CANVAS_MODE
     sta scroll_y_position
@@ -315,7 +336,7 @@
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
 ; Khine
@@ -348,27 +369,33 @@
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc SelectTool
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
     cmp #SELECTION_MENU_0_DRAW
     bne @Not_On_Draw
         jsr ToggleDrawTool
-        rts
+        rts 
     @Not_On_Draw:
     cmp #SELECTION_MENU_1_ERASER
     bne @Not_On_Eraser
         jsr ToggleEraserTool
-        rts
+        rts 
     @Not_On_Eraser:
+    cmp #SELECTION_MENU_2_FILL
+    bne @Not_On_Fill
+        jsr ToggleFillTool
+        rts 
+    @Not_On_Fill:
     cmp #SELECTION_MENU_3_CLEAR
     bne @Not_On_Clear_Canvas
         ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
         jsr ppu_off
-        rts
+        rts 
     @Not_On_Clear_Canvas:
     rts 
 .endproc
+; Khine / BudgetArms
 
 
 ; BudgetArms / Joren
