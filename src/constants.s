@@ -119,9 +119,7 @@ OAM_SIZE_CURSOR_BIG     = $20       ; 32 bytes
 ; oam offsets are not same as tile indexes
 OAM_OFFSET_CURSOR_SMALL     = $00   ; 1 sprite (4 bytes)
 OAM_OFFSET_CURSOR_NORMAL    = $04   ; 1 sprite (4 bytes)
-; OAM_OFFSET_CURSOR_MEDIUM    = $00   ; 4 sprite (16 bytes), different location to avoid overwriting star
 OAM_OFFSET_CURSOR_MEDIUM    = $08   ; 4 sprite (16 bytes), different location to avoid overwriting star
-; OAM_OFFSET_CURSOR_BIG       = $08   ; 8 sprites (32 bytes)
 OAM_OFFSET_CURSOR_BIG       = $18   ; 8 sprites (32 bytes)
 OAM_OFFSET_SMILEY           = $28   ; 1 sprite (4 bytes) 
 
