@@ -304,65 +304,33 @@
 
 ; BudgetArms
 .proc HandleCursorPressedB
+
     jsr CycleBrushSize
 
     lda cursor_type     ; load cursor type
+    cmp #TYPE_CURSOR_MAXIMUM
+    bne Not_Maximum_Size
 
-    cmp #TYPE_CURSOR_SMALL
-    beq Small_Cursor
+        ; Maximum size
+        lda #TYPE_CURSOR_MINIMUM
+        sta cursor_type
 
-    cmp #TYPE_CURSOR_NORMAL
-    beq Normal_Cursor
-
-    cmp #TYPE_CURSOR_MEDIUM
-    beq Medium_Cursor
-
-    cmp #TYPE_CURSOR_BIG
-    beq Big_Cursor
-
-    ; this should never be reached
-    rts 
-
-
-    Small_Cursor:
-            
-        ; change cursor type to normal
-        lda #TYPE_CURSOR_NORMAL
-        sta cursor_type 
-
-        rts 
-
-    Normal_Cursor:
-
-        ; change cursor type to medium
-        lda #TYPE_CURSOR_MEDIUM
-        sta cursor_type 
-
-        rts 
-
-    Medium_Cursor:
-
-        ; change cursor type to big
-        lda #TYPE_CURSOR_BIG
-        sta cursor_type 
-
-        rts 
-
-
-    Big_Cursor:
-        
-        ; change cursor type to small
-        lda #TYPE_CURSOR_SMALL
-        sta cursor_type 
-
-        ; reset the direction (top left)
-        lda #DIR_CURSOR_SMALL_TOP_LEFT 
+        ; reset small cursor_small_direction always even
+        ; if the minimum cursor type isn't small_cursor
+        lda DIR_CURSOR_SMALL_TOP_LEFT
         sta cursor_small_direction
 
         rts 
 
+    Not_Maximum_Size:
 
-    ; this should never be reached
+    ; increment accumulator
+    sec 
+    adc #$00
+
+    ; set new cursor_type
+    sta cursor_type
+
     rts 
 
 .endproc
