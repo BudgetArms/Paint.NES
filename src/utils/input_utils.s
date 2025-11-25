@@ -198,19 +198,6 @@
     HandleButtonPressed PAD_DOWN,   HandleCursorPressedDown
 
 
-    ; Released
-    HandleButtonReleased PAD_START,     HandleCursorReleasedStart
-    HandleButtonReleased PAD_SELECT,    HandleCursorReleasedSelect
-
-    HandleButtonReleased PAD_A,         HandleCursorReleasedA
-    HandleButtonReleased PAD_B,         HandleCursorReleasedB
-
-    HandleButtonReleased PAD_LEFT,      HandleCursorReleasedLeft
-    HandleButtonReleased PAD_RIGHT,     HandleCursorReleasedRight
-    HandleButtonReleased PAD_UP,        HandleCursorReleasedUp
-    HandleButtonReleased PAD_DOWN,      HandleCursorReleasedDown
-
-
     ; Held
     HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
 
@@ -240,14 +227,6 @@
     HandleButtonReleased PAD_UP,        HandleSelectionMenuPressedUp
     HandleButtonReleased PAD_DOWN,      HandleSelectionMenuPressedDown
 
-
-
-    ; Released
-
-
-    ; Held
-
-
     rts 
 
 .endproc
@@ -266,21 +245,21 @@
 
 ; BudgetArms
 .proc HandleMainMenuPressedSelect
-
+    ; todo: add the logic
 
     rts 
 .endproc
 
 ; BudgetArms
 .proc HandleMainMenuPressedUp
-
+    ; todo: add the logic
 
     rts 
 .endproc
 
 ; BudgetArms
 .proc HandleMainMenuPressedDown
-
+    ; todo: add the logic
 
     rts 
 .endproc
@@ -824,76 +803,6 @@
         rts 
 
 .endproc
-
-
-;*****************************************************************
-;                       RELEASED
-;*****************************************************************
-
-
-.proc HandleCursorReleasedStart
-    ; Empty for now
-    rts 
-
-
-.endproc
-
-
-.proc HandleCursorReleasedSelect
-    ; Empty for now
-    rts 
-
-
-.endproc
-
-
-.proc HandleCursorReleasedA
-    ; Empty for now
-    rts 
-
-
-.endproc
-
-
-.proc HandleCursorReleasedB
-    ; Empty for now
-    rts 
-
-
-.endproc
-
-
-.proc HandleCursorReleasedLeft
-    ; Empty for now
-    rts 
-
-
-.endproc
-
-
-.proc HandleCursorReleasedRight
-    ; Empty for now
-    rts 
-
-
-.endproc
-
-
-.proc HandleCursorReleasedUp
-    ; Empty for now
-    rts 
-
-
-.endproc
-
-
-.proc HandleCursorReleasedDown
-    ; Empty for now
-    rts 
-
-
-.endproc
-
 
 
 ;*****************************************************************
