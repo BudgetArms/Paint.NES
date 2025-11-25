@@ -154,6 +154,10 @@ irq:
         sta frame_counter_holding_button_up
         sta frame_counter_holding_button_down
 
+    initialize_cursor:
+        lda #TYPE_CURSOR_STARTUP
+        sta cursor_type
+
 
     jsr ppu_update
 
