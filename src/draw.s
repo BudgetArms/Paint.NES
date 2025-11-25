@@ -155,17 +155,22 @@
 .endproc
 
 
-; Khine/BudgetArms
+; Khine / BudgetArms
 .proc draw_brush
     ; Check if the PAD_A has been pressed
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
+
+    ; If tool_use_attr does not have brush tool ON, return
     lda tool_use_attr
     and #BRUSH_TOOL_ON
-    bne @Use_Brush
-        rts
-    @Use_Brush:
+    bne Use_Brush
+        rts 
+
+    Use_Brush:
+
+    ; Remove BRUSH_TOOL_ON from the tool_use_attributes
     lda tool_use_attr
     eor #BRUSH_TOOL_ON
     sta tool_use_attr
@@ -177,6 +182,18 @@
     sta drawing_tile_position
     lda cursor_tile_position + 1
     sta drawing_tile_position + 1
+
+    ; Is Fill Mode Selected
+    lda tool_mode
+    and #FILL_MODE
+    beq Not_Fill_Mode
+
+        jsr UseFillTool
+        rts 
+
+
+    Not_Fill_Mode:
+    ; If not fill mode, then it's Draw/Erase mode
 
     ; square brush
     ldy #$00
@@ -206,4 +223,4 @@
         bne @column_loop
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
