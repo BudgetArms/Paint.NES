@@ -156,7 +156,7 @@
 
 
 ; Khine / BudgetArms
-.proc draw_brush
+.proc DrawBrush
     ; Check if the PAD_A has been pressed
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
@@ -169,7 +169,6 @@
         rts 
 
     Use_Brush:
-
     ; Remove BRUSH_TOOL_ON from the tool_use_attributes
     lda tool_use_attr
     eor #BRUSH_TOOL_ON
@@ -182,18 +181,6 @@
     sta drawing_tile_position
     lda cursor_tile_position + 1
     sta drawing_tile_position + 1
-
-    ; Is Fill Mode Selected
-    lda tool_mode
-    and #FILL_MODE
-    beq Not_Fill_Mode
-
-        jsr UseFillTool
-        rts 
-
-
-    Not_Fill_Mode:
-    ; If not fill mode, then it's Draw/Erase mode
 
     ; square brush
     ldy #$00
@@ -235,6 +222,17 @@
     ;    HIGH       LOW
     ; 7654 3210   7654 3210
     ; ---- --YY   YYYX XXXX
+
+    lda tool_use_attr
+    and #FILL_TOOL_ON
+    bne @Use_Fill
+        rts 
+
+    @Use_Fill:
+    ; Remove FILL_TOOL_ON from the tool_use_attributes
+    lda tool_use_attr
+    eor #FILL_TOOL_ON
+    sta tool_use_attr
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
