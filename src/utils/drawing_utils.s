@@ -561,7 +561,7 @@ Divide_Done:
     lda fill_queue, y
     sta fill_current_addr
 
-    ; get low byte
+    ; get high byte
     lda fill_queue + 256, y
     sta fill_current_addr + 1
 
