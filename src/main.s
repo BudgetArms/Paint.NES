@@ -47,14 +47,9 @@ frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 2
 ; buttons hold-delays
 ; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
 ; then it executes the button press again
-frame_counter_holding_button_start: .res 1
-frame_counter_holding_button_select: .res 1
 frame_counter_holding_button_a: .res 1
 frame_counter_holding_button_b: .res 1
-frame_counter_holding_button_left: .res 1
-frame_counter_holding_button_right: .res 1
-frame_counter_holding_button_up: .res 1
-frame_counter_holding_button_down: .res 1
+frame_counter_holding_button_dpad: .res 1
 
 ; Fill tool (ring queue)
 fill_temp: .res 1
@@ -158,14 +153,10 @@ irq:
 
     initialize_button_held_times:
         lda #00
-        sta frame_counter_holding_button_start
-        sta frame_counter_holding_button_select
         sta frame_counter_holding_button_a
         sta frame_counter_holding_button_b
-        sta frame_counter_holding_button_left
-        sta frame_counter_holding_button_right
-        sta frame_counter_holding_button_up
-        sta frame_counter_holding_button_down
+        sta frame_counter_holding_button_dpad
+
 
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP
