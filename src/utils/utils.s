@@ -7,7 +7,7 @@
 
 
 ; Khine
-.macro ChangeCanvasMode    new_mode
+.macro ChangeToolMode    new_mode
     lda new_mode
     sta tool_mode
 .endmacro
@@ -262,7 +262,7 @@
 ; Khine
 .proc ToggleEraserTool
     ChangeBrushTileIndex #BACKGROUND_TILE
-    ChangeCanvasMode #ERASER_MODE
+    ChangeToolMode #ERASER_MODE
     rts
 .endproc
 ; Khine
@@ -271,8 +271,7 @@
 ; BudgetArms
 .proc ToggleFillTool
     ChangeBrushTileIndex drawing_color_tile_index
-    ChangeCanvasMode #FILL_MODE
-
+    ChangeToolMode #FILL_MODE
     rts 
 .endproc
 ; BudgetArms
@@ -281,7 +280,7 @@
 ; Khine
 .proc ToggleDrawTool
     ChangeBrushTileIndex drawing_color_tile_index
-    ChangeCanvasMode #DRAW_MODE
+    ChangeToolMode #DRAW_MODE
     rts 
 .endproc
 ; Khine
@@ -310,6 +309,7 @@
     lda scroll_y_position
     cmp #CANVAS_MODE
     bne @Not_Canvas_Mode
+        ; In selection menu mode
         lda #SELECTION_MENU_MODE
         sta scroll_y_position
         lda tool_mode
@@ -327,7 +327,7 @@
         @Not_Fill_Mode:
         sta oam + SELECTION_STAR_OFFSET + OAM_Y
 
-        rts 
+        rts
 
     @Not_Canvas_Mode:
     lda #CANVAS_MODE
@@ -390,7 +390,6 @@
     cmp #SELECTION_MENU_3_CLEAR
     bne @Not_On_Clear_Canvas
         ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
-        jsr ppu_off
         rts 
     @Not_On_Clear_Canvas:
     rts 
