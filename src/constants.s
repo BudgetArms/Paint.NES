@@ -195,3 +195,9 @@ OVERLAY_TILE_DIGIT_0 = $DB          ; Start of digit tiles in CHR
 ;OVERLAY_CURSOR_X_VALUE_POS = 2      ; After label and colon
 ;OVERLAY_CURSOR_Y_LABEL_POS = 6      ; After X value
 ;OVERLAY_CURSOR_Y_VALUE_POS = 8      ; After label and colon
+
+
+; Fill Tool VRAM structure
+PPU_VRAM_MASK_X_POS         = %00011111
+PPU_VRAM_MASK_Y_POS_LOW     = %11100000
+PPU_VRAM_MASK_Y_POS_HIGH    = %00000011
