@@ -452,4 +452,47 @@
     rts 
 
 .endproc
+; BudgetArms
+
+
+; BudgetArms
+.macro GetNametableTileX addr_low
+
+    lda addr_low
+    and #PPU_VRAM_MASK_X_POS
+
+.endmacro
+; BudgetArms
+
+; BudgetArms
+.macro GetNametableTileY addr_lo
+
+    ; Get the 3-bits of addr_lo
+    lda addr_lo
+    and #PPU_VRAM_MASK_Y_POS_LOW      
+
+    ; bit-shift right: 5–7 to 0–2
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+
+    ; save a
+    sta fill_temp
+
+    ; Get the 2-bits from addr_high (addr_lo + 1)
+    lda addr_lo + 1
+    and #PPU_VRAM_MASK_Y_POS_HIGH
+    
+    ; bit-shift left: 0-1 to 3-5
+    asl 
+    asl 
+    asl 
+
+    ora fill_temp
+
+.endmacro
+; BudgetArms
+
 
