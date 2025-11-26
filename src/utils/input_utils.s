@@ -57,7 +57,9 @@
 .macro HandleButtonPressed buttonMask, handleFunction
 
     .local exit_macro
-
+        cmp #buttonMask
+        bne exit_macro
+        jsr handleFunction
     ;lda input_pressed_this_frame
     ;eor #buttonMask
     ;bne 
@@ -67,14 +69,14 @@
 
 
     ; to make labels work in macro's
-    .local exit_macro 
+    ;.local exit_macro 
 
     ; Check button is pressed
-    lda input_pressed_this_frame
-    and #buttonMask
-    beq exit_macro
+    ;lda input_pressed_this_frame
+    ;and #buttonMask
+    ;beq exit_macro
         ; code for when button is pressed
-        jsr handleFunction
+        ;jsr handleFunction
 
     exit_macro:
 
@@ -177,122 +179,177 @@
 
 ; BudgetArms
 .proc HandleInput
-;CheckCombos:
-    ;Joren
-    lda #PAD_START
-    ora #PAD_LEFT ;create and store a mask for the start + left button being pressed together
-    eor input_holding_this_frame ;XOR the current input with start+left mask
-    bne not_pressed_StartAndLeft
-    ;code for when Start + Left is pressed together
-        lda newPalleteColor
-        clc
-        adc #$01
-        sta newPalleteColor
-        JMP StopCheckingPressedButtons
-
-    not_pressed_StartAndLeft:
-	; check StartAndRight
-    lda #PAD_START
-    ora #PAD_RIGHT ;create and store a mask for the start + left button being pressed together
-    eor input_holding_this_frame ;XOR the current input with start+left mask
-    bne CheckUpAndStart ; start checking other buttons
-        ;code for when Start + right is pressed together
-        lda newPalleteColor
-        clc
-        sbc #$01
-        sta newPalleteColor
-        JMP StopCheckingPressedButtons
-
-    CheckUpAndStart:
-    lda #PAD_START
-    ora #PAD_UP ;create and store a mask for the start + left button being pressed together
-    eor input_pressed_this_frame ;XOR the current input with start+left mask
-    bne CheckDownAndStart
-        ;code for when Start + up is pressed together
-        
-        JMP StopCheckingPressedButtons
-
-    CheckDownAndStart:
-    lda #PAD_START
-    ora #PAD_DOWN ;create and store a mask for the start + left button being pressed together
-    eor input_pressed_this_frame ;XOR the current input with start+left mask
-    bne CheckNonComboButtons
-        ;code for when Start + down is pressed together
-        JMP StopCheckingPressedButtons
-
-
-
-
-CheckNonComboButtons:
-
     lda input_pressed_this_frame
-    TXA ;for quick acces later
+    bne Check_PAD_A
+    jmp StopChecking ;if no buttons are pressed, skip all checks.
 
-    ;eor PAD_START
-
-    eor PAD_A
-    bne Check_Pad_B ; if a  is not pressed
-    jmp HandleCursorPressedA ; if a is pressed
-    JMP StopCheckingPressedButtons
-
-    Check_Pad_B:
-    TXA ; lda input_pressed_this_frame
-    eor PAD_B
-    bne Check_Pad_Dpad
-    jmp HandleCursorPressedB
-    JMP StopCheckingPressedButtons
-
-
-    Check_Pad_Dpad:
-    TXA ; lda input_pressed_this_frame
-    eor PAD_RIGHT
-    bne Check_Pad_Up
-    jmp HandleCursorPressedRight
-    rts
-    ;JMP StopCheckingPressedButtons
-
-    Check_Pad_Up:
-    TXA ; lda input_pressed_this_frame
-    eor PAD_UP
-    bne Check_Pad_Left
-    jmp HandleCursorPressedUp
-    rts
-;    JMP StopCheckingPressedButtons
-
-    Check_Pad_Left:
-    TXA ; lda input_pressed_this_frame
-    eor PAD_LEFT
-    bne Check_Pad_Down
-    jmp HandleCursorPressedLeft
-    rts
-    ;JMP StopCheckingPressedButtons
-
-    Check_Pad_Down:
-    TXA ; lda input_pressed_this_frame
-    eor PAD_DOWN
-    bne Check_Pad_Select
-    jmp HandleCursorPressedDown
-    rts
-    ;JMP StopCheckingPressedButtons
-
-    Check_Pad_Select:
-    TXA ; lda input_pressed_this_frame
-    eor PAD_SELECT
-    bne Check_Pad_Start
-    jmp HandleCursorPressedStart
-    JMP StopCheckingPressedButtons
-
-    Check_Pad_Start:
-    TXA ; lda input_pressed_this_frame
-    eor PAD_START
-    bne StopCheckingPressedButtons
-    jmp HandleCursorPressedStart
-    JMP StopCheckingPressedButtons
+    Check_PAD_A:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A
+        bne Check_PAD_A_LEFT
+        ;code for when A is pressed
+        ;jsr HandleCursorPressedA
+        jmp StopChecking
     
-    StopCheckingPressedButtons:
-    
+    Check_PAD_A_LEFT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_LEFT
+        bne Check_PAD_A_RIGHT
+        ;code for when A + LEFT is pressed
+        ;jsr HandleCursorPressedA
+        ;jsr MoveCursorLeft
+        jmp StopChecking
 
-    ; Pressed
+    Check_PAD_A_RIGHT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_RIGHT
+        bne Check_PAD_A_UP
+        ;jsr HandleCursorPressedA
+        ;jsr MoveCursorRight
+        jmp StopChecking
+
+    Check_PAD_A_UP:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_UP
+        BNE Check_PAD_A_DOWN
+        ;code for when  A + UP is pressed
+        ;jsr HandleCursorPressedA
+        ;jsr MoveCursorUp
+        jmp StopChecking
+
+    Check_PAD_A_DOWN:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_DOWN
+        bne Check_PAD_START
+        ;code for when a + down is pressed
+        ;jsr HandleCursorPressedA
+        ;jsr MoveCursorDown
+        jmp StopChecking
+
+
+    Check_PAD_START:
+    ;lda input_pressed_this_frame
+        cmp #PAD_START
+        bne Check_PAD_START_LEFT
+        ;code for when START is pressed
+        ;jsr HandleCursorPressedStart
+        jmp StopChecking
+
+    Check_PAD_START_LEFT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_START_LEFT
+        bne Check_PAD_START_RIGHT
+        ;code for when START is pressed
+        jmp StopChecking
+
+    
+    Check_PAD_START_RIGHT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_START_RIGHT
+        bne Check_PAD_START_UP
+        ;code for when START is pressed
+        jmp StopChecking
+
+
+    Check_PAD_START_UP:
+    ;lda input_pressed_this_frame
+        cmp #PAD_START_UP
+        bne Check_PAD_START_DOWN
+        ;code for when START is pressed
+        jmp StopChecking
+
+
+    Check_PAD_START_DOWN:
+    ;lda input_pressed_this_frame
+        cmp #PAD_START_DOWN
+        bne Check_PAD_LEFT
+        ;code for when START is pressed
+        jmp StopChecking
+
+    Check_PAD_LEFT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_LEFT
+        bne Check_PAD_RIGHT
+        jsr MoveCursorLeft
+        ;jsr HandleCursorPressedLeft
+        ;code for when Left is pressed alone
+        jmp StopChecking
+
+    Check_PAD_RIGHT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_RIGHT
+        bne Check_PAD_UP
+        jsr MoveCursorRight
+        ;jsr HandleCursorPressedRight
+        ;code for when Left is pressed alone
+        jmp StopChecking
+
+    Check_PAD_UP:
+    ;lda input_pressed_this_frame
+        cmp #PAD_UP
+        bne Check_PAD_DOWN
+        jsr MoveCursorUp
+        ;jsr HandleCursorPressedUp
+        ;code for when Left is pressed alone
+        jmp StopChecking
+
+    Check_PAD_DOWN:
+    ;lda input_pressed_this_frame
+        cmp #PAD_DOWN
+        bne Check_PAD_UP_LEFT
+        ;code for when Left is pressed alone
+        jsr MoveCursorDown
+        ;jsr HandleCursorPressedDown
+        jmp StopChecking
+
+    Check_PAD_UP_LEFT:
+        cmp #PAD_UP_LEFT
+        bne Check_PAD_DOWN_LEFT
+        ;code for when Left is pressed alone
+        jsr MoveCursorUp
+        jsr MoveCursorLeft
+        jmp StopChecking
+
+    Check_PAD_DOWN_LEFT:
+        cmp #PAD_DOWN_LEFT
+        bne Check_PAD_UP_RIGHT
+        ;code for when Left is pressed alone
+        jsr MoveCursorDown
+        jsr MoveCursorLeft
+        jmp StopChecking
+
+    Check_PAD_UP_RIGHT:
+        cmp #PAD_UP_RIGHT
+        bne Check_PAD_DOWN_RIGHT
+        ;code for when Left is pressed alone
+        jsr MoveCursorUp
+        jsr MoveCursorRight
+        jmp StopChecking
+
+    Check_PAD_DOWN_RIGHT:
+        cmp #PAD_DOWN_RIGHT
+        bne Check_PAD_B
+        ;code for when Left is pressed alone
+        jsr MoveCursorDown
+        jsr MoveCursorRight
+        jmp StopChecking
+
+    Check_PAD_B:
+    ;lda input_pressed_this_frame
+        cmp #PAD_B
+        bne Check_REST
+        ;code for when Left is pressed alone
+        jmp StopChecking  
+
+    Check_REST:
+    jmp StopChecking
+
+    StopChecking:
+
+
+
+
+    ;Pressed
     ;HandleButtonPressed PAD_START,  HandleCursorPressedStart
     ;HandleButtonPressed PAD_SELECT, HandleCursorPressedSelect
 
@@ -336,8 +393,6 @@ CheckNonComboButtons:
 
 
 .endproc
-
-
 
 ;*****************************************************************
 ;                       PRESSED
