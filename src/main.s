@@ -56,6 +56,15 @@ frame_counter_holding_button_right: .res 1
 frame_counter_holding_button_up: .res 1
 frame_counter_holding_button_down: .res 1
 
+; Fill tool (ring queue)
+fill_temp: .res 1
+
+fill_target_color: .res 1
+queue_head: .res 1
+queue_tail: .res 1
+fill_current_addr: .res 2
+fill_neighbor_addr: .res 2
+
 
 ; Cursor position (single 8x8 sprite)
 cursor_x: .res 1
@@ -95,6 +104,10 @@ oam: .res 256	; sprite OAM data
 ; Remainder of normal RAM area
 .segment "BSS"
 palette: .res 32 ; current palette buffer
+
+; Fill queue (ring queue)
+fill_queue: .res 512
+
 
 ;*****************************************************************
 ; Main application logic section
