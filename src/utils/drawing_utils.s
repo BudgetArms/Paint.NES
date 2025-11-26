@@ -446,3 +446,130 @@ Divide_Done:
     tya                    ; Move quotient (in Y) to A
     rts
 .endproc
+
+
+; BudgetArms
+.proc ReadPPUAtCurrentAddr
+    ; read current tile and output to A
+
+    ; Reset PPU latch
+    lda PPU_STATUS
+
+    ; Setting address to PPU
+
+    ; Set high byte
+    lda fill_current_addr + 1
+    sta PPU_ADDR
+
+    ; Set low byte
+    lda fill_current_addr
+    sta PPU_ADDR
+
+    ; Read vram (at current address)
+    lda PPU_DATA
+    lda PPU_DATA
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc WriteBrushToCurrentAddr
+    ; write brush_tile_index to current tile
+
+    ; Reset PPU latch
+    lda PPU_STATUS
+
+    ; Setting address to PPU
+
+    ; Set high byte
+    lda fill_current_addr + 1
+    sta PPU_ADDR
+
+    ; Set low byte
+    lda fill_current_addr
+    sta PPU_ADDR
+
+    ; write brush color (at current address) to vram 
+    lda brush_tile_index
+    sta PPU_DATA
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc ReadPPUAtNeighbor
+    ; read neighbor tile and output to a
+
+    ; Reset PPU latch
+    lda PPU_STATUS
+
+    ; Setting address to PPU
+
+    ; set high byte
+    lda fill_neighbor_addr + 1
+    sta PPU_ADDR
+
+    ; set low byte
+    lda fill_neighbor_addr
+    sta PPU_ADDR
+
+    ; read vram (at neighbor)
+    lda PPU_DATA
+    lda PPU_DATA
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc PushToQueue
+    ; Push A (low) and X (high) to queue
+
+    ; store low byte
+    ldy queue_tail
+    sta fill_queue, y
+
+    ; store high byte
+    txa 
+    sta fill_queue + 256, y
+
+    ; Increase tail index
+    inc queue_tail
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc PopFromQueue
+    ; Pops and outputs to current tile
+
+    ; head is address to pop
+    ldy queue_head
+
+    ; get low byte
+    lda fill_queue, y
+    sta fill_current_addr
+
+    ; get low byte
+    lda fill_queue + 256, y
+    sta fill_current_addr + 1
+
+    ; Increase head index
+    inc queue_head
+
+    rts 
+
+.endproc
+; BudgetArms
+
