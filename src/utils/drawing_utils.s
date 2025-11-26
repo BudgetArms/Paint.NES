@@ -144,6 +144,21 @@
 
 .endmacro
 
+; BudgetArms
+.proc HideActiveCursorIfSelectionMenu
+
+    lda scroll_y_position
+    cmp #SELECTION_MENU_MODE
+    bne Not_In_Selection_Menu
+
+        jsr HideActiveCursor    
+
+    Not_In_Selection_Menu:
+    rts 
+
+.endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc UpdateCursorPosition
@@ -351,6 +366,49 @@
     rts 
 
 .endproc
+
+; BudgetArms
+.proc HideActiveCursor
+
+    lda cursor_type
+
+    cmp #TYPE_CURSOR_SMALL
+    beq Small_Cursor
+
+    cmp #TYPE_CURSOR_NORMAL
+    beq Normal_Cursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
+
+    cmp #TYPE_CURSOR_BIG
+    beq Big_Cursor
+
+
+    ;this should never be reached
+    rts 
+
+    Small_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
+        rts 
+
+    Normal_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
+        rts 
+
+    Medium_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
+        rts 
+
+    Big_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
+        rts 
+
+    ; this should never be reached
+    rts 
+
+.endproc
+; BudgetArms
 
 
 ; Jeronimas
