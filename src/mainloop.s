@@ -11,6 +11,7 @@ mainloop:
     jsr LoadCursor
     jsr UpdateCursorPosition
     jsr ConvertCursorPosToTilePositions
+    jsr HideActiveCursorIfSelectionMenu
 
 
     ; ensure our changes are rendered
