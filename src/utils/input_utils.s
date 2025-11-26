@@ -201,7 +201,7 @@
     ; Held
     HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
 
-    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_INSTANTLY,   HandleCursorPressedA
+    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_INSTANTLY,   HandleCursorHoldingA
     HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_SLOW,      HandleCursorPressedB
 
     HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
@@ -209,7 +209,6 @@
     HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
     HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
 
-    
 
     rts 
 
@@ -296,8 +295,22 @@
 .proc HandleCursorPressedA
     
     ChangeToolAttr #BRUSH_TOOL_ON
-    rts 
 
+.endproc
+
+; BudgetArms
+.proc HandleCursorHoldingA
+    
+    ; Tool mode is on pressed
+    lda tool_mode
+    and #FILL_MODE
+    bne In_Fill_Mode
+
+        ; if not fill mode
+        ChangeToolAttr #BRUSH_TOOL_ON
+
+    In_Fill_Mode:
+    rts 
 
 .endproc
 
