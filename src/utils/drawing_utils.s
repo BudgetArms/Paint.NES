@@ -36,7 +36,12 @@
             bne columnloop
         dey 
         bne rowloop
-    rts
+
+    ; Update PPU to prevent screen flicker (due to scroll)
+    jsr ppu_update
+
+    rts 
+
 .endproc
 
 
