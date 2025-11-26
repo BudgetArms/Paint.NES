@@ -183,15 +183,15 @@
     ;lda current_input
     lda input_holding_this_frame
     bne Check_PAD_A
-    jmp StopChecking ;if no buttons are pressed, skip all checks.
+    rts ;if no buttons are pressed, skip all checks.
 
     Check_PAD_A:
     ;lda input_pressed_this_frame
         cmp #PAD_A
         bne Check_PAD_A_LEFT
-        ;code for when A is pressed
+        ;code for when A is pressed alone
         jsr HandleCursorPressedA
-        jmp StopChecking
+        rts ; jmp StopChecking
     
     Check_PAD_A_LEFT:
     ;lda input_pressed_this_frame
@@ -200,15 +200,16 @@
         ;code for when A + LEFT is pressed
         jsr HandleCursorPressedA
         jsr MoveCursorLeft
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_A_RIGHT:
     ;lda input_pressed_this_frame
         cmp #PAD_A_RIGHT
         bne Check_PAD_A_UP
+        ;code for when a + right is pressed
         jsr HandleCursorPressedA
         jsr MoveCursorRight
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_A_UP:
     ;lda input_pressed_this_frame
@@ -217,7 +218,7 @@
         ;code for when  A + UP is pressed
         jsr HandleCursorPressedA
         jsr MoveCursorUp
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_A_DOWN:
     ;lda input_pressed_this_frame
@@ -227,120 +228,113 @@
         jsr HandleCursorPressedA
         jsr HandleCursorPressedA
         jsr MoveCursorDown
-        jmp StopChecking
-
-
+        rts ; jmp StopChecking
 
     Check_PAD_A_UP_LEFT:
         cmp #PAD_A_UP_LEFT
         bne Check_PAD_A_DOWN_LEFT
-        ;code for when Left is pressed alone
+        ;code for when a + up + Left is pressed
         jsr HandleCursorPressedA
         jsr MoveCursorUp
         jsr MoveCursorLeft
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_A_DOWN_LEFT:
         cmp #PAD_A_DOWN_LEFT
         bne Check_PAD_A_UP_RIGHT
-        ;code for when Left is pressed alone
+        ;code
         jsr HandleCursorPressedA
         jsr MoveCursorDown
         jsr MoveCursorLeft
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_A_UP_RIGHT:
         cmp #PAD_A_UP_RIGHT
         bne Check_PAD_A_DOWN_RIGHT
-        ;code for when Left is pressed alone
+        ;code
         jsr HandleCursorPressedA
         jsr MoveCursorUp
         jsr MoveCursorRight
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_A_DOWN_RIGHT:
         cmp #PAD_A_DOWN_RIGHT
         bne Check_PAD_START
-        ;code for when Left is pressed alone
+        ;code
         jsr HandleCursorPressedA
         jsr MoveCursorDown
         jsr MoveCursorRight
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_START:
-    ;lda input_pressed_this_frame
         cmp #PAD_START
         bne Check_PAD_START_LEFT
-        ;code for when START is pressed
-        ;jsr HandleCursorPressedStart
-        jmp StopChecking
+        ;code for when START is pressed alone
+        jsr HandleCursorPressedStart
+        rts ; jmp StopChecking
 
     Check_PAD_START_LEFT:
-    ;lda input_pressed_this_frame
         cmp #PAD_START_LEFT
         bne Check_PAD_START_RIGHT
         ;code for when START is pressed
-        jmp StopChecking
+        jsr DecreaseChrTileIndex
+        rts ; jmp StopChecking
 
     
     Check_PAD_START_RIGHT:
-    ;lda input_pressed_this_frame
         cmp #PAD_START_RIGHT
         bne Check_PAD_START_UP
         ;code for when START is pressed
-        jmp StopChecking
+        jsr IncreaseChrTileIndex
+        rts ; jmp StopChecking
 
 
     Check_PAD_START_UP:
-    ;lda input_pressed_this_frame
         cmp #PAD_START_UP
         bne Check_PAD_START_DOWN
         ;code for when START is pressed
-        jmp StopChecking
+        jsr IncreaseColorPalleteIndex
+        rts ; jmp StopChecking
 
 
     Check_PAD_START_DOWN:
-    ;lda input_pressed_this_frame
         cmp #PAD_START_DOWN
         bne Check_PAD_LEFT
         ;code for when START is pressed
-        jmp StopChecking
+        jsr DecreaseColorPalleteIndex
+        rts ; jmp StopChecking
 
     Check_PAD_LEFT:
-    ;lda input_pressed_this_frame
         cmp #PAD_LEFT
         bne Check_PAD_RIGHT
         jsr MoveCursorLeft
         ;jsr HandleCursorPressedLeft
         ;code for when Left is pressed alone
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_RIGHT:
-    ;lda input_pressed_this_frame
         cmp #PAD_RIGHT
         bne Check_PAD_UP
         jsr MoveCursorRight
         ;jsr HandleCursorPressedRight
         ;code for when Left is pressed alone
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_UP:
-    ;lda input_pressed_this_frame
         cmp #PAD_UP
         bne Check_PAD_DOWN
         jsr MoveCursorUp
         ;jsr HandleCursorPressedUp
         ;code for when Left is pressed alone
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_DOWN:
-    ;lda input_pressed_this_frame
         cmp #PAD_DOWN
         bne Check_PAD_UP_LEFT
         ;code for when Left is pressed alone
         jsr MoveCursorDown
         ;jsr HandleCursorPressedDown
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_UP_LEFT:
         cmp #PAD_UP_LEFT
@@ -348,7 +342,7 @@
         ;code for when Left is pressed alone
         jsr MoveCursorUp
         jsr MoveCursorLeft
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_DOWN_LEFT:
         cmp #PAD_DOWN_LEFT
@@ -356,7 +350,7 @@
         ;code for when Left is pressed alone
         jsr MoveCursorDown
         jsr MoveCursorLeft
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_UP_RIGHT:
         cmp #PAD_UP_RIGHT
@@ -364,7 +358,7 @@
         ;code for when Left is pressed alone
         jsr MoveCursorUp
         jsr MoveCursorRight
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_DOWN_RIGHT:
         cmp #PAD_DOWN_RIGHT
@@ -372,21 +366,20 @@
         ;code for when Left is pressed alone
         jsr MoveCursorDown
         jsr MoveCursorRight
-        jmp StopChecking
+        rts ; jmp StopChecking
 
     Check_PAD_B:
-    ;lda input_pressed_this_frame
         cmp #PAD_B
         bne Check_REST
         ;code for when Left is pressed alone
         jsr HandleCursorPressedB
-        jmp StopChecking  
+        rts ; jmp StopChecking  
 
     Check_REST:
-        jmp StopChecking
+        rts ; jmp StopChecking
 
 
-    StopChecking:
+    ;StopChecking:
 
 
 

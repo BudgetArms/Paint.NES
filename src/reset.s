@@ -62,6 +62,7 @@ clear_oam:
     ; Initialize brush variables
     lda #$02
     sta drawing_color_tile_index ; Color index
+    sta chrTileIndex ; Joren
     lda #$01
     sta brush_size ; Brush size
     lda #$00

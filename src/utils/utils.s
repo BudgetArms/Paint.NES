@@ -371,24 +371,53 @@
 .endproc
 
 
+;Joren
 .proc IncreaseColorPalleteIndex
-        lda newPalleteColor
-        clc
-        adc #$01
-        sta newPalleteColor
+    lda newPalleteColor
+    clc
+    adc #$01
+    sta newPalleteColor
 
-        rts
-
+    rts
 .endproc
-
 
 .proc DecreaseColorPalleteIndex
-        lda newPalleteColor
-        sec
-        sbc #$01
-        sta newPalleteColor
+    lda newPalleteColor
+    sec
+    sbc #$01
+    sta newPalleteColor
 
-        rts
-
+    rts
 .endproc
+
+.proc IncreaseChrTileIndex
+    lda chrTileIndex
+    clc
+    adc #$01
+
+    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    bpl Value_Was_Okay ; branch if not negative
+    lda #00 ; set value back to 0
+
+    Value_Was_Okay:
+    sta chrTileIndex
+
+    rts
+.endproc
+
+.proc DecreaseChrTileIndex
+    lda chrTileIndex
+    sec
+    sbc #$01
+
+    bpl Value_Was_Okay ; branch if not negative
+    lda #03 ; set value back to max index
+
+    Value_Was_Okay:
+    sta chrTileIndex
+
+    rts
+.endproc
+;Joren
+
 

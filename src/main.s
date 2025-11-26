@@ -93,7 +93,8 @@ scroll_y_position: .res 1
 
 ;Joren
 newPalleteColor: .res 1
-is_combo_used: .res 1
+chrTileIndex: .res 1
+;is_combo_used: .res 1
 
 .segment "OAM"
 oam: .res 256	; sprite OAM data

@@ -52,7 +52,8 @@ cont_render:
     ;Joren
     LDA #$3F ;high byte of 16-bit PPU address
     STA $2006   ;write to PPU
-    LDA #$02 ;low byte of 16-bit PPU address
+    ;LDA #$02 ;low byte of 16-bit PPU address
+    lda chrTileIndex ;low byte of 16-bit PPU address
     STA $2006   ;write to PPU
 
     LDA newPalleteColor ;load collorpallete value
