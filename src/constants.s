@@ -147,6 +147,7 @@ MINIMUM_BRUSH_SIZE   = $01
 ALL_TOOLS_OFF        = %00000000
 BRUSH_TOOL_ON        = %00000001
 CLEAR_CANVAS_TOOL_ON = %00000010
+FILL_TOOL_ON         = %00000100
 
 ; Tiles
 BACKGROUND_TILE = $00
@@ -181,7 +182,8 @@ FILL_MODE = $02
 ; Canvas mode
 CANVAS_MODE = $00
 SELECTION_MENU_MODE = $40
-; UI overlay
+
+; UI Overlay
 OVERLAY_NAMETABLE_ADDR = $2000
 ;OVERLAY_X_POS = 0                   ; Column 0
 ;OVERLAY_Y_POS = 0                   ; Row 0
