@@ -293,6 +293,18 @@
 
 ; BudgetArms
 .proc HandleCursorPressedA
+    lda tool_mode
+
+    cmp #FILL_MODE
+    beq @In_Fill_Mode
+
+    rts 
+
+    @In_Fill_Mode:
+        ChangeToolAttr #FILL_TOOL_ON
+
+    rts 
+
 
 .endproc
 
@@ -315,7 +327,6 @@
         ChangeToolAttr #BRUSH_TOOL_ON
         rts
     @In_Fill_Mode:
-        ChangeToolAttr #FILL_TOOL_ON
         rts 
 
 .endproc
