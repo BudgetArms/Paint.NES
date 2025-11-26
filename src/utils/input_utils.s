@@ -293,24 +293,30 @@
 
 ; BudgetArms
 .proc HandleCursorPressedA
-    
-    ChangeToolAttr #BRUSH_TOOL_ON
 
 .endproc
 
 ; BudgetArms
 .proc HandleCursorHoldingA
-    
-    ; Tool mode is on pressed
     lda tool_mode
-    and #FILL_MODE
-    bne In_Fill_Mode
 
-        ; if not fill mode
+    cmp #FILL_MODE
+    beq @In_Fill_Mode
+
+    cmp #DRAW_MODE
+    beq @In_Brush_Mode
+
+    cmp #ERASER_MODE
+    beq @In_Brush_Mode
+
+    rts
+
+    @In_Brush_Mode:
         ChangeToolAttr #BRUSH_TOOL_ON
-
-    In_Fill_Mode:
-    rts 
+        rts
+    @In_Fill_Mode:
+        ChangeToolAttr #FILL_TOOL_ON
+        rts 
 
 .endproc
 
