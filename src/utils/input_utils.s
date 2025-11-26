@@ -198,16 +198,24 @@
     HandleButtonPressed PAD_DOWN,   HandleCursorPressedDown
 
 
-    ; Held
-    HandleButtonHeld PAD_START,     frame_counter_holding_button_start,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedStart
+    ; Released
+    HandleButtonReleased PAD_A,   HandleCursorReleasedA
+    HandleButtonReleased PAD_B,   HandleCursorReleasedB
 
+    HandleButtonReleased PAD_LEFT,   HandleCursorReleasedDpad
+    HandleButtonReleased PAD_RIGHT,  HandleCursorReleasedDpad
+    HandleButtonReleased PAD_UP,     HandleCursorReleasedDpad
+    HandleButtonReleased PAD_DOWN,   HandleCursorReleasedDpad
+
+
+    ; Held
     HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_INSTANTLY,   HandleCursorHoldingA
     HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_SLOW,      HandleCursorPressedB
 
-    HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_left,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
-    HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_right,     BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedRight
-    HandleButtonHeld PAD_UP,        frame_counter_holding_button_up,        BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
-    HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_down,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
+    HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
+    HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedRight
+    HandleButtonHeld PAD_UP,        frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
+    HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
 
 
     rts 
@@ -801,6 +809,40 @@
         rts 
 
 .endproc
+
+
+;*****************************************************************
+;                       RELEASED
+;*****************************************************************
+
+
+; BudgetArms
+.proc HandleCursorReleasedA
+
+    ResetFrameCounterHolder frame_counter_holding_button_a
+    rts 
+
+.endproc
+; BudgetArms
+
+; BudgetArms
+.proc HandleCursorReleasedB
+
+    ResetFrameCounterHolder frame_counter_holding_button_b
+    rts 
+
+.endproc
+; BudgetArms
+
+; BudgetArms
+.proc HandleCursorReleasedDpad
+
+    ResetFrameCounterHolder frame_counter_holding_button_dpad
+    rts 
+
+.endproc
+; BudgetArms
+
 
 
 ;*****************************************************************
