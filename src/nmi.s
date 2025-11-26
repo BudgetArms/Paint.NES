@@ -44,8 +44,12 @@ cont_render:
 
     ; Khine
     jsr ClearCanvas
-    jsr draw_brush
+    jsr DrawBrush
     ; Khine
+
+    ; BudgetArms / Khine
+    jsr UseFillTool
+    ; BudgetArms / Khine
 
     jsr UpdateOverlayCursorPosition
 
