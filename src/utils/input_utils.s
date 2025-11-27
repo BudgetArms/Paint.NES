@@ -179,6 +179,9 @@
 
 ; BudgetArms
 .proc HandleInput
+    ;input holding = 
+; check if input last frame = same as input current frame
+
     ;lda input_pressed_this_frame
     ;lda current_input
     lda input_holding_this_frame
