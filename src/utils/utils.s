@@ -373,19 +373,49 @@
 
 ;Joren
 .proc IncreaseColorPalleteIndex
+    ldx chrTileIndex
+    lda four_color_values, X
+    clc
+    adc #$01
+    sta four_color_values, X
+    ;test:
+    sta palette, X
+
+
+;remove{
     lda newPalleteColor
     clc
     adc #$01
     sta newPalleteColor
+;}
 
     rts
 .endproc
 
 .proc DecreaseColorPalleteIndex
+    ldx chrTileIndex
+    lda four_color_values, X
+    sec
+    sbc #$01
+    sta four_color_values, X
+    ;test:
+    sta palette, X
+
+    ;loop:
+    ;    lda palette, x
+    ;    sta PPU_DATA
+    ;    inx
+    ;    cpx #32
+    ;    bcc loop
+
+
+
+;remove{
     lda newPalleteColor
     sec
     sbc #$01
     sta newPalleteColor
+;}
 
     rts
 .endproc
@@ -412,6 +442,12 @@
 
     bpl Value_Was_Okay ; branch if not negative
     lda #03 ; set value back to max index
+
+
+    ; #$00 = background
+    ; #$01 = the x-y position
+    ; #$02 = default drawing color
+    ; #$03 = nothing yet
 
     Value_Was_Okay:
     sta chrTileIndex

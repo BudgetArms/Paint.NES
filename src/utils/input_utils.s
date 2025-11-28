@@ -280,6 +280,8 @@
         cmp #PAD_START_LEFT
         bne Check_PAD_START_RIGHT
         ;code for when START is pressed
+        ;lda #$02
+        ;sta chrTileIndex
         jsr DecreaseChrTileIndex
         rts ; jmp StopChecking
 
@@ -289,6 +291,8 @@
         bne Check_PAD_START_UP
         ;code for when START is pressed
         jsr IncreaseChrTileIndex
+        ;lda #$00
+        ;sta chrTileIndex
         rts ; jmp StopChecking
 
 
@@ -297,6 +301,8 @@
         bne Check_PAD_START_DOWN
         ;code for when START is pressed
         jsr IncreaseColorPalleteIndex
+        ;lda #$01
+        ;sta chrTileIndex
         rts ; jmp StopChecking
 
 
@@ -305,6 +311,8 @@
         bne Check_PAD_LEFT
         ;code for when START is pressed
         jsr DecreaseColorPalleteIndex
+        ;lda #$03
+        ;sta chrTileIndex
         rts ; jmp StopChecking
 
     Check_PAD_LEFT:
@@ -369,6 +377,7 @@
         ;code for when Left is pressed alone
         jsr MoveCursorDown
         jsr MoveCursorRight
+        ;jsr IncreaseColorPalleteIndex
         rts ; jmp StopChecking
 
     Check_PAD_B:

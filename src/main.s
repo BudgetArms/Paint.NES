@@ -92,6 +92,7 @@ scroll_y_position: .res 1
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 
 ;Joren
+four_color_values: .res 4
 newPalleteColor: .res 1
 chrTileIndex: .res 1
 ;is_combo_used: .res 1
