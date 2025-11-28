@@ -108,6 +108,20 @@ wait_vblank2:
     ; NES is initialized and ready to begin
     ; - enable the NMI for graphical updates and jump to our main program
 
+    ; Initialize FamiStudio sound engine
+    ldx #.lobyte(music_data_silver_surfer_c_stephen_ruddy)
+    ldy #.hibyte(music_data_silver_surfer_c_stephen_ruddy)
+    lda #0  ; 0 = NTSC, 1 = PAL
+    jsr famistudio_init
+
+    ; Start playing first song (song index 0)
+    lda #0
+    jsr famistudio_music_play
+
+    ; Initialize music state
+    lda #0
+    sta music_paused
+
     lda #%10000000
     sta PPU_CONTROL
 

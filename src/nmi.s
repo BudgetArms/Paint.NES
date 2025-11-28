@@ -66,6 +66,9 @@ loop:
     stx nmi_ready
     ppu_update_end:
 
+    ; update FamiStudio sound engine
+    jsr famistudio_update
+
     ; restore registers and return
     pla
     tay

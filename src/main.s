@@ -87,6 +87,12 @@ current_program_mode: .res 1
 scroll_x_position: .res 1
 scroll_y_position: .res 1
 
+
+; Sound engine variables
+sfx_channel: .res 1
+music_paused: .res 1
+
+
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -126,6 +132,38 @@ irq:
     rti
 
 ;***************************************
+
+; Jeronimas
+;***************************************
+; FamiStudio Sound Engine Configuration
+;***************************************
+.segment "CODE"
+
+; FamiStudio config
+FAMISTUDIO_CFG_EXTERNAL = 1
+FAMISTUDIO_CFG_DPCM_SUPPORT = 1
+FAMISTUDIO_CFG_SFX_SUPPORT = 0  ; Set to 1 if you want sound effects
+FAMISTUDIO_CFG_SFX_STREAMS = 2
+FAMISTUDIO_USE_VOLUME_TRACK = 1
+FAMISTUDIO_USE_PITCH_TRACK = 1
+FAMISTUDIO_USE_SLIDE_NOTES = 1
+FAMISTUDIO_USE_VIBRATO = 1
+FAMISTUDIO_USE_ARPEGGIO = 1
+FAMISTUDIO_USE_RELEASE_NOTES = 1
+FAMISTUDIO_DPCM_OFF = $c000
+
+; CA65-specific config
+.define FAMISTUDIO_CA65_ZP_SEGMENT ZEROPAGE
+.define FAMISTUDIO_CA65_RAM_SEGMENT BSS
+.define FAMISTUDIO_CA65_CODE_SEGMENT CODE
+
+; Include FamiStudio sound engine
+.include "famistudio_ca65.s"
+
+; Include music data
+.segment "RODATA"
+.include "TestSong.s" 
+
 .segment "CODE"
 .proc main
     ; main application - rendering is currently off
