@@ -162,6 +162,21 @@ irq:
         lda #TYPE_CURSOR_STARTUP
         sta cursor_type
 
+        ; set cursor_x/y
+        lda #CURSOR_MIN_X * 8
+        sta cursor_x
+
+        lda #CURSOR_MIN_Y * 8
+        sta cursor_y
+
+        ; set cursor tile x/y
+        lda #CURSOR_MIN_X
+        sta tile_cursor_x
+
+        lda #CURSOR_MIN_Y
+        sta tile_cursor_y
+
+
 
     jsr ppu_update
 
