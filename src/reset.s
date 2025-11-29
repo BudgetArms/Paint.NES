@@ -111,7 +111,7 @@ wait_vblank2:
     ; Initialize FamiStudio sound engine
     ldx #.lobyte(music_data_silver_surfer_c_stephen_ruddy)
     ldy #.hibyte(music_data_silver_surfer_c_stephen_ruddy)
-    lda #0  ; 0 = NTSC, 1 = PAL
+    lda #1  ; 0 = NTSC, 1 = PAL
     jsr famistudio_init
 
     ; Start playing first song (song index 0)
