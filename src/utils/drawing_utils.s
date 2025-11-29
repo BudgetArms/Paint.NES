@@ -202,16 +202,16 @@
 ; BudgetArms
 .proc UpdateSmallCursorPosition
 
-    ; load cursor_y
-    lda cursor_y    
-
-    ; overwrite the Small Cursor's default y-pos with the cursor y-Position 
+    ; Increase cursor_y with oam data's y-pos
+    clc 
+    lda cursor_y
+    adc oam + OAM_OFFSET_CURSOR_SMALL
     sta oam + OAM_OFFSET_CURSOR_SMALL
 
-    ; load cursor_x
+    ; Increase cursor_x with oam data's x-pos
+    clc 
     lda cursor_x
-
-    ; overwrite the Small Small Cursor's default x-pos with the cursor x-Position 
+    adc oam + OAM_OFFSET_CURSOR_SMALL + 3
     sta oam + OAM_OFFSET_CURSOR_SMALL + 3
 
     rts 
@@ -220,10 +220,17 @@
 
 ; BudgetArms
 .proc UpdateNormalCursorPosition
+
+    ; Increase cursor_y with oam data's y-pos
+    clc 
     lda cursor_y
+    adc oam + OAM_OFFSET_CURSOR_NORMAL
     sta oam + OAM_OFFSET_CURSOR_NORMAL
 
+    ; Increase cursor_x with oam data's x-pos
+    clc 
     lda cursor_x
+    adc oam + OAM_OFFSET_CURSOR_NORMAL + 3
     sta oam + OAM_OFFSET_CURSOR_NORMAL + 3
 
     rts 
@@ -236,11 +243,13 @@
     ldx #$00
     Loop:
         ; Increase cursor_y with oam data's y-pos
+        clc 
         lda cursor_y
         adc oam + OAM_OFFSET_CURSOR_MEDIUM, X 
         sta oam + OAM_OFFSET_CURSOR_MEDIUM, X 
 
         ; Increase cursor_x with oam data's x-pos
+        clc 
         lda cursor_x
         adc oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
         sta oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
@@ -264,11 +273,13 @@
     ldx #$00
     Loop:
         ; Increase cursor_y with oam data's y-pos
+        clc 
         lda cursor_y
         adc oam + OAM_OFFSET_CURSOR_BIG, X 
         sta oam + OAM_OFFSET_CURSOR_BIG, X 
 
         ; Increase cursor_x with oam data's x-pos
+        clc 
         lda cursor_x
         adc oam + OAM_OFFSET_CURSOR_BIG + 3, X 
         sta oam + OAM_OFFSET_CURSOR_BIG + 3, X 
