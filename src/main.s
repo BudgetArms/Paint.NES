@@ -89,7 +89,7 @@ scroll_y_position: .res 1
 
 
 ; Sound engine variables
-sfx_channel: .res 1
+sfx_channel: .res 1     ; SFX channel to use
 music_paused: .res 1
 
 
@@ -140,17 +140,17 @@ irq:
 .segment "CODE"
 
 ; FamiStudio config
-FAMISTUDIO_CFG_EXTERNAL = 1
-FAMISTUDIO_CFG_DPCM_SUPPORT = 1
-FAMISTUDIO_CFG_SFX_SUPPORT = 0  ; Set to 1 if you want sound effects
-FAMISTUDIO_CFG_SFX_STREAMS = 2
-FAMISTUDIO_USE_VOLUME_TRACK = 1
-FAMISTUDIO_USE_PITCH_TRACK = 1
-FAMISTUDIO_USE_SLIDE_NOTES = 1
-FAMISTUDIO_USE_VIBRATO = 1
-FAMISTUDIO_USE_ARPEGGIO = 1
-FAMISTUDIO_USE_RELEASE_NOTES = 1
-FAMISTUDIO_DPCM_OFF = $c000
+FAMISTUDIO_CFG_EXTERNAL         = 1
+FAMISTUDIO_CFG_DPCM_SUPPORT     = 0  ; We do not have DPCM samples in our music or sfx
+FAMISTUDIO_CFG_SFX_SUPPORT      = 1  ; Set to 1 if you want sound effects
+FAMISTUDIO_CFG_SFX_STREAMS      = 2
+FAMISTUDIO_USE_VOLUME_TRACK     = 1
+FAMISTUDIO_USE_PITCH_TRACK      = 1
+FAMISTUDIO_USE_SLIDE_NOTES      = 1
+FAMISTUDIO_USE_VIBRATO          = 1
+FAMISTUDIO_USE_ARPEGGIO         = 1
+FAMISTUDIO_USE_RELEASE_NOTES    = 1
+FAMISTUDIO_DPCM_OFF             = $c000
 
 ; CA65-specific config
 .define FAMISTUDIO_CA65_ZP_SEGMENT ZEROPAGE
@@ -160,9 +160,14 @@ FAMISTUDIO_DPCM_OFF = $c000
 ; Include FamiStudio sound engine
 .include "famistudio_ca65.s"
 
+; INclude SFX data
+.include "SFX.s"
+
 ; Include music data
 .segment "RODATA"
 .include "TestSong.s" 
+;Jeronimas
+;***************************************
 
 .segment "CODE"
 .proc main
