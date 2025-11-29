@@ -211,14 +211,14 @@ CURSOR_NORMAL_DATA:
 
 
 CURSOR_MEDIUM_DATA:
-    .byte   $07,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $08,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000,     $08     ; TOP-RIGHT: mirrored x
     .byte   $08,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $08     ; BOTTOM-RIGHT: mirrored x & y
 
 
 CURSOR_BIG_DATA:
-    .byte   $0F,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
     .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %00000000,     $00     ; LEFT
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP,        %00000000,     $08     ; TOP
