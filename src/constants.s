@@ -81,6 +81,14 @@ MAIN_MENU = 0
 CANVAS = 1
 
 
+; Cursor locks (can't go lower/higher)
+CURSOR_MIN_X = 1
+CURSOR_MAX_X = 32
+
+CURSOR_MIN_Y = 1
+CURSOR_MAX_Y = 30
+
+
 ; cursor types
 TYPE_CURSOR_SMALL = $00
 TYPE_CURSOR_NORMAL = $01
