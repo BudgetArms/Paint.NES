@@ -369,3 +369,26 @@
     @Not_On_Clear_Canvas:
     rts
 .endproc
+
+; Jeronimas 
+;*********************************************************
+; PlaySfx: Play a sound effect
+; Input: A = sound effect index to play
+; Uses: sfx_channel variable for the channel to play on
+; Preserves: X, Y registers
+;*********************************************************
+.proc PlaySfx
+    sta temp + 9
+    tya
+    pha
+    txa
+    pha
+    lda temp + 9
+    ldx sfx_channel
+    jsr famistudio_sfx_play
+    pla
+    tax
+    pla
+    tay
+    rts
+.endproc

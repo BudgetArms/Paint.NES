@@ -109,10 +109,15 @@ wait_vblank2:
     ; - enable the NMI for graphical updates and jump to our main program
 
     ; Initialize FamiStudio sound engine
-    ldx #.lobyte(music_data_silver_surfer_c_stephen_ruddy)
+    ldx #.lobyte(music_data_silver_surfer_c_stephen_ruddy) ; Sets the address of the background music
     ldy #.hibyte(music_data_silver_surfer_c_stephen_ruddy)
     lda #1  ; 0 = NTSC, 1 = PAL
     jsr famistudio_init
+
+    ; Initialize SFX
+    ldx #.lobyte(sounds)    ; Sets the address of sound effects
+    ldy #.hibyte(sounds)
+    jsr famistudio_sfx_init
 
     ; Start playing first song (song index 0)
     lda #0
