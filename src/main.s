@@ -89,6 +89,7 @@ scroll_y_position: .res 1
 
 
 ; Sound engine variables
+sfx_temp: .res 1        ; Temporary storage for SFX operations
 sfx_channel: .res 1     ; SFX channel to use
 music_paused: .res 1
 

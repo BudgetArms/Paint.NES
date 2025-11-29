@@ -145,6 +145,10 @@
     eor #BRUSH_TOOL_ON
     sta tool_use_attr
 
+    ; Play drawing sound effect here
+    lda #0          ; SFX index 0 (currently the only one we have)
+    jsr PlaySfx     ; Call the wrapper function from utils.h
+
     ; Store the tile position in a different var
     ; This is done so that the cursor position can stay on the original spot
     ; after drawing has completed.

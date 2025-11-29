@@ -378,12 +378,12 @@
 ; Preserves: X, Y registers
 ;*********************************************************
 .proc PlaySfx
-    sta temp + 9
+    sta sfx_temp + 9
     tya
     pha
     txa
     pha
-    lda temp + 9
+    lda sfx_temp + 9
     ldx sfx_channel
     jsr famistudio_sfx_play
     pla
