@@ -114,13 +114,15 @@
 .endmacro
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorUp
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
-    cmp #$00
+
+    cmp #CURSOR_MIN_Y
     bne @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
     sec
     lda cursor_y
@@ -130,68 +132,82 @@
     dec tile_cursor_y
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorDown
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
-    clc
+    clc 
+
     lda tile_cursor_y
     adc brush_size
-    cmp #DISPLAY_SCREEN_HEIGHT
+
+    cmp #CURSOR_MAX_Y
     bmi @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    clc
+
+    clc 
     lda cursor_y
     adc #TILE_PIXEL_SIZE
     sta cursor_y
 
     inc tile_cursor_y
-    rts
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorLeft
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
-    cmp #$00
+
+    cmp #CURSOR_MIN_X
     bne @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    sec
+
+    sec 
     lda cursor_x
     sbc #TILE_PIXEL_SIZE
     sta cursor_x
 
     dec tile_cursor_x
-    rts
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorRight
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
-    clc
+    clc 
+
     lda tile_cursor_x
     adc brush_size
-    cmp #DISPLAY_SCREEN_WIDTH
+
+    cmp #CURSOR_MAX_X
     bmi @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    clc
+
+    clc 
     lda cursor_x
     adc #TILE_PIXEL_SIZE
     sta cursor_x
 
     inc tile_cursor_x
-    rts
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
 ; Khine
