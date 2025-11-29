@@ -206,6 +206,12 @@
     clc 
     lda cursor_y
     adc oam + OAM_OFFSET_CURSOR_SMALL
+
+    ; substract A (y pos) by one bc it's draw on the next scanline  
+    clc 
+    sbc #$00
+
+    ; Store data to OAM
     sta oam + OAM_OFFSET_CURSOR_SMALL
 
     ; Increase cursor_x with oam data's x-pos
@@ -225,6 +231,12 @@
     clc 
     lda cursor_y
     adc oam + OAM_OFFSET_CURSOR_NORMAL
+
+    ; substract A (y pos) by one bc it's draw on the next scanline  
+    clc 
+    sbc #$00
+
+    ; Store data to OAM
     sta oam + OAM_OFFSET_CURSOR_NORMAL
 
     ; Increase cursor_x with oam data's x-pos
@@ -246,6 +258,12 @@
         clc 
         lda cursor_y
         adc oam + OAM_OFFSET_CURSOR_MEDIUM, X 
+
+        ; substract A (y pos) by one bc it's draw on the next scanline  
+        clc 
+        sbc #$00
+
+        ; Store data to OAM
         sta oam + OAM_OFFSET_CURSOR_MEDIUM, X 
 
         ; Increase cursor_x with oam data's x-pos
@@ -276,6 +294,12 @@
         clc 
         lda cursor_y
         adc oam + OAM_OFFSET_CURSOR_BIG, X 
+
+        ; substract A (y pos) by one bc it's draw on the next scanline  
+        clc 
+        sbc #$00
+
+        ; Store data to OAM
         sta oam + OAM_OFFSET_CURSOR_BIG, X 
 
         ; Increase cursor_x with oam data's x-pos
