@@ -457,4 +457,38 @@
 .endproc
 ;Joren
 
+.proc UpdateColorSelectionOverlay
+; FIRST tile = background tile
+    lda #>FIRST_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<FIRST_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #FIRST_COLOR_TILE_INDEX
+    sta PPU_DATA
 
+; SECOND tile
+    lda #>SECOND_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<SECOND_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #SECOND_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+; THIRD tile
+    lda #>THIRD_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<THIRD_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #THIRD_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+; FOURTH tile
+    lda #>FOURTH_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #FOURTH_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+    
+.endproc
