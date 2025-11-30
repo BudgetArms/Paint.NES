@@ -91,7 +91,7 @@ scroll_y_position: .res 1
 ; Sound engine variables
 sfx_temp: .res 1        ; Temporary storage for SFX operations
 sfx_channel: .res 1     ; SFX channel to use
-music_paused: .res 1
+music_paused: .res 1    ; this is a flag changing this does not actually pause the music
 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
@@ -134,7 +134,6 @@ irq:
 
 ;***************************************
 
-; Jeronimas
 ;***************************************
 ; FamiStudio Sound Engine Configuration
 ;***************************************
@@ -161,13 +160,11 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ; Include FamiStudio sound engine
 .include "famistudio_ca65.s"
 
+; Include music data
+.segment "RODATA"               ; this makes Background_music.s read only
+.include "Background_music.s" 
 ; INclude SFX data
 .include "SFX.s"
-
-; Include music data
-.segment "RODATA"
-.include "Background_music.s" 
-;Jeronimas
 ;***************************************
 
 .segment "CODE"
