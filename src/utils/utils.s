@@ -399,6 +399,10 @@ DontMoveYet:
 
 ;Joren
 .proc IncreaseColorPalleteIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
     ldx chrTileIndex
     lda four_color_values, X
     clc
@@ -415,10 +419,15 @@ DontMoveYet:
     sta newPalleteColor
 ;}
 
+    DontRegisterYet:
     rts
 .endproc
 
 .proc DecreaseColorPalleteIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
     ldx chrTileIndex
     lda four_color_values, X
     sec
@@ -443,10 +452,15 @@ DontMoveYet:
     sta newPalleteColor
 ;}
 
+    DontRegisterYet:
     rts
 .endproc
 
 .proc IncreaseChrTileIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
     lda chrTileIndex
     clc
     adc #$01
@@ -459,10 +473,15 @@ DontMoveYet:
     sta chrTileIndex
     sta selected_color_chrIndex
 
+    DontRegisterYet:
     rts
 .endproc
 
 .proc DecreaseChrTileIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
     lda chrTileIndex
     sec
     sbc #$01
@@ -474,6 +493,7 @@ DontMoveYet:
     sta chrTileIndex
     sta selected_color_chrIndex
 
+    DontRegisterYet:
     rts
 .endproc
 ;Joren
@@ -524,6 +544,7 @@ DontMoveYet:
     lda selected_color_chrIndex
     sta PPU_DATA
     ;selected_color_chrIndex
+
     rts
 .endproc
 
