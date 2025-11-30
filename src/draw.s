@@ -130,7 +130,7 @@
 .endproc
 
 
-; Khine/BudgetArms
+; Khine/BudgetArms/Jeronimas
 .proc draw_brush
     ; Check if the PAD_A has been pressed
     ; This is not checked in the `input_utils.s` because this can run into issues with
@@ -145,10 +145,23 @@
     eor #BRUSH_TOOL_ON
     sta tool_use_attr
 
-    ; Play drawing sound effect here
-    lda #0          ; SFX index 0 (currently the only one we have)
-    jsr PlaySfx     ; Call the wrapper function from utils.h
+    ; Play drawing sound effect here based on tool mode
+    lda tool_mode
+    cmp #DRAW_MODE
+    beq @play_splash
+    
+    ; Eraser mode - play bird sound (index 0)
+    lda #0
+    jmp @play_sound
+    
+@play_splash:
+    ; Draw mode - play splash sound (index 1)
+    lda #1
+    
+@play_sound:
+    jsr PlaySfx     ; Call the wrapper function
 
+    ; ...existing code...
     ; Store the tile position in a different var
     ; This is done so that the cursor position can stay on the original spot
     ; after drawing has completed.
