@@ -432,6 +432,7 @@
 
     Value_Was_Okay:
     sta chrTileIndex
+    sta selected_color_chrIndex
 
     rts
 .endproc
@@ -444,14 +445,9 @@
     bpl Value_Was_Okay ; branch if not negative
     lda #03 ; set value back to max index
 
-
-    ; #$00 = background
-    ; #$01 = the x-y position
-    ; #$02 = default drawing color
-    ; #$03 = nothing yet
-
     Value_Was_Okay:
     sta chrTileIndex
+    sta selected_color_chrIndex
 
     rts
 .endproc
