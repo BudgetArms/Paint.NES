@@ -1,8 +1,9 @@
 ; Khine
-.macro ChangeBrushTileIndex    source_tile
-    lda source_tile
-    sta brush_tile_index
-.endmacro
+;.macro ChangeBrushTileIndex    source_tile
+;    lda source_tile
+;    sta brush_tile_index
+;    sta selected_color_chrIndex
+;.endmacro
 ; Khine
 
 
@@ -281,7 +282,9 @@ DontMoveYet:
 
 ; Khine
 .proc ToggleEraserTool
-    ChangeBrushTileIndex #BACKGROUND_TILE
+    lda #$00
+    sta selected_color_chrIndex
+    ;ChangeBrushTileIndex #BACKGROUND_TILE
     ChangeCanvasMode #ERASER_MODE
     rts
 .endproc
@@ -291,7 +294,8 @@ DontMoveYet:
 ; Khine
 .proc ToggleDrawTool
     ;ChangeBrushTileIndex drawing_color_tile_index
-    ChangeBrushTileIndex chrTileIndex
+    ;ChangeBrushTileIndex chrTileIndex
+    ;ChangeBrushTileIndex selected_color_chrIndex
     ChangeCanvasMode #DRAW_MODE
     rts
 .endproc
@@ -299,19 +303,19 @@ DontMoveYet:
 
 
 ; Khine
-.proc CycleBrushColor
-    lda drawing_color_tile_index
-    cmp #COLOR_TILE_END_INDEX
-    bne @Not_End
-        lda #COLOR_TILE_START_INDEX
-        sta drawing_color_tile_index
-        sta brush_tile_index
-        rts
-    @Not_End:
-    inc drawing_color_tile_index
-    inc brush_tile_index
-    rts
-.endproc
+;.proc CycleBrushColor
+;    lda drawing_color_tile_index
+;    cmp #COLOR_TILE_END_INDEX
+;    bne @Not_End
+;        lda #COLOR_TILE_START_INDEX
+;        sta drawing_color_tile_index
+;        sta brush_tile_index
+;        rts
+;    @Not_End:
+;    inc drawing_color_tile_index
+;    inc brush_tile_index
+;    rts
+;.endproc
 ; Khine
 
 
@@ -403,7 +407,8 @@ DontMoveYet:
     lda frame_count
     bne DontRegisterYet
 
-    ldx chrTileIndex
+    ;ldx chrTileIndex
+    ldx selected_color_chrIndex
     lda four_color_values, X
     clc
     adc #$01
@@ -428,7 +433,8 @@ DontMoveYet:
     lda frame_count
     bne DontRegisterYet
 
-    ldx chrTileIndex
+    ;ldx chrTileIndex
+    ldx selected_color_chrIndex
     lda four_color_values, X
     sec
     sbc #$01
@@ -461,7 +467,8 @@ DontMoveYet:
     lda frame_count
     bne DontRegisterYet
 
-    lda chrTileIndex
+    ;lda chrTileIndex
+    lda selected_color_chrIndex
     clc
     adc #$01
 
@@ -470,8 +477,9 @@ DontMoveYet:
     lda #00 ; set value back to 0
 
     Value_Was_Okay:
-    sta chrTileIndex
+    ;sta chrTileIndex
     sta selected_color_chrIndex
+    ;lda four_color_values, selected_color_chrIndex
 
     DontRegisterYet:
     rts
@@ -482,7 +490,8 @@ DontMoveYet:
     lda frame_count
     bne DontRegisterYet
 
-    lda chrTileIndex
+    ;lda chrTileIndex
+    lda selected_color_chrIndex
     sec
     sbc #$01
 
@@ -490,7 +499,7 @@ DontMoveYet:
     lda #03 ; set value back to max index
 
     Value_Was_Okay:
-    sta chrTileIndex
+    ;sta chrTileIndex
     sta selected_color_chrIndex
 
     DontRegisterYet:

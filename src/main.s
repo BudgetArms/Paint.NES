@@ -79,8 +79,8 @@ cursor_tile_position: .res 2
 tool_mode: .res 1
 tool_use_attr: .res 1
 drawing_tile_position: .res 2
-drawing_color_tile_index: .res 1
-brush_tile_index: .res 1
+;drawing_color_tile_index: .res 1
+;brush_tile_index: .res 1
 brush_size: .res 1
 
 ; misc
@@ -94,7 +94,7 @@ scroll_y_position: .res 1
 ;Joren
 four_color_values: .res 4
 newPalleteColor: .res 1
-chrTileIndex: .res 1
+;chrTileIndex: .res 1
 selected_color_chrIndex: .res 1
 frame_count: .res 1
 ;is_combo_used: .res 1

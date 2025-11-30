@@ -284,7 +284,7 @@
         cmp #PAD_START
         bne Check_PAD_START_LEFT
         ;code for when START is pressed alone
-        jsr HandleCursorPressedStart
+        ;jsr HandleCursorPressedStart
         ;rts ; jmp StopChecking
         jmp StopChecking
 

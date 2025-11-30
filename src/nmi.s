@@ -36,12 +36,12 @@ cont_render:
     ldx #0 ; transfer the 32 bytes to VRAM
 
 ;Try changinng this part to fix the pallette.
-    loop:
-        lda palette, x
-        sta PPU_DATA
-        inx
-        cpx #32
-        bcc loop
+    ;loop:
+        ;lda palette, x
+        ;sta PPU_DATA
+        ;inx
+        ;cpx #32
+        ;bcc loop
 ;
 
 
@@ -60,7 +60,8 @@ cont_render:
     LDA #$3F ;high byte of 16-bit PPU address
     STA $2006   ;write to PPU
     LDA #$02 ;low byte of 16-bit PPU address
-    lda chrTileIndex ;low byte of 16-bit PPU address
+    ;lda chrTileIndex ;low byte of 16-bit PPU address
+    lda selected_color_chrIndex
     STA $2006   ;write to PPU
 
     LDA newPalleteColor ;load collorpallete value

@@ -163,7 +163,8 @@
         sta PPU_ADDR
 
         ldx #$00
-        lda brush_tile_index ; Color index of the tile
+        ;lda brush_tile_index ; Color index of the tile
+        lda selected_color_chrIndex
         @row_loop:
             sta PPU_DATA
             inx
