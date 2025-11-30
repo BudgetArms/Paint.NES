@@ -490,5 +490,17 @@
     lda #FOURTH_COLOR_TILE_INDEX
     sta PPU_DATA
 
+; SELECTED tile
+    lda #$20 ; same as all previous ones
+    sta PPU_ADDR
     
+    lda selected_color_chrIndex
+    CLC
+    adc #<FIRST_COLOR_ONSCREEN_ADRESS
+    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+
+    lda selected_color_chrIndex
+    sta PPU_DATA
+    ;selected_color_chrIndex
 .endproc
