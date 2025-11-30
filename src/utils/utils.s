@@ -265,7 +265,8 @@
 
 ; Khine
 .proc ToggleDrawTool
-    ChangeBrushTileIndex drawing_color_tile_index
+    ;ChangeBrushTileIndex drawing_color_tile_index
+    ChangeBrushTileIndex chrTileIndex
     ChangeCanvasMode #DRAW_MODE
     rts
 .endproc
