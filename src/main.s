@@ -96,6 +96,7 @@ four_color_values: .res 4
 newPalleteColor: .res 1
 chrTileIndex: .res 1
 selected_color_chrIndex: .res 1
+frame_count: .res 1
 ;is_combo_used: .res 1
 
 .segment "OAM"

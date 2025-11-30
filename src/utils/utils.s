@@ -116,6 +116,11 @@
 
 ; Khine
 .proc MoveCursorUp
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
+
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
     cmp #$00
@@ -128,6 +133,8 @@
     sta cursor_y
 
     dec tile_cursor_y
+
+DontMoveYet:
     rts
 .endproc
 ; Khine
@@ -135,6 +142,10 @@
 
 ; Khine
 .proc MoveCursorDown
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
     clc
     lda tile_cursor_y
@@ -149,6 +160,8 @@
     sta cursor_y
 
     inc tile_cursor_y
+
+DontMoveYet:
     rts
 .endproc
 ; Khine
@@ -156,6 +169,10 @@
 
 ; Khine
 .proc MoveCursorLeft
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
     cmp #$00
@@ -168,6 +185,8 @@
     sta cursor_x
 
     dec tile_cursor_x
+
+DontMoveYet:
     rts
 .endproc
 ; Khine
@@ -175,6 +194,10 @@
 
 ; Khine
 .proc MoveCursorRight
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
     clc
     lda tile_cursor_x
@@ -189,6 +212,8 @@
     sta cursor_x
 
     inc tile_cursor_x
+
+DontMoveYet:
     rts
 .endproc
 ; Khine
@@ -427,7 +452,7 @@
     adc #$01
 
     cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
-    bpl Value_Was_Okay ; branch if not negative
+    bmi Value_Was_Okay ; branch if not negative
     lda #00 ; set value back to 0
 
     Value_Was_Okay:
@@ -499,4 +524,18 @@
     lda selected_color_chrIndex
     sta PPU_DATA
     ;selected_color_chrIndex
+    rts
+.endproc
+
+.proc IncButtonHeldFrameCount
+    lda frame_count
+    clc
+    adc #$01
+    cmp #FRAMES_BETWEEN_MOVEMENT
+    bne Value_Is_Okay
+    lda #$00
+
+Value_Is_Okay:
+    sta frame_count
+    rts
 .endproc
