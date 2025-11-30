@@ -504,6 +504,10 @@
 
 ; BudgetArms
 .proc HandleCursorPressedB
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
     jsr CycleBrushSize
 
     lda cursor_type     ; load cursor type
@@ -548,8 +552,8 @@
         lda #DIR_CURSOR_SMALL_TOP_LEFT 
         sta cursor_small_direction
 
+    DontRegisterYet:
         rts 
-
 .endproc
 
 
