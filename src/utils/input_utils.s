@@ -301,17 +301,24 @@
 
 ; BudgetArms
 .proc HandleCursorPressedA
+
     lda tool_mode
-
     cmp #FILL_MODE
-    beq @In_Fill_Mode
+    beq In_Fill_Mode
 
-    rts 
+    lda tool_mode
+    cmp #SHAPE_MODE
+    beq In_Shape_Mode
 
-    @In_Fill_Mode:
+        rts 
+
+    In_Fill_Mode:
         ChangeToolAttr #FILL_TOOL_ON
+        rts 
 
-    rts 
+    In_Shape_Mode:
+        ChangeToolAttr #SHAPE_TOOL_ON
+        rts 
 
 
 .endproc
