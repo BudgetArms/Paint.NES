@@ -764,7 +764,7 @@ DontRegisterYet:
 .endproc
 
 .proc DecreaseChrTileIndex
-; Code to slow input registration down
+    ; Code to slow input registration down
     lda frame_count
     bne DontRegisterYet
 
@@ -792,11 +792,12 @@ DontRegisterYet:
 
     DontRegisterYet:
     rts
+    
 .endproc
 ;Joren
 
 .proc UpdateColorSelectionOverlay
-; FIRST tile = background tile
+    ; FIRST tile = background tile
     lda #>FIRST_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<FIRST_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -804,7 +805,7 @@ DontRegisterYet:
     lda #FIRST_COLOR_TILE_INDEX
     sta PPU_DATA
 
-; SECOND tile
+    ; SECOND tile
     lda #>SECOND_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<SECOND_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -812,7 +813,7 @@ DontRegisterYet:
     lda #SECOND_COLOR_TILE_INDEX
     sta PPU_DATA
 
-; THIRD tile
+    ; THIRD tile
     lda #>THIRD_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<THIRD_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -820,7 +821,7 @@ DontRegisterYet:
     lda #THIRD_COLOR_TILE_INDEX
     sta PPU_DATA
 
-; FOURTH tile
+    ; FOURTH tile
     lda #>FOURTH_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -828,7 +829,7 @@ DontRegisterYet:
     lda #FOURTH_COLOR_TILE_INDEX
     sta PPU_DATA
 
-; SELECTED tile
+    ; SELECTED tile
     lda #$20 ; same as all previous ones
     sta PPU_ADDR
     
@@ -851,22 +852,17 @@ DontRegisterYet:
     adc #$01
     cmp #FRAMES_BETWEEN_MOVEMENT
     bne Value_Is_Okay
-    lda #$00
+        lda #$00
 
-Value_Is_Okay:
+    Value_Is_Okay:
     sta frame_count
+
     rts
+
 .endproc
 
-;.proc DisplayCanvasModeOverlay
-;    
-;    lda #SELECTION_MENU_MODE
-;    sta scroll_y_position
-;
-;.endproc
-
 .proc IncreaseToolSelection
-; Code to slow input registration down
+    ; Code to slow input registration down
     lda frame_count
     bne DontRegisterYet
 
@@ -879,7 +875,6 @@ Value_Is_Okay:
     lda #00 ; set value back to 0
 
     Value_Was_Okay:
-    ;sta chrTileIndex
     sta selected_tool
 
     DontRegisterYet:
@@ -888,7 +883,7 @@ Value_Is_Okay:
 .endproc
 
 .proc DecreaseToolSelection
-; Code to slow input registration down
+    ; Code to slow input registration down
     lda frame_count
     bne DontRegisterYet
 
@@ -908,7 +903,7 @@ Value_Is_Okay:
 .endproc
 
 .proc UpdateToolSelectionOverlay
-; FIRST tile = pencil tool
+    ; FIRST tile = pencil tool
     lda #>PENCIL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -916,7 +911,7 @@ Value_Is_Okay:
     lda #PENCIL_ICON_TILE_INDEX
     sta PPU_DATA
 
-; SECOND tile = eraser tool
+    ; SECOND tile = eraser tool
     lda #>ERASER_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<ERASER_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -924,7 +919,7 @@ Value_Is_Okay:
     lda #ERASER_ICON_TILE_INDEX
     sta PPU_DATA
 
-; THIRD tile = fill tool
+    ; THIRD tile = fill tool
     lda #>FILL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<FILL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -932,7 +927,7 @@ Value_Is_Okay:
     lda #FILL_ICON_TILE_INDEX
     sta PPU_DATA
 
-; FOURTH tile = clear tool
+    ; FOURTH tile = clear tool
     lda #>CLEAR_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<CLEAR_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -940,7 +935,7 @@ Value_Is_Okay:
     lda #CLEAR_ICON_TILE_INDEX
     sta PPU_DATA
 
- ; SELECTED tile
+    ; SELECTED tile
     lda #$20 ; > takes highbyte of 16 bit value
     sta PPU_ADDR
     lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
@@ -956,18 +951,6 @@ Value_Is_Okay:
     adc #$10 ; +16 = +1 row on chr file
     sta PPU_DATA
 
-    ;lda #$20 ; same as all previous ones
-    ;sta PPU_ADDR
-    
-    ;lda selected_color_chrIndex
-    ;CLC
-    ;adc #<FIRST_COLOR_ONSCREEN_ADRESS
-    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    ;sta PPU_ADDR
-
-    ;lda selected_color_chrIndex
-    ;sta PPU_DATA
-    ;selected_color_chrIndex
-
     rts
+
 .endproc

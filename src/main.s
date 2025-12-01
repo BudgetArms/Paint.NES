@@ -35,21 +35,14 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
-current_input:				.res 1 ; stores the current gamepad values
-last_frame_input:			.res 1
-input_pressed_this_frame:	.res 1
-input_released_this_frame:	.res 1
-input_holding_this_frame:	.res 1
-
+input: .res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
                         ;this is to do stuff like "every time an 8th frame passes, do this"
 
 ; buttons hold-delays
 ; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
 ; then it executes the button press again
-frame_counter_holding_button_a: .res 1
-frame_counter_holding_button_b: .res 1
-frame_counter_holding_button_dpad: .res 1
+
 
 ; Shape Tool
 shape_tool_type: .res 1
@@ -97,7 +90,6 @@ tool_mode: .res 1
 tool_use_attr: .res 1
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
-;brush_tile_index: .res 1
 brush_size: .res 1
 newPaletteColor: .res 1
 
@@ -215,14 +207,6 @@ FAMISTUDIO_DPCM_OFF             = $c000
         inx
         cpx #32
         bcc paletteloop
-    
-
-    initialize_button_held_times:
-        lda #00
-        sta frame_counter_holding_button_a
-        sta frame_counter_holding_button_b
-        sta frame_counter_holding_button_dpad
-
 
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP

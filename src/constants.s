@@ -149,12 +149,6 @@ TILEINDEX_CURSOR_SHAPE_TOOL_FIRST   = $A0
 TILEINDEX_CURSOR_SHAPE_TOOL_SECOND  = $B0
 
 
-;TILEINDEX_TRANSPARENT_TILE = $FF    ; Last tile in CHR ROM (transparent)
-;TILEINDEX_OFFSET_COLOR_1 = $00      ; Color Pallet 1
-;TILEINDEX_OFFSET_COLOR_2 = $01      ; Color Pallet 2
-;TILEINDEX_OFFSET_COLOR_3 = $02      ; Color Pallet 3
-
-
 ; oam data sizes
 OAM_SIZE_CURSOR_SMALL   = $04       ; 4 bytes
 OAM_SIZE_CURSOR_NORMAL  = $04       ; 4 bytes
@@ -204,11 +198,6 @@ FILL_TOOL_ON         = %00001000
 CLEAR_TOOL_ON        = %00010000
 
 
-
-;Added in Joren's branch
-;might be confusing during merging
-
-
 CLEAR_CANVAS_TOOL_ON = $00000010
 
 ; Tiles
@@ -256,11 +245,6 @@ OVERLAY_TILE_CURSOR_Y_LABEL = $D9   ; ASCII 'Y'
 OVERLAY_TILE_COLON = $E5            ; ASCII ':'
 OVERLAY_TILE_SPACE = $00            ; ASCII ' '
 OVERLAY_TILE_DIGIT_0 = $DB          ; Start of digit tiles in CHR
-;OVERLAY_DIGIT_TILE_OFFSET = $00     ; Offset for digit tiles
-;OVERLAY_CURSOR_X_LABEL_POS_X = 0    ; First tile in overlay row
-;OVERLAY_CURSOR_X_VALUE_POS = 2      ; After label and colon
-;OVERLAY_CURSOR_Y_LABEL_POS = 6      ; After X value
-;OVERLAY_CURSOR_Y_VALUE_POS = 8      ; After label and colon
 
 
 ; Fill Tool VRAM structure
