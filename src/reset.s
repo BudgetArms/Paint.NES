@@ -60,8 +60,9 @@ clear_oam:
     sta cursor_y
 
     ; Initialize brush variables
-    lda #$02
-    sta drawing_color_tile_index ; Color index
+    ;lda #$02
+    ;sta drawing_color_tile_index ; Color index
+    ;sta chrTileIndex ; Joren
     lda #$01
     sta brush_size ; Brush size
     lda #$00
@@ -83,6 +84,26 @@ clear_oam:
 
     jsr ToggleDrawTool
     jsr InitializeSelectionStar
+    ;lda #SELECTION_STAR_Y_END_POS
+    ;sta selection_star_y_pos
+
+    ;initialise collors
+    lda #$02
+    sta selected_color_chrIndex
+
+
+    ldx #$00
+    lda #$00
+    sta four_color_values, x
+    inx
+    lda #$00
+    sta four_color_values, x
+    inx
+    lda #$00
+    sta four_color_values, x
+    inx
+    lda #$00
+    sta four_color_values, x
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y

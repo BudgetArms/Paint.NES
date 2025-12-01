@@ -1,7 +1,8 @@
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
-    lda source_tile
-    sta brush_tile_index
+   lda source_tile
+   ;sta brush_tile_index
+   sta selected_color_chrIndex
 .endmacro
 ; Khine
 
@@ -116,6 +117,11 @@
 
 ; Khine / BudgetArms
 .proc MoveCursorUp
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
+
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
 
@@ -130,6 +136,8 @@
     sta cursor_y
 
     dec tile_cursor_y
+
+DontMoveYet:
     rts
 .endproc
 ; Khine / BudgetArms
@@ -137,6 +145,10 @@
 
 ; Khine / BudgetArms
 .proc MoveCursorDown
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
     clc 
 
@@ -155,14 +167,20 @@
     sta cursor_y
 
     inc tile_cursor_y
-    rts 
 
+DontMoveYet:
+    rts
+    
 .endproc
 ; Khine / BudgetArms
 
 
 ; Khine / BudgetArms
 .proc MoveCursorLeft
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
 
@@ -178,14 +196,20 @@
     sta cursor_x
 
     dec tile_cursor_x
-    rts 
 
+DontMoveYet:
+    rts
+    
 .endproc
 ; Khine / BudgetArms
 
 
 ; Khine / BudgetArms
 .proc MoveCursorRight
+
+; Code to slow down cursor movement
+    lda frame_count
+    bne DontMoveYet
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
     clc 
 
@@ -204,7 +228,9 @@
     sta cursor_x
 
     inc tile_cursor_x
-    rts 
+
+DontMoveYet:
+    rts
 
 .endproc
 ; Khine / BudgetArms
@@ -300,9 +326,14 @@
 
 ; Khine
 .proc ToggleEraserTool
-    ChangeBrushTileIndex #BACKGROUND_TILE
-    ChangeToolMode #ERASER_MODE
-    rts 
+    ; ChangeBrushTileIndex #BACKGROUND_TILE
+    ; ChangeToolMode #ERASER_MODE
+    ; rts 
+    lda #$00
+    sta selected_color_chrIndex
+    ;ChangeBrushTileIndex #BACKGROUND_TILE
+    ;ChangeCanvasMode #ERASER_MODE
+    rts
 .endproc
 ; Khine
 
@@ -318,32 +349,41 @@
 
 ; Khine
 .proc ToggleDrawTool
-    ChangeBrushTileIndex drawing_color_tile_index
-    ChangeToolMode #DRAW_MODE
-    rts 
+    ; ChangeBrushTileIndex drawing_color_tile_index
+    ; ChangeToolMode #DRAW_MODE
+    ; rts 
+    ;ChangeBrushTileIndex drawing_color_tile_index
+    ;ChangeBrushTileIndex chrTileIndex
+    ;ChangeBrushTileIndex selected_color_chrIndex
+    ;ChangeCanvasMode #DRAW_MODE
+    rts
 .endproc
 ; Khine
 
 
 ; Khine
-.proc CycleBrushColor
-    lda drawing_color_tile_index
-    cmp #COLOR_TILE_END_INDEX
-    bne @Not_End
-        lda #COLOR_TILE_START_INDEX
-        sta drawing_color_tile_index
-        sta brush_tile_index
-        rts
-    @Not_End:
-    inc drawing_color_tile_index
-    inc brush_tile_index
-    rts 
-.endproc
+;.proc CycleBrushColor
+;    lda drawing_color_tile_index
+;    cmp #COLOR_TILE_END_INDEX
+;    bne @Not_End
+;        lda #COLOR_TILE_START_INDEX
+;        sta drawing_color_tile_index
+;        sta brush_tile_index
+;        rts
+;    @Not_End:
+;    inc drawing_color_tile_index
+;    inc brush_tile_index
+;    rts
+;.endproc
 ; Khine
 
 
 ; Khine / BudgetArms
 .proc CycleCanvasModes
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
     ; Cycle between canvas mode and selection menu mode
     lda scroll_y_position
     cmp #CANVAS_MODE
@@ -385,6 +425,15 @@
         @Not_Fill_Mode:
 
         @End:
+        ;lda tool_mode
+        ;cmp #DRAW_MODE
+        ;bne @Not_Draw_Mode
+        ;    lda #SELECTION_MENU_0_DRAW
+        ; @Not_Draw_Mode:
+        ;cmp #ERASER_MODE
+        ;bne @Not_Eraser_Mode
+        ;    lda #SELECTION_MENU_1_ERASER
+        ; @Not_Eraser_Mode:
         sta oam + SELECTION_STAR_OFFSET + OAM_Y
         rts 
 
@@ -393,7 +442,10 @@
     sta scroll_y_position
     lda #OAM_OFFSCREEN
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
+
+DontRegisterYet:
     rts
+
 .endproc
 ; Khine / BudgetArms
 
@@ -494,9 +546,21 @@
     pha
     txa
     pha
+    
     lda sfx_temp + 9
-    ldx sfx_channel
+    ; Select channel based on sound effect index
+    ; Bird (0) = square (CH0), Splash (1) = noise (CH1)
+    tax  ; Use sound index as channel selector
+    and #$01
+    beq @ch0
+    ldx #FAMISTUDIO_SFX_CH1
+    jmp @play
+@ch0:
+    ldx #FAMISTUDIO_SFX_CH0
+@play:
+    lda sfx_temp + 9
     jsr famistudio_sfx_play
+    
     pla
     tax
     pla
@@ -603,3 +667,307 @@
 ; BudgetArms
 
 
+
+
+;Joren
+.proc IncreaseColorPalleteIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    ;ldx chrTileIndex
+    ldx selected_color_chrIndex
+    lda four_color_values, X
+    clc
+    adc #$01
+    sta four_color_values, X
+    ;test:
+    sta palette, X
+
+
+;remove{
+    lda newPalleteColor
+    clc
+    adc #$01
+    sta newPalleteColor
+;}
+
+    DontRegisterYet:
+    rts
+.endproc
+
+.proc DecreaseColorPalleteIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    ;ldx chrTileIndex
+    ldx selected_color_chrIndex
+    lda four_color_values, X
+    sec
+    sbc #$01
+    sta four_color_values, X
+    ;test:
+    sta palette, X
+
+    ;loop:
+    ;    lda palette, x
+    ;    sta PPU_DATA
+    ;    inx
+    ;    cpx #32
+    ;    bcc loop
+
+
+
+;remove{
+    lda newPalleteColor
+    sec
+    sbc #$01
+    sta newPalleteColor
+;}
+
+    DontRegisterYet:
+    rts
+.endproc
+
+.proc IncreaseChrTileIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    ;lda chrTileIndex
+    lda selected_color_chrIndex
+    clc
+    adc #$01
+
+    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    bmi Value_Was_Okay ; branch if not negative
+    lda #00 ; set value back to 0
+
+    Value_Was_Okay:
+    ;sta chrTileIndex
+    sta selected_color_chrIndex
+    ;lda four_color_values, selected_color_chrIndex
+    
+    ;beq Pencil
+    ;Eraser:
+    ;    lda #ERASER_MODE
+    ;    sta tool_mode
+    ;    RTS
+
+    ;Pencil:
+    ;    LDA #DRAW_MODE
+    ;    sta tool_mode
+
+    DontRegisterYet:
+    rts
+.endproc
+
+.proc DecreaseChrTileIndex
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    ;lda chrTileIndex
+    lda selected_color_chrIndex
+    sec
+    sbc #$01
+
+    bpl Value_Was_Okay ; branch if not negative
+    lda #03 ; set value back to max index
+
+    Value_Was_Okay:
+    ;sta chrTileIndex
+    sta selected_color_chrIndex
+
+    ;beq Pencil
+    ;Eraser:
+    ;    lda #ERASER_MODE
+    ;    sta tool_mode
+    ;    RTS
+
+    ;Pencil:
+    ;    LDA #DRAW_MODE
+    ;    sta tool_mode
+
+    DontRegisterYet:
+    rts
+.endproc
+;Joren
+
+.proc UpdateColorSelectionOverlay
+; FIRST tile = background tile
+    lda #>FIRST_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<FIRST_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #FIRST_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+; SECOND tile
+    lda #>SECOND_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<SECOND_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #SECOND_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+; THIRD tile
+    lda #>THIRD_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<THIRD_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #THIRD_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+; FOURTH tile
+    lda #>FOURTH_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #FOURTH_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+; SELECTED tile
+    lda #$20 ; same as all previous ones
+    sta PPU_ADDR
+    
+    lda selected_color_chrIndex
+    CLC
+    adc #<FIRST_COLOR_ONSCREEN_ADRESS
+    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+
+    lda selected_color_chrIndex
+    sta PPU_DATA
+    ;selected_color_chrIndex
+
+    rts
+.endproc
+
+.proc IncButtonHeldFrameCount
+    lda frame_count
+    clc
+    adc #$01
+    cmp #FRAMES_BETWEEN_MOVEMENT
+    bne Value_Is_Okay
+    lda #$00
+
+Value_Is_Okay:
+    sta frame_count
+    rts
+.endproc
+
+;.proc DisplayCanvasModeOverlay
+;    
+;    lda #SELECTION_MENU_MODE
+;    sta scroll_y_position
+;
+;.endproc
+
+.proc IncreaseToolSelection
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    lda selected_tool
+    clc
+    adc #$01
+
+    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    bmi Value_Was_Okay ; branch if not negative
+    lda #00 ; set value back to 0
+
+    Value_Was_Okay:
+    ;sta chrTileIndex
+    sta selected_tool
+
+    DontRegisterYet:
+    rts
+
+.endproc
+
+.proc DecreaseToolSelection
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    lda selected_tool
+    sec
+    sbc #$01
+
+    bpl Value_Was_Okay ; branch if not negative
+    lda #03 ; set value back to max index
+
+    Value_Was_Okay:
+    sta selected_tool
+
+    DontRegisterYet:
+    rts
+
+.endproc
+
+.proc UpdateToolSelectionOverlay
+; FIRST tile = pencil tool
+    lda #>PENCIL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #PENCIL_ICON_TILE_INDEX
+    sta PPU_DATA
+
+; SECOND tile = eraser tool
+    lda #>ERASER_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<ERASER_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #ERASER_ICON_TILE_INDEX
+    sta PPU_DATA
+
+; THIRD tile = fill tool
+    lda #>FILL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<FILL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #FILL_ICON_TILE_INDEX
+    sta PPU_DATA
+
+; FOURTH tile = clear tool
+    lda #>CLEAR_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<CLEAR_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #CLEAR_ICON_TILE_INDEX
+    sta PPU_DATA
+
+ ; SELECTED tile
+    lda #$20 ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    CLC
+    adc selected_tool
+    CLC
+    adc selected_tool
+    sta PPU_ADDR
+    lda selected_tool
+    CLC
+    adc #PENCIL_ICON_TILE_INDEX
+    clc
+    adc #$10 ; +16 = +1 row on chr file
+    sta PPU_DATA
+
+    ;lda #$20 ; same as all previous ones
+    ;sta PPU_ADDR
+    
+    ;lda selected_color_chrIndex
+    ;CLC
+    ;adc #<FIRST_COLOR_ONSCREEN_ADRESS
+    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    ;sta PPU_ADDR
+
+    ;lda selected_color_chrIndex
+    ;sta PPU_DATA
+    ;selected_color_chrIndex
+
+    rts
+.endproc

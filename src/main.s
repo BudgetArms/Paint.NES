@@ -15,7 +15,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-.incbin "game.chr"
+.incbin "game_Joren.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
@@ -97,7 +97,7 @@ tool_mode: .res 1
 tool_use_attr: .res 1
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
-brush_tile_index: .res 1
+;brush_tile_index: .res 1
 brush_size: .res 1
 newPaletteColor: .res 1
 
@@ -115,6 +115,16 @@ music_paused: .res 1    ; this is a flag changing this does not actually pause t
 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
+
+;Joren
+four_color_values: .res 4
+newPalleteColor: .res 1
+selected_color_chrIndex: .res 1
+frame_count: .res 1
+selected_tool: .res 1
+;selection_star_y_pos: .res 1
+
+
 .segment "OAM"
 oam: .res 256	; sprite OAM data
 
@@ -253,10 +263,29 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
-.byte $0f,$00,$10,$30
+.byte $00,$01,$05,$09
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+
+;sprites
+.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
+.byte $0f,$0c,$21,$32
+.byte $0f,$05,$16,$27
+.byte $0f,$0b,$1a,$29
+
+switched_palette:
+;.byte $idk, $idk, drawColor, $idk
+;bg tiles/ text
+.byte $01,$28,$1c,$2d
+;.byte $00,$00,$00,$00
+.byte $01,$28,$1c,$2d
+.byte $01,$28,$1c,$2d
+.byte $01,$28,$1c,$2d 
+;.byte $0f,$0c,$21,$32
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
 
 ;sprites
@@ -314,3 +343,5 @@ Seletion_Star_Sprite:
 Selection_Menu_Tilemap:
     .incbin "./tilemaps/selection_menu.nam"
 
+Start_Menu_Tilemap:
+    .incbin "./tilemaps/start_menu_tilemap.nam"

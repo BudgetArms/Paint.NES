@@ -56,19 +56,32 @@
 ; BudgetArms
 .macro HandleButtonPressed buttonMask, handleFunction
 
+    .local exit_macro
+        cmp #buttonMask
+        bne exit_macro
+        jsr handleFunction
+    ;lda input_pressed_this_frame
+    ;eor #buttonMask
+    ;bne 
+
+    ;exit exit_macro:
+
+
+
     ; to make labels work in macro's
-    .local exit_macro 
+    ;.local exit_macro 
 
     ; Check button is pressed
-    lda input_pressed_this_frame
-    and #buttonMask
-    beq exit_macro
+    ;lda input_pressed_this_frame
+    ;and #buttonMask
+    ;beq exit_macro
         ; code for when button is pressed
-        jsr handleFunction
+        ;jsr handleFunction
 
     exit_macro:
 
 .endmacro
+
 
 
 ; BudgetArms
@@ -119,6 +132,44 @@
 .endmacro
 
 
+; BudgetArms
+.macro HandleButtonCombo buttonMask1, buttonMask2, holdFramesThreshold, frameCounterHold, handleFunction
+
+    ; to make labels work in macro's
+    .local exit_macro 
+
+    ; Check button is holding
+    lda #buttonMask1
+    ora #buttonMask2
+    eor input_holding_this_frame
+    bne exit_macro
+
+        lda #$01
+        sta is_combo_used
+
+
+        inc frameCounterHold
+        lda frameCounterHold
+
+        ; if frameCounterHold higher than holdFramesThreshold 
+        ; check with carry flag
+        cmp #holdFramesThreshold
+        bcc exit_macro
+
+
+        @press_button:
+            jsr handleFunction  ; call function
+            ResetFrameCounterHolder frameCounterHold ; reset frameCounter 
+            lda #$01
+            sta is_combo_used
+            ;jmp Test
+
+    exit_macro:
+
+.endmacro
+
+
+
 
 ;*****************************************************************
 ; HandleInput: Called every frame, after poll_gamepad. It's used to call 
@@ -127,7 +178,9 @@
 ;*****************************************************************
 
 ; BudgetArms
-.proc HandleInput
+.proc HandleInputA
+    ;input holding = 
+; check if input last frame = same as input current frame
 
     ; if in menu
     lda #01
@@ -145,7 +198,7 @@
     cmp #CANVAS_MODE
     bne Not_In_Canvas
 
-        jsr HandleCanvasInput
+        ;jsr HandleCanvasInput
         rts 
 
     Not_In_Canvas:
@@ -167,115 +220,306 @@
 
 
 ; BudgetArms
-.proc HandleCanvasInput
+.proc HandleInput
 
     ; Combo's
 
     ; if holding start, ignore all the other input
+    ;lda input_pressed_this_frame
+    ;lda current_input
     lda input_holding_this_frame
-    and #PAD_START
-    beq Not_Holding_Start
+    bne Check_PAD_A
+    lda #$00 ; reset frame count to 0
+    sta frame_count
+    rts ;if no buttons are pressed, skip all checks.
 
-        ; if Holding_start
-        HandleButtonPressed PAD_LEFT, DecreaseColorPaletteIndex
-        HandleButtonPressed PAD_RIGHT, IncreaseColorPaletteIndex
+    Check_PAD_A:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A
+        bne Check_PAD_A_LEFT
+        ;code for when A is pressed alone
+        jsr HandleCursorPressedA
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+    
+    Check_PAD_A_LEFT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_LEFT
+        bne Check_PAD_A_RIGHT
+        ;code for when A + LEFT is pressed
+        jsr HandleCursorPressedA
+        jsr MoveCursorLeft
+        ;rts ; jmp StopChecking
+        jmp StopChecking
 
-        rts 
+    Check_PAD_A_RIGHT:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_RIGHT
+        bne Check_PAD_A_UP
+        ;code for when a + right is pressed
+        jsr HandleCursorPressedA
+        jsr MoveCursorRight
+        ;rts ; jmp StopChecking
+        jmp StopChecking
 
-    Not_Holding_Start:
+    Check_PAD_A_UP:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_UP
+        BNE Check_PAD_A_DOWN
+        ;code for when  A + UP is pressed
+        jsr HandleCursorPressedA
+        jsr MoveCursorUp
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_A_DOWN:
+    ;lda input_pressed_this_frame
+        cmp #PAD_A_DOWN
+        bne Check_PAD_A_UP_LEFT
+        ;code for when a + down is pressed
+        jsr HandleCursorPressedA
+        jsr HandleCursorPressedA
+        jsr MoveCursorDown
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_A_UP_LEFT:
+        cmp #PAD_A_UP_LEFT
+        bne Check_PAD_A_DOWN_LEFT
+        ;code for when a + up + Left is pressed
+        jsr HandleCursorPressedA
+        jsr MoveCursorUp
+        jsr MoveCursorLeft
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_A_DOWN_LEFT:
+        cmp #PAD_A_DOWN_LEFT
+        bne Check_PAD_A_UP_RIGHT
+        ;code
+        jsr HandleCursorPressedA
+        jsr MoveCursorDown
+        jsr MoveCursorLeft
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_A_UP_RIGHT:
+        cmp #PAD_A_UP_RIGHT
+        bne Check_PAD_A_DOWN_RIGHT
+        ;code
+        jsr HandleCursorPressedA
+        jsr MoveCursorUp
+        jsr MoveCursorRight
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_A_DOWN_RIGHT:
+        cmp #PAD_A_DOWN_RIGHT
+        bne Check_PAD_SELECT
+        ;code
+        jsr HandleCursorPressedA
+        jsr MoveCursorDown
+        jsr MoveCursorRight
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_SELECT:
+        cmp #PAD_SELECT
+        bne Check_PAD_SELECT_LEFT
+        ;code for when SELECT is pressed alone
+        jmp StopChecking
+
+    Check_PAD_SELECT_LEFT:
+        cmp #PAD_SELECT_LEFT
+        bne Check_PAD_SELECT_RIGHT
+        
+        jsr DecreaseChrTileIndex
+        jmp StopChecking
+
+    Check_PAD_SELECT_RIGHT:
+        cmp #PAD_SELECT_RIGHT
+        bne Check_PAD_SELECT_UP
+        
+        jsr IncreaseChrTileIndex
+        jmp StopChecking
+
+    Check_PAD_SELECT_UP:
+        cmp #PAD_SELECT_UP
+        bne Check_PAD_SELECT_DOWN
+        
+        jsr IncreaseColorPalleteIndex
+        jmp StopChecking
+
+    Check_PAD_SELECT_DOWN:
+        cmp #PAD_SELECT_DOWN
+        bne Check_PAD_START
+        
+        jsr DecreaseColorPalleteIndex
+        jmp StopChecking
+
+    Check_PAD_START:
+        cmp #PAD_START
+        bne Check_PAD_START_LEFT
+        ;code for when START is pressed alone
+
+        ;jsr CycleCanvasModes
+        ;jsr DisplayCanvasModeOverlay
+        ;jsr CycleCanvasModes
+        jmp StopChecking
+
+    Check_PAD_START_LEFT:
+        cmp #PAD_START_LEFT
+        bne Check_PAD_START_RIGHT
+        ;code for when START is pressed
+        ;jsr MoveSelectionStarDown
+        ;jsr DisplayCanvasModeOverlay
+        jsr DecreaseToolSelection
+        jmp StopChecking
+
+    
+    Check_PAD_START_RIGHT:
+        cmp #PAD_START_RIGHT
+        bne Check_PAD_START_UP
+        ;code for when START is pressed
+        ;jsr MoveSelectionStarUp
+        ;jsr DisplayCanvasModeOverlay
+        jsr IncreaseToolSelection
+        jmp StopChecking
 
 
-    ; Pressed
-    HandleButtonPressed PAD_START,  HandleCursorPressedStart
-    HandleButtonPressed PAD_SELECT, HandleCursorPressedSelect
-
-    HandleButtonPressed PAD_A,      HandleCursorPressedA
-    HandleButtonPressed PAD_B,      HandleCursorPressedB
-
-    HandleButtonPressed PAD_LEFT,   HandleCursorPressedLeft
-    HandleButtonPressed PAD_RIGHT,  HandleCursorPressedRight
-    HandleButtonPressed PAD_UP,     HandleCursorPressedUp
-    HandleButtonPressed PAD_DOWN,   HandleCursorPressedDown
+    Check_PAD_START_UP:
+        cmp #PAD_START_UP
+        bne Check_PAD_START_DOWN
+        ;code for when START is pressed
+        ;jsr MoveSelectionStarUp
+        ;jsr DisplayCanvasModeOverlay
+        jmp StopChecking
 
 
-    ; Released
-    HandleButtonReleased PAD_A,   HandleCursorReleasedA
-    HandleButtonReleased PAD_B,   HandleCursorReleasedB
+    Check_PAD_START_DOWN:
+        cmp #PAD_START_DOWN
+        bne Check_PAD_LEFT
+        ;code for when START is pressed
+        ;jsr MoveSelectionStarDown
+        ;jsr DisplayCanvasModeOverlay
+        jmp StopChecking
 
-    HandleButtonReleased PAD_LEFT,   HandleCursorReleasedDpad
-    HandleButtonReleased PAD_RIGHT,  HandleCursorReleasedDpad
-    HandleButtonReleased PAD_UP,     HandleCursorReleasedDpad
-    HandleButtonReleased PAD_DOWN,   HandleCursorReleasedDpad
+    Check_PAD_LEFT:
+        cmp #PAD_LEFT
+        bne Check_PAD_RIGHT
+        jsr MoveCursorLeft
+        ;jsr HandleCursorPressedLeft
+        ;code for when Left is pressed alone
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_RIGHT:
+        cmp #PAD_RIGHT
+        bne Check_PAD_UP
+        jsr MoveCursorRight
+        ;jsr HandleCursorPressedRight
+        ;code for when Left is pressed alone
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_UP:
+        cmp #PAD_UP
+        bne Check_PAD_DOWN
+        lda scroll_y_position
+        cmp #CANVAS_MODE
+        bne MoveUpInMenu
+        ;InCanvas:
+        jsr MoveCursorUp
+        jmp StopChecking
+
+        MoveUpInMenu:
+        jsr MoveSelectionStarUp
+        
+        jmp StopChecking
+
+    Check_PAD_DOWN:
+        cmp #PAD_DOWN
+        bne Check_PAD_UP_LEFT
+        lda scroll_y_position
+        cmp #CANVAS_MODE
+        bne MoveDownInMenu
+        ;InCanvas:
+        jsr MoveCursorDown
+        jmp StopChecking
+
+        MoveDownInMenu:
+        jsr MoveSelectionStarDown
+        
+        jmp StopChecking
+
+    Check_PAD_UP_LEFT:
+        cmp #PAD_UP_LEFT
+        bne Check_PAD_DOWN_LEFT
+        ;code for when Left is pressed alone
+        jsr MoveCursorUp
+        jsr MoveCursorLeft
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_DOWN_LEFT:
+        cmp #PAD_DOWN_LEFT
+        bne Check_PAD_UP_RIGHT
+        ;code for when Left is pressed alone
+        jsr MoveCursorDown
+        jsr MoveCursorLeft
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_UP_RIGHT:
+        cmp #PAD_UP_RIGHT
+        bne Check_PAD_DOWN_RIGHT
+        ;code for when Left is pressed alone
+        jsr MoveCursorUp
+        jsr MoveCursorRight
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_DOWN_RIGHT:
+        cmp #PAD_DOWN_RIGHT
+        bne Check_PAD_B
+        ;code for when Left is pressed alone
+        jsr MoveCursorDown
+        jsr MoveCursorRight
+        ;jsr IncreaseColorPalleteIndex
+        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+    Check_PAD_B:
+        cmp #PAD_B
+        bne StopChecking
+        ;code for when Left is pressed alone
+        jsr HandleCursorPressedB
+        jmp StopChecking
+
+    ;Check_REST:
+        ;rts ; jmp StopChecking
 
 
-    ; Held
-    HandleButtonHeld PAD_A,         frame_counter_holding_button_a,         BUTTON_HOLD_TIME_INSTANTLY,   HandleCursorHoldingA
-    HandleButtonHeld PAD_B,         frame_counter_holding_button_b,         BUTTON_HOLD_TIME_SLOW,      HandleCursorPressedB
-
-    HandleButtonHeld PAD_LEFT,      frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedLeft
-    HandleButtonHeld PAD_RIGHT,     frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedRight
-    HandleButtonHeld PAD_UP,        frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedUp
-    HandleButtonHeld PAD_DOWN,      frame_counter_holding_button_dpad,      BUTTON_HOLD_TIME_NORMAL,   HandleCursorPressedDown
-
-
-    rts 
+    StopChecking:
+        jsr IncButtonHeldFrameCount
+        rts
+    
 
 .endproc
 
-
-; BudgetArms
 .proc HandleSelectionMenuInput
 
     ; Pressed
-    HandleButtonPressed PAD_SELECT,     HandleSelectionMenuPressedSelect
+    ; HandleButtonPressed PAD_SELECT,     HandleSelectionMenuPressedSelect
 
-    HandleButtonPressed PAD_A,          HandleSelectionMenuPressedA
+    ; HandleButtonPressed PAD_A,          HandleSelectionMenuPressedA
 
-    HandleButtonReleased PAD_UP,        HandleSelectionMenuPressedUp
-    HandleButtonReleased PAD_DOWN,      HandleSelectionMenuPressedDown
+    ; HandleButtonReleased PAD_UP,        HandleSelectionMenuPressedUp
+    ; HandleButtonReleased PAD_DOWN,      HandleSelectionMenuPressedDown
 
     rts 
 
 .endproc
-
-
-
-
-;*****************************************************************
-;                       MENU
-;*****************************************************************
-
-;*****************************************************************
-;                       PRESSED
-;*****************************************************************
-
-
-; BudgetArms
-.proc HandleMainMenuPressedSelect
-    ; todo: add the logic
-
-    rts 
-.endproc
-
-; BudgetArms
-.proc HandleMainMenuPressedUp
-    ; todo: add the logic
-
-    rts 
-.endproc
-
-; BudgetArms
-.proc HandleMainMenuPressedDown
-    ; todo: add the logic
-
-    rts 
-.endproc
-
-
-;*****************************************************************
-;                       CANVAS
-;*****************************************************************
-
 ;*****************************************************************
 ;                       PRESSED
 ;*****************************************************************
@@ -301,6 +545,34 @@
 
 ; BudgetArms
 .proc HandleCursorPressedA
+    lda selected_tool
+
+    ;Check_TOOL_PENCIL:
+    cmp #PENCIL_TOOL_ACTIVATED
+    bne Check_TOOL_ERASER
+    ChangeToolAttr #BRUSH_TOOL_ON
+    RTS
+
+    Check_TOOL_ERASER:
+    cmp #ERASER_TOOL_ACTIVATED
+    bne Check_TOOL_FILL
+    ChangeToolAttr #ERASER_TOOL_ON
+    RTS
+
+    Check_TOOL_FILL:
+    cmp #FILL_TOOL_ACTIVATED
+    bne Check_TOOL_CLEAR
+    ChangeToolAttr #FILL_TOOL_ON
+    RTS
+
+    Check_TOOL_CLEAR:
+    cmp #CLEAR_TOOL_ACTIVATED
+    bne Check_TOOL_NEXT
+    ChangeToolAttr #CLEAR_TOOL_ON
+    RTS
+    
+    Check_TOOL_NEXT:
+    rts 
 
     lda tool_mode
     cmp #FILL_MODE
@@ -349,6 +621,9 @@
 
 ; BudgetArms
 .proc HandleCursorPressedB
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
 
     jsr CycleBrushSize
 
@@ -365,18 +640,18 @@
         lda DIR_CURSOR_SMALL_TOP_LEFT
         sta cursor_small_direction
 
+        Not_Maximum_Size:
+
+        ; increment accumulator
+        sec 
+        adc #$00
+
+        ; set new cursor_type
+        sta cursor_type
+
+    DontRegisterYet:
         rts 
 
-    Not_Maximum_Size:
-
-    ; increment accumulator
-    sec 
-    adc #$00
-
-    ; set new cursor_type
-    sta cursor_type
-
-    rts 
 
 .endproc
 
@@ -889,3 +1164,29 @@
     rts 
 
 .endproc
+
+
+.proc HandleCursorReleasedRight
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
+.proc HandleCursorReleasedUp
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
+.proc HandleCursorReleasedDown
+    ; Empty for now
+    rts 
+
+
+.endproc
+
+
