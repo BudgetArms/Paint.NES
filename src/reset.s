@@ -84,6 +84,8 @@ clear_oam:
 
     jsr ToggleDrawTool
     jsr InitializeSelectionStar
+    ;lda #SELECTION_STAR_Y_END_POS
+    ;sta selection_star_y_pos
 
     ;initialise collors
     lda #$02
@@ -94,13 +96,13 @@ clear_oam:
     lda #$00
     sta four_color_values, x
     inx
-    lda #$01
+    lda #$00
     sta four_color_values, x
     inx
-    lda #$05
+    lda #$00
     sta four_color_values, x
     inx
-    lda #$09
+    lda #$00
     sta four_color_values, x
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)

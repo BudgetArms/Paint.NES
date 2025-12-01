@@ -272,7 +272,7 @@
 
     Check_PAD_A_DOWN_RIGHT:
         cmp #PAD_A_DOWN_RIGHT
-        bne Check_PAD_START
+        bne Check_PAD_SELECT
         ;code
         jsr HandleCursorPressedA
         jsr MoveCursorDown
@@ -280,22 +280,57 @@
         ;rts ; jmp StopChecking
         jmp StopChecking
 
+    Check_PAD_SELECT:
+        cmp #PAD_SELECT
+        bne Check_PAD_SELECT_LEFT
+        ;code for when SELECT is pressed alone
+        jmp StopChecking
+
+    Check_PAD_SELECT_LEFT:
+        cmp #PAD_SELECT_LEFT
+        bne Check_PAD_SELECT_RIGHT
+        
+        jsr DecreaseChrTileIndex
+        jmp StopChecking
+
+    Check_PAD_SELECT_RIGHT:
+        cmp #PAD_SELECT_RIGHT
+        bne Check_PAD_SELECT_UP
+        
+        jsr IncreaseChrTileIndex
+        jmp StopChecking
+
+    Check_PAD_SELECT_UP:
+        cmp #PAD_SELECT_UP
+        bne Check_PAD_SELECT_DOWN
+        
+        jsr IncreaseColorPalleteIndex
+        jmp StopChecking
+
+    Check_PAD_SELECT_DOWN:
+        cmp #PAD_SELECT_DOWN
+        bne Check_PAD_START
+        
+        jsr DecreaseColorPalleteIndex
+        jmp StopChecking
+
     Check_PAD_START:
         cmp #PAD_START
         bne Check_PAD_START_LEFT
         ;code for when START is pressed alone
-        ;jsr HandleCursorPressedStart
-        ;rts ; jmp StopChecking
+
+        ;jsr CycleCanvasModes
+        ;jsr DisplayCanvasModeOverlay
+        ;jsr CycleCanvasModes
         jmp StopChecking
 
     Check_PAD_START_LEFT:
         cmp #PAD_START_LEFT
         bne Check_PAD_START_RIGHT
         ;code for when START is pressed
-        ;lda #$02
-        ;sta chrTileIndex
-        jsr DecreaseChrTileIndex
-        ;rts ; jmp StopChecking
+        ;jsr MoveSelectionStarDown
+        ;jsr DisplayCanvasModeOverlay
+        jsr DecreaseToolSelection
         jmp StopChecking
 
     
@@ -303,10 +338,9 @@
         cmp #PAD_START_RIGHT
         bne Check_PAD_START_UP
         ;code for when START is pressed
-        jsr IncreaseChrTileIndex
-        ;lda #$00
-        ;sta chrTileIndex
-        ;rts ; jmp StopChecking
+        ;jsr MoveSelectionStarUp
+        ;jsr DisplayCanvasModeOverlay
+        jsr IncreaseToolSelection
         jmp StopChecking
 
 
@@ -314,10 +348,8 @@
         cmp #PAD_START_UP
         bne Check_PAD_START_DOWN
         ;code for when START is pressed
-        jsr IncreaseColorPalleteIndex
-        ;lda #$01
-        ;sta chrTileIndex
-        ;rts ; jmp StopChecking
+        ;jsr MoveSelectionStarUp
+        ;jsr DisplayCanvasModeOverlay
         jmp StopChecking
 
 
@@ -325,10 +357,8 @@
         cmp #PAD_START_DOWN
         bne Check_PAD_LEFT
         ;code for when START is pressed
-        jsr DecreaseColorPalleteIndex
-        ;lda #$03
-        ;sta chrTileIndex
-        ;rts ; jmp StopChecking
+        ;jsr MoveSelectionStarDown
+        ;jsr DisplayCanvasModeOverlay
         jmp StopChecking
 
     Check_PAD_LEFT:
@@ -352,19 +382,31 @@
     Check_PAD_UP:
         cmp #PAD_UP
         bne Check_PAD_DOWN
+        lda scroll_y_position
+        cmp #CANVAS_MODE
+        bne MoveUpInMenu
+        ;InCanvas:
         jsr MoveCursorUp
-        ;jsr HandleCursorPressedUp
-        ;code for when Left is pressed alone
-        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+        MoveUpInMenu:
+        jsr MoveSelectionStarUp
+        
         jmp StopChecking
 
     Check_PAD_DOWN:
         cmp #PAD_DOWN
         bne Check_PAD_UP_LEFT
-        ;code for when Left is pressed alone
+        lda scroll_y_position
+        cmp #CANVAS_MODE
+        bne MoveDownInMenu
+        ;InCanvas:
         jsr MoveCursorDown
-        ;jsr HandleCursorPressedDown
-        ;rts ; jmp StopChecking
+        jmp StopChecking
+
+        MoveDownInMenu:
+        jsr MoveSelectionStarDown
+        
         jmp StopChecking
 
     Check_PAD_UP_LEFT:

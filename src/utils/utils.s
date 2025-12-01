@@ -321,21 +321,25 @@ DontMoveYet:
 
 ; Khine
 .proc CycleCanvasModes
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
     ; Cycle between canvas mode and selection menu mode
     lda scroll_y_position
     cmp #CANVAS_MODE
     bne @Not_Canvas_Mode
         lda #SELECTION_MENU_MODE
         sta scroll_y_position
-        lda tool_mode
-        cmp #DRAW_MODE
-        bne @Not_Draw_Mode
-            lda #SELECTION_MENU_0_DRAW
-        @Not_Draw_Mode:
-        cmp #ERASER_MODE
-        bne @Not_Eraser_Mode
-            lda #SELECTION_MENU_1_ERASER
-        @Not_Eraser_Mode:
+        ;lda tool_mode
+        ;cmp #DRAW_MODE
+        ;bne @Not_Draw_Mode
+        ;    lda #SELECTION_MENU_0_DRAW
+        ;@Not_Draw_Mode:
+        ;cmp #ERASER_MODE
+        ;bne @Not_Eraser_Mode
+        ;    lda #SELECTION_MENU_1_ERASER
+        ;@Not_Eraser_Mode:
         sta oam + SELECTION_STAR_OFFSET + OAM_Y
         rts
     @Not_Canvas_Mode:
@@ -343,21 +347,39 @@ DontMoveYet:
     sta scroll_y_position
     lda #OAM_OFFSCREEN
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
+
+DontRegisterYet:
     rts
+
 .endproc
 ; Khine
 
 
 ; Khine
 .proc MoveSelectionStarUp
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_In_Start_Pos
-        rts
-    @Not_In_Start_Pos:
-    sec
-    sbc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    ;lda selection_star_y_pos
+    CLC
+    adc #Y_STEP_BETWEEN_SELECTIONS
+    cmp #SELECTION_STAR_Y_END_POS
+    bmi ValueIsOkay
+    lda #SELECTION_STAR_Y_START_POS
+    
+    ValueIsOkay:
+        ;sta selection_star_y_pos
+    ;lda oam + SELECTION_STAR_OFFSET + OAM_Y
+    ;cmp #SELECTION_MENU_0_DRAW
+    ;bne @Not_In_Start_Pos
+    ;    rts
+    ;@Not_In_Start_Pos:
+    ;sec
+    ;sbc #TILE_PIXEL_SIZE
+    ;sta oam + SELECTION_STAR_OFFSET + OAM_Y
+
+DontRegisterYet:
     rts
 .endproc
 ; Khine
@@ -365,14 +387,33 @@ DontMoveYet:
 
 ; Khine
 .proc MoveSelectionStarDown
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_3_CLEAR
-    bne @Not_In_End_Pos
-        rts
-    @Not_In_End_Pos:
-    clc
-    adc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    ;lda selection_star_y_pos
+    cmp #SELECTION_STAR_Y_START_POS
+    bne ValueIsHighEnough
+    LDA #SELECTION_STAR_Y_END_POS
+    jmp ValueIsOkay
+
+    ValueIsHighEnough:
+        sec
+        sbc #Y_STEP_BETWEEN_SELECTIONS
+
+    ValueIsOkay:
+        ;sta selection_star_y_pos
+
+    ;lda oam + SELECTION_STAR_OFFSET + OAM_Y
+    ;cmp #SELECTION_MENU_3_CLEAR
+    ;bne @Not_In_End_Pos
+    ;    rts
+    ;@Not_In_End_Pos:
+    ;clc
+    ;adc #TILE_PIXEL_SIZE
+    ;sta oam + SELECTION_STAR_OFFSET + OAM_Y
+
+DontRegisterYet:
     rts
 .endproc
 ; Khine
@@ -480,6 +521,16 @@ DontMoveYet:
     ;sta chrTileIndex
     sta selected_color_chrIndex
     ;lda four_color_values, selected_color_chrIndex
+    
+    ;beq Pencil
+    ;Eraser:
+    ;    lda #ERASER_MODE
+    ;    sta tool_mode
+    ;    RTS
+
+    ;Pencil:
+    ;    LDA #DRAW_MODE
+    ;    sta tool_mode
 
     DontRegisterYet:
     rts
@@ -501,6 +552,16 @@ DontMoveYet:
     Value_Was_Okay:
     ;sta chrTileIndex
     sta selected_color_chrIndex
+
+    ;beq Pencil
+    ;Eraser:
+    ;    lda #ERASER_MODE
+    ;    sta tool_mode
+    ;    RTS
+
+    ;Pencil:
+    ;    LDA #DRAW_MODE
+    ;    sta tool_mode
 
     DontRegisterYet:
     rts
@@ -567,5 +628,119 @@ DontMoveYet:
 
 Value_Is_Okay:
     sta frame_count
+    rts
+.endproc
+
+;.proc DisplayCanvasModeOverlay
+;    
+;    lda #SELECTION_MENU_MODE
+;    sta scroll_y_position
+;
+;.endproc
+
+.proc IncreaseToolSelection
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    lda selected_tool
+    clc
+    adc #$01
+
+    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    bmi Value_Was_Okay ; branch if not negative
+    lda #00 ; set value back to 0
+
+    Value_Was_Okay:
+    ;sta chrTileIndex
+    sta selected_tool
+
+    DontRegisterYet:
+    rts
+
+.endproc
+
+.proc DecreaseToolSelection
+; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    lda selected_tool
+    sec
+    sbc #$01
+
+    bpl Value_Was_Okay ; branch if not negative
+    lda #03 ; set value back to max index
+
+    Value_Was_Okay:
+    sta selected_tool
+
+    DontRegisterYet:
+    rts
+
+.endproc
+
+.proc UpdateToolSelectionOverlay
+; FIRST tile = pencil tool
+    lda #>PENCIL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #PENCIL_ICON_TILE_INDEX
+    sta PPU_DATA
+
+; SECOND tile = eraser tool
+    lda #>ERASER_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<ERASER_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #ERASER_ICON_TILE_INDEX
+    sta PPU_DATA
+
+; THIRD tile = fill tool
+    lda #>FILL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<FILL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #FILL_ICON_TILE_INDEX
+    sta PPU_DATA
+
+; FOURTH tile = clear tool
+    lda #>CLEAR_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<CLEAR_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+    lda #CLEAR_ICON_TILE_INDEX
+    sta PPU_DATA
+
+ ; SELECTED tile
+    lda #$20 ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    CLC
+    adc selected_tool
+    CLC
+    adc selected_tool
+    sta PPU_ADDR
+    lda selected_tool
+    CLC
+    adc #PENCIL_ICON_TILE_INDEX
+    clc
+    adc #$10 ; +16 = +1 row on chr file
+    sta PPU_DATA
+
+    ;lda #$20 ; same as all previous ones
+    ;sta PPU_ADDR
+    
+    ;lda selected_color_chrIndex
+    ;CLC
+    ;adc #<FIRST_COLOR_ONSCREEN_ADRESS
+    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    ;sta PPU_ADDR
+
+    ;lda selected_color_chrIndex
+    ;sta PPU_DATA
+    ;selected_color_chrIndex
+
     rts
 .endproc

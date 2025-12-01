@@ -94,10 +94,11 @@ scroll_y_position: .res 1
 ;Joren
 four_color_values: .res 4
 newPalleteColor: .res 1
-;chrTileIndex: .res 1
 selected_color_chrIndex: .res 1
 frame_count: .res 1
-;is_combo_used: .res 1
+selected_tool: .res 1
+;selection_star_y_pos: .res 1
+
 
 .segment "OAM"
 oam: .res 256	; sprite OAM data
@@ -179,7 +180,7 @@ irq:
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
-.byte $0f,$00,$10,$30
+.byte $00,$01,$05,$09
 .byte $0f,$0c,$21,$32
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29

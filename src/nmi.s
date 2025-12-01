@@ -55,6 +55,7 @@ cont_render:
 
     ;Joren
     jsr UpdateColorSelectionOverlay
+    jsr UpdateToolSelectionOverlay
 
 
     LDA #$3F ;high byte of 16-bit PPU address
