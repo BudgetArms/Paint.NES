@@ -218,40 +218,54 @@
 
 ; Khine / BudgetArms / Jeronimas
 .proc DrawBrush
+
     ; Check if the PAD_A has been pressed
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
-
-    ; If tool_use_attr does not have brush tool ON, return
     lda tool_use_attr
     and #BRUSH_TOOL_ON
-    bne Use_Brush
-        rts 
-
-    Use_Brush:
-    ; Remove BRUSH_TOOL_ON from the tool_use_attributes
+    bne @Use_Brush
+        rts
+    @Use_Brush:
     lda tool_use_attr
     eor #BRUSH_TOOL_ON
     sta tool_use_attr
 
     ; Play drawing sound effect here based on tool mode
-    lda tool_mode
-    cmp #DRAW_MODE
-    beq @play_splash
+
+    lda selected_tool
+    cmp #PENCIL_TOOL_ACTIVATED
+    beq @Play_Splash
     
     ; Eraser mode - play bird sound (index 0)
     lda #0
-    jmp @play_sound
+    jmp @Play_Sound
     
-@play_splash:
-    ; Draw mode - play splash sound (index 1)
-    lda #1
+    @Play_Splash:
+        ; Draw mode - play splash sound (index 1)
+        lda #1
     
-@play_sound:
-    jsr PlaySfx     ; Call the wrapper function
+    @Play_Sound:
+        ; Set the appropriate SFX channel based on which sound we're playing
+        ; Bird (0) uses square channel, Splash (1) uses noise channel
+        cmp #0
+        beq @use_square_channel
+        
+        ; Splash sound - use noise channel (SFX_CH1)
+        ldx #FAMISTUDIO_SFX_CH1
+        jmp @play_it
+        
+    @use_square_channel:
+        ; Bird sound - use square channel (SFX_CH0)
+        ldx #FAMISTUDIO_SFX_CH0
+        
+    @play_it:
+        jsr famistudio_sfx_play  ; Call FamiStudio directly with correct channel
+        lda #0
+    
 
-    ; ...existing code...
+    
     ; Store the tile position in a different var
     ; This is done so that the cursor position can stay on the original spot
     ; after drawing has completed.
@@ -287,7 +301,80 @@
         iny
         cpy brush_size
         bne @column_loop
-    rts
+
+rts
+    
+
+    ; Check if the PAD_A has been pressed
+    ; This is not checked in the `input_utils.s` because this can run into issues with
+    ; the program updating the PPU even though PPU has not finished drawing on the screen
+    ; not waiting for the VBLANK
+
+    ; If tool_use_attr does not have brush tool ON, return
+;     lda tool_use_attr
+;     and #BRUSH_TOOL_ON
+;     bne Use_Brush
+;         rts 
+
+;     Use_Brush:
+;     ; Remove BRUSH_TOOL_ON from the tool_use_attributes
+;     lda tool_use_attr
+;     eor #BRUSH_TOOL_ON
+;     sta tool_use_attr
+
+;     ; Play drawing sound effect here based on tool mode
+;     lda tool_mode
+;     cmp #DRAW_MODE
+;     beq @play_splash
+    
+;     ; Eraser mode - play bird sound (index 0)
+;     lda #0
+;     jmp @play_sound
+    
+; @play_splash:
+;     ; Draw mode - play splash sound (index 1)
+;     lda #1
+    
+; @play_sound:
+;     jsr PlaySfx     ; Call the wrapper function
+
+;     ; ...existing code...
+;     ; Store the tile position in a different var
+;     ; This is done so that the cursor position can stay on the original spot
+;     ; after drawing has completed.
+;     lda cursor_tile_position
+;     sta drawing_tile_position
+;     lda cursor_tile_position + 1
+;     sta drawing_tile_position + 1
+
+;     ; square brush
+;     ldy #$00
+;     @column_loop:
+;         lda PPU_STATUS ; reset address latch
+;         lda drawing_tile_position + 1 ; High bit of the location
+;         sta PPU_ADDR
+;         lda drawing_tile_position ; Low bit of the location
+;         sta PPU_ADDR
+
+;         ldx #$00
+;         ;lda brush_tile_index ; Color index of the tile
+;         lda selected_color_chrIndex
+;         @row_loop:
+;             sta PPU_DATA
+;             inx
+;             cpx brush_size
+;             bne @row_loop
+;         clc
+;         lda drawing_tile_position
+;         adc #32
+;         sta drawing_tile_position
+;         lda drawing_tile_position + 1
+;         adc #$00
+;         sta drawing_tile_position + 1
+;         iny
+;         cpy brush_size
+;         bne @column_loop
+;     rts
 .endproc
 ; Khine / BudgetArms
 
@@ -441,7 +528,7 @@
 
     ; if the brush tile index is not transparent, Start_Fill
     lda fill_target_color
-    cmp brush_tile_index
+    cmp selected_color_chrIndex     ; brush_tile_index
     bne Start_Fill
         ; if transparent, Finish
         jmp Finish

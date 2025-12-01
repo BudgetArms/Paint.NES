@@ -593,7 +593,7 @@ Divide_Done:
     sta PPU_ADDR
 
     ; write brush color (at current address) to vram 
-    lda brush_tile_index
+    lda selected_color_chrIndex ;brush_tile_index
     sta PPU_DATA
 
     rts 
