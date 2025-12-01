@@ -154,6 +154,67 @@
 
 .endproc
 
+; BudgetArms
+.proc LoadCursorShapeTool
+
+    ; check what cursor should be loaded
+    lda shape_tool_has_set_first_pos
+    bne Second_Cursor
+
+    ; Load first shape cursor
+    ldx #$00
+
+    @Loop:
+        lda CURSOR_SHAPE_TOOL_DATA, X
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_SHAPE
+        bne @Loop
+
+    jmp Update_Cursor_Shape_Position
+
+
+    Second_Cursor:
+    ; Load second shape cursor
+    ldx #$00
+
+    @Loop:
+        lda CURSOR_SHAPE_TOOL_DATA + 4, X  ; 4 is the next sprite
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
+
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_SHAPE
+        bne @Loop
+
+    jmp Update_Cursor_Shape_Position
+
+
+    Update_Cursor_Shape_Position:
+
+        ; Increase cursor_y with oam data's y-pos
+        clc 
+        lda cursor_y
+        ; not addition to OAM Y bc it's set to offscreen        
+
+        ; substract A (y pos) by one bc it's draw on the next scanline  
+        clc 
+        sbc #$00
+
+        ; Store data to OAM
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL
+
+        ; Increase cursor_x with oam data's x-pos
+        clc 
+        lda cursor_x
+        ; adc oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
+
+    rts 
+
+.endproc
+; BudgetArms
 
 ; Khine / BudgetArms
 .proc DrawBrush
@@ -211,6 +272,115 @@
     rts
 .endproc
 ; Khine / BudgetArms
+
+; BudgetArms
+.proc UseShapeTool
+
+    lda tool_use_attr
+    and #SHAPE_TOOL_ON
+    bne Use_Shape
+        rts 
+    
+    Use_Shape:
+
+    ; Remove SHAPE_TOOL_ON from the tool_use_attributes
+    lda tool_use_attr
+    eor #SHAPE_TOOL_ON
+    sta tool_use_attr
+
+    ; Change things
+    lda shape_tool_has_set_first_pos
+    bne Second_Position
+    
+    First_Position:
+        ; First position set
+
+        lda #$01
+        sta shape_tool_has_set_first_pos
+
+        ; store x/y
+        lda cursor_x
+        sta shape_tool_first_pos_x
+
+        lda cursor_y
+        sta shape_tool_first_pos_y
+        
+        rts 
+
+    Second_Position:
+        ; Second position set
+
+        lda #$00
+        sta shape_tool_has_set_first_pos
+        
+        ; store x/y
+        lda cursor_x
+        sta shape_tool_second_pos_x
+
+        lda cursor_y
+        sta shape_tool_second_pos_y
+        
+
+        ; call the shape type funcction
+        lda shape_tool_type
+        and #SHAPE_TOOL_TYPE_RECTANGLE
+        bne Not_Rectangle_Type
+
+            ; if rectangle mode
+
+
+            rts 
+
+        Not_Rectangle_Type:
+
+
+        lda shape_tool_type
+        and #SHAPE_TOOL_TYPE_CIRCLE
+        bne Not_Circle_Type
+
+            ; if circle mode
+
+
+            rts 
+
+        Not_Circle_Type:
+
+
+        ; should never be reached !!!
+        rts 
+    
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc DrawShapeToolCursor
+
+    ; if in shape mode
+    lda tool_mode    
+    and #SHAPE_MODE
+    bne Use_Shape_Mode
+
+        ; hide shape cursor
+        lda #OAM_OFFSCREEN
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL
+
+        rts 
+
+    Use_Shape_Mode:
+
+    ; hide all cursors
+    jsr HideActiveCursor
+    jsr HideInactiveCursors
+
+    ; Draw Shape Cursor
+    jsr LoadCursorShapeTool
+
+    rts 
+
+.endproc
+; BudgetArms
 
 
 ; BudgetArms
@@ -435,3 +605,55 @@
 
 .endproc
 ; BudgetArms
+
+; BudgetArms
+.proc DrawShapeRectangle
+
+    ; Set staring pos to first pos
+    lda shape_tool_first_pos_x
+    sta shape_tool_staring_pos_x
+
+    lda shape_tool_first_pos_y
+    sta shape_tool_staring_pos_y
+
+    ; check where the second pos X is compaared to first    
+
+    ; X offset is stored in X
+    sec  
+    sta shape_tool_second_pos_x
+    sbc shape_tool_first_pos_x
+
+    tax 
+
+    bpl First_Pos_Is_Left_Of_Second_Pos
+
+        ; first pos is right of second pos
+
+        ; change staring pos X 
+        lda shape_tool_second_pos_x
+        sta shape_tool_staring_pos_x
+
+
+    First_Pos_Is_Left_Of_Second_Pos:
+
+
+    ; Y offset is stored in Y
+    sec 
+    sta shape_tool_first_pos_y
+    sbc shape_tool_second_pos_y
+    
+
+
+
+
+
+.endproc
+; BudgetArms
+
+; BudgetArms
+.proc DrawShapeCircle
+
+
+.endproc
+; BudgetArms
+
