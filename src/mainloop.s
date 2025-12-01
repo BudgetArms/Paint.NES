@@ -13,6 +13,9 @@ mainloop:
     jsr ConvertCursorPosToTilePositions
     jsr HideActiveCursorIfSelectionMenu
 
+    jsr DrawShapeToolCursor
+
+
 
     ; ensure our changes are rendered
     lda #1
