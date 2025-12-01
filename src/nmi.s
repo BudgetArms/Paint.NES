@@ -42,16 +42,14 @@ cont_render:
         cpx #32
         bcc loop
 
-    ; Khine
     jsr ClearCanvas
-    jsr DrawBrush
-    ; Khine
 
-    ; BudgetArms / Khine
-    jsr UseFillTool
-    ; BudgetArms / Khine
 
     jsr UpdateOverlayCursorPosition
+
+    jsr DrawBrush
+    jsr UseShapeTool
+    jsr UseFillTool
 
     jsr LoadColorPalette
 
