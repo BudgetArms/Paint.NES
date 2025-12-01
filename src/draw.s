@@ -12,6 +12,9 @@
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
+
     cmp #TYPE_CURSOR_BIG
     beq Big_Cursor
 
@@ -24,6 +27,10 @@
 
     Normal_Cursor:
         jsr LoadNormalCursor
+        rts 
+
+    Medium_Cursor:
+        jsr LoadMediumCursor
         rts 
 
     Big_Cursor:
@@ -102,12 +109,30 @@
     @Loop:
         lda CURSOR_NORMAL_DATA, X
         sta oam + OAM_OFFSET_CURSOR_NORMAL, X
-        inx
+        inx 
 
         cpx #OAM_SIZE_CURSOR_NORMAL
         bne @Loop  ; loop until all bytes are loaded
 
-    rts
+    rts 
+
+.endproc
+
+
+; BudgetArms
+.proc LoadMediumCursor
+
+    ldx #$00
+
+    @Loop:
+        lda CURSOR_MEDIUM_DATA, X
+        sta oam + OAM_OFFSET_CURSOR_MEDIUM, X
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_MEDIUM
+        bne @Loop  ; loop until all bytes are loaded
+
+    rts 
 
 .endproc
 
@@ -129,18 +154,83 @@
 
 .endproc
 
+; BudgetArms
+.proc LoadCursorShapeTool
 
-; Khine/BudgetArms/Jeronimas
-.proc draw_brush
+    ; check what cursor should be loaded
+    lda shape_tool_has_set_first_pos
+    bne Second_Cursor
+
+    ; Load first shape cursor
+    ldx #$00
+
+    @Loop:
+        lda CURSOR_SHAPE_TOOL_DATA, X
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_SHAPE
+        bne @Loop
+
+    jmp Update_Cursor_Shape_Position
+
+
+    Second_Cursor:
+    ; Load second shape cursor
+    ldx #$00
+
+    @Loop:
+        lda CURSOR_SHAPE_TOOL_DATA + 4, X  ; 4 is the next sprite
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
+
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_SHAPE
+        bne @Loop
+
+    jmp Update_Cursor_Shape_Position
+
+
+    Update_Cursor_Shape_Position:
+
+        ; Increase cursor_y with oam data's y-pos
+        clc 
+        lda cursor_y
+        ; not addition to OAM Y bc it's set to offscreen        
+
+        ; substract A (y pos) by one bc it's draw on the next scanline  
+        clc 
+        sbc #$00
+
+        ; Store data to OAM
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL
+
+        ; Increase cursor_x with oam data's x-pos
+        clc 
+        lda cursor_x
+        ; adc oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
+
+    rts 
+
+.endproc
+; BudgetArms
+
+; Khine / BudgetArms / Jeronimas
+.proc DrawBrush
     ; Check if the PAD_A has been pressed
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
+
+    ; If tool_use_attr does not have brush tool ON, return
     lda tool_use_attr
     and #BRUSH_TOOL_ON
-    bne @Use_Brush
-        rts
-    @Use_Brush:
+    bne Use_Brush
+        rts 
+
+    Use_Brush:
+    ; Remove BRUSH_TOOL_ON from the tool_use_attributes
     lda tool_use_attr
     eor #BRUSH_TOOL_ON
     sta tool_use_attr
@@ -198,4 +288,389 @@
         bne @column_loop
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
+
+; BudgetArms
+.proc UseShapeTool
+
+    lda tool_use_attr
+    and #SHAPE_TOOL_ON
+    bne Use_Shape
+        rts 
+    
+    Use_Shape:
+
+    ; Remove SHAPE_TOOL_ON from the tool_use_attributes
+    lda tool_use_attr
+    eor #SHAPE_TOOL_ON
+    sta tool_use_attr
+
+    ; Change things
+    lda shape_tool_has_set_first_pos
+    bne Second_Position
+    
+    First_Position:
+        ; First position set
+
+        lda #$01
+        sta shape_tool_has_set_first_pos
+
+        ; store x/y
+        lda cursor_x
+        sta shape_tool_first_pos_x
+
+        lda cursor_y
+        sta shape_tool_first_pos_y
+        
+        rts 
+
+    Second_Position:
+        ; Second position set
+
+        lda #$00
+        sta shape_tool_has_set_first_pos
+        
+        ; store x/y
+        lda cursor_x
+        sta shape_tool_second_pos_x
+
+        lda cursor_y
+        sta shape_tool_second_pos_y
+        
+
+        ; call the shape type funcction
+        lda shape_tool_type
+        and #SHAPE_TOOL_TYPE_RECTANGLE
+        bne Not_Rectangle_Type
+
+            ; if rectangle mode
+
+
+            rts 
+
+        Not_Rectangle_Type:
+
+
+        lda shape_tool_type
+        and #SHAPE_TOOL_TYPE_CIRCLE
+        bne Not_Circle_Type
+
+            ; if circle mode
+
+
+            rts 
+
+        Not_Circle_Type:
+
+
+        ; should never be reached !!!
+        rts 
+    
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc DrawShapeToolCursor
+
+    ; if in shape mode
+    lda tool_mode    
+    and #SHAPE_MODE
+    bne Use_Shape_Mode
+
+        ; hide shape cursor
+        lda #OAM_OFFSCREEN
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL
+
+        rts 
+
+    Use_Shape_Mode:
+
+    ; hide all cursors
+    jsr HideActiveCursor
+    jsr HideInactiveCursors
+
+    ; Draw Shape Cursor
+    jsr LoadCursorShapeTool
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc UseFillTool
+    
+    ; Flood Fill
+
+    ; VRAM DATA:
+    ;    HIGH       LOW
+    ; 7654 3210   7654 3210
+    ; ---- --YY   YYYX XXXX
+
+    lda tool_use_attr
+    and #FILL_TOOL_ON
+    bne @Use_Fill
+        rts 
+
+    @Use_Fill:
+    ; Remove FILL_TOOL_ON from the tool_use_attributes
+    lda tool_use_attr
+    eor #FILL_TOOL_ON
+    sta tool_use_attr
+
+    ; Resets the scroll, so the window
+    ; doesn't x doesn't change when doing stuff 
+    jsr ResetScroll
+    
+    ; turn ppu off
+    jsr ppu_off
+
+    ; Store the current tile position to the cursor_pos 
+    lda cursor_tile_position + 1
+    sta fill_current_addr + 1
+    lda cursor_tile_position
+    sta fill_current_addr
+
+    ; Set target color 
+    jsr ReadPPUAtCurrentAddr
+    sta fill_target_color
+
+    ; if the brush tile index is not transparent, Start_Fill
+    lda fill_target_color
+    cmp brush_tile_index
+    bne Start_Fill
+        ; if transparent, Finish
+        jmp Finish
+
+
+    Start_Fill:
+        ; initialize/Reset ring queue
+        lda #$0
+        sta queue_head
+        sta queue_tail
+
+        ; draw tile
+        lda fill_current_addr
+        ldx fill_current_addr + 1
+        jsr PushToQueue
+
+
+    Fill_Loop:
+        
+        ; if head == tail -> Finish, else Not_Finish
+        lda queue_head
+        cmp queue_tail
+        bne Not_Finish 
+
+            jmp Finish
+
+        Not_Finish:
+
+        ; get current color 
+        jsr PopFromQueue 
+
+        ; If color is same as target color, Fill_Loop (check next tile in queue)
+        jsr ReadPPUAtCurrentAddr
+        cmp fill_target_color
+        bne Fill_Loop
+
+        ; fill the tile in the target color
+        jsr WriteBrushToCurrentAddr
+
+        ; If tile not on top of screen, check up
+        GetNametableTileY fill_current_addr
+        cmp #$00
+        bne Check_Up
+
+        ; if tile on right side of screen, check down
+        GetNametableTileX fill_current_addr
+        cmp #DISPLAY_SCREEN_WIDTH
+        bcc Try_Down
+
+
+    Check_Up:
+
+        ; Move up, by subtracing (screen_width + 1)
+        sec 
+        lda fill_current_addr
+        sbc #DISPLAY_SCREEN_WIDTH
+        sta fill_neighbor_addr
+
+        ; Move Up
+        lda fill_current_addr + 1
+        sbc #0
+        sta fill_neighbor_addr + 1
+        
+        ; If neighbor tile (up) is filled, try down
+        jsr ReadPPUAtNeighbor
+        cmp fill_target_color
+        bne Try_Down
+
+        ; Draw tile
+        lda fill_neighbor_addr
+        ldx fill_neighbor_addr + 1
+        jsr PushToQueue
+
+
+    Try_Down:
+
+        ; if not last row, do  
+        GetNametableTileY fill_current_addr
+        cmp #DISPLAY_SCREEN_HEIGHT - 1
+        beq Try_Left
+
+        ; else do down
+        jmp Do_Down
+
+
+    Do_Down:
+
+        ; Move down, by adding (screen_width)
+        ; set neighbor tile (low)
+        clc 
+        lda fill_current_addr
+        adc #DISPLAY_SCREEN_WIDTH
+        sta fill_neighbor_addr
+
+        ; set neighbor tile (high)
+        lda fill_current_addr + 1
+        adc #0
+        sta fill_neighbor_addr + 1
+
+        ; If neighbor tile (down) is filled, try left
+        jsr ReadPPUAtNeighbor
+        cmp fill_target_color
+        bne Try_Left
+
+        ; draw tile
+        lda fill_neighbor_addr
+        ldx fill_neighbor_addr + 1
+        jsr PushToQueue
+
+
+    Try_Left:
+
+        ; if first column, try right
+        GetNametableTileX fill_current_addr
+        beq Try_Right
+
+        ; set neighbor tile (low) 
+        sec 
+        lda fill_current_addr
+        sbc #1
+        sta fill_neighbor_addr
+
+        ; set neighbor tile (high) 
+        lda fill_current_addr + 1
+        sbc #0
+        sta fill_neighbor_addr + 1
+
+
+        ; If neighbor tile (left) is filled, try right
+        jsr ReadPPUAtNeighbor
+        cmp fill_target_color
+        bne Try_Right
+        
+        ; draw tile
+        lda fill_neighbor_addr
+        ldx fill_neighbor_addr + 1
+        jsr PushToQueue
+
+
+    Try_Right:
+
+        ; If last column, LoopEnd
+        GetNametableTileX fill_current_addr
+        cmp #DISPLAY_SCREEN_WIDTH - 1 
+        beq Loop_End
+
+
+        ; Set fill_neighbor low byte address to right neighbor
+        clc 
+        lda fill_current_addr
+        adc #1
+        sta fill_neighbor_addr
+
+        ; Set fill_neighbor high byte address to right neighbor
+        lda fill_current_addr + 1
+        adc #0
+        sta fill_neighbor_addr + 1
+
+        ; Check if color right is target color, if not LoopEnd
+        jsr ReadPPUAtNeighbor
+        cmp fill_target_color
+        bne Loop_End
+
+        ; Add right tile to queue
+        lda fill_neighbor_addr
+        ldx fill_neighbor_addr + 1
+        jsr PushToQueue
+
+
+    Loop_End:
+        jmp Fill_Loop
+
+
+    Finish:
+        ; update to fix white flash & update screen
+        jsr ppu_update
+
+        rts 
+
+.endproc
+; BudgetArms
+
+; BudgetArms
+.proc DrawShapeRectangle
+
+    ; Set staring pos to first pos
+    lda shape_tool_first_pos_x
+    sta shape_tool_staring_pos_x
+
+    lda shape_tool_first_pos_y
+    sta shape_tool_staring_pos_y
+
+    ; check where the second pos X is compaared to first    
+
+    ; X offset is stored in X
+    sec  
+    sta shape_tool_second_pos_x
+    sbc shape_tool_first_pos_x
+
+    tax 
+
+    bpl First_Pos_Is_Left_Of_Second_Pos
+
+        ; first pos is right of second pos
+
+        ; change staring pos X 
+        lda shape_tool_second_pos_x
+        sta shape_tool_staring_pos_x
+
+
+    First_Pos_Is_Left_Of_Second_Pos:
+
+
+    ; Y offset is stored in Y
+    sec 
+    sta shape_tool_first_pos_y
+    sbc shape_tool_second_pos_y
+    
+
+
+
+
+
+.endproc
+; BudgetArms
+
+; BudgetArms
+.proc DrawShapeCircle
+
+
+.endproc
+; BudgetArms
+

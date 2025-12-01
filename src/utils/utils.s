@@ -7,7 +7,7 @@
 
 
 ; Khine
-.macro ChangeCanvasMode    new_mode
+.macro ChangeToolMode    new_mode
     lda new_mode
     sta tool_mode
 .endmacro
@@ -114,13 +114,15 @@
 .endmacro
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorUp
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
-    cmp #$00
+
+    cmp #CURSOR_MIN_Y
     bne @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
     sec
     lda cursor_y
@@ -130,68 +132,82 @@
     dec tile_cursor_y
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorDown
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
-    clc
+    clc 
+
     lda tile_cursor_y
     adc brush_size
-    cmp #DISPLAY_SCREEN_HEIGHT
+
+    cmp #CURSOR_MAX_Y
     bmi @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    clc
+
+    clc 
     lda cursor_y
     adc #TILE_PIXEL_SIZE
     sta cursor_y
 
     inc tile_cursor_y
-    rts
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorLeft
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
-    cmp #$00
+
+    cmp #CURSOR_MIN_X
     bne @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    sec
+
+    sec 
     lda cursor_x
     sbc #TILE_PIXEL_SIZE
     sta cursor_x
 
     dec tile_cursor_x
-    rts
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorRight
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
-    clc
+    clc 
+
     lda tile_cursor_x
     adc brush_size
-    cmp #DISPLAY_SCREEN_WIDTH
+
+    cmp #CURSOR_MAX_X
     bmi @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    clc
+
+    clc 
     lda cursor_x
     adc #TILE_PIXEL_SIZE
     sta cursor_x
 
     inc tile_cursor_x
-    rts
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
 ; Khine
@@ -236,38 +252,75 @@
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc CycleToolModes
+
     lda tool_mode
     cmp #DRAW_MODE
     bne @Not_Draw_Mode
-        jsr ToggleEraserTool
-        rts
+        jsr ToggleShapeTool
+        rts 
+
     @Not_Draw_Mode:
+
+    cmp #SHAPE_MODE
+    bne @Not_Shape_Mode
+        jsr ToggleEraserTool
+        rts 
+
+    @Not_Shape_Mode:
+
     cmp #ERASER_MODE
     bne @Not_Eraser_Mode
-        jsr ToggleDrawTool
-        rts
+        jsr ToggleFillTool
+        rts 
+
     @Not_Eraser_Mode:
-    rts
+
+    cmp #FILL_MODE
+    bne @Not_Fill_Mode
+        jsr ToggleDrawTool
+        rts 
+
+    @Not_Fill_Mode:
+
+    rts 
 .endproc
-; Khine
+; Khine / BudgetArms
+
+
+; BudgetArms
+.proc ToggleShapeTool
+    ChangeBrushTileIndex drawing_color_tile_index
+    ChangeToolMode #SHAPE_MODE
+    rts 
+.endproc
+; BudgetArms
 
 
 ; Khine
 .proc ToggleEraserTool
     ChangeBrushTileIndex #BACKGROUND_TILE
-    ChangeCanvasMode #ERASER_MODE
-    rts
+    ChangeToolMode #ERASER_MODE
+    rts 
 .endproc
 ; Khine
+
+
+; BudgetArms
+.proc ToggleFillTool
+    ChangeBrushTileIndex drawing_color_tile_index
+    ChangeToolMode #FILL_MODE
+    rts 
+.endproc
+; BudgetArms
 
 
 ; Khine
 .proc ToggleDrawTool
     ChangeBrushTileIndex drawing_color_tile_index
-    ChangeCanvasMode #DRAW_MODE
-    rts
+    ChangeToolMode #DRAW_MODE
+    rts 
 .endproc
 ; Khine
 
@@ -284,30 +337,57 @@
     @Not_End:
     inc drawing_color_tile_index
     inc brush_tile_index
-    rts
+    rts 
 .endproc
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc CycleCanvasModes
     ; Cycle between canvas mode and selection menu mode
     lda scroll_y_position
     cmp #CANVAS_MODE
     bne @Not_Canvas_Mode
+
+        ; In selection menu mode
         lda #SELECTION_MENU_MODE
         sta scroll_y_position
+
+        ; Check what tool mode
         lda tool_mode
+
         cmp #DRAW_MODE
         bne @Not_Draw_Mode
             lda #SELECTION_MENU_0_DRAW
+            jmp @End
+
         @Not_Draw_Mode:
+
+        cmp #SHAPE_MODE
+        bne @Not_Shape_Mode
+            lda #SELECTION_MENU_1_SHAPE
+            jmp @End
+
+        @Not_Shape_Mode:
+
         cmp #ERASER_MODE
         bne @Not_Eraser_Mode
-            lda #SELECTION_MENU_1_ERASER
+            lda #SELECTION_MENU_2_ERASER
+            jmp @End
+
         @Not_Eraser_Mode:
+
+        cmp #FILL_MODE
+        bne @Not_Fill_Mode
+            lda #SELECTION_MENU_3_FILL
+            jmp @End
+
+        @Not_Fill_Mode:
+
+        @End:
         sta oam + SELECTION_STAR_OFFSET + OAM_Y
-        rts
+        rts 
+
     @Not_Canvas_Mode:
     lda #CANVAS_MODE
     sta scroll_y_position
@@ -315,60 +395,91 @@
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
 ; Khine
 .proc MoveSelectionStarUp
+
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
     cmp #SELECTION_MENU_0_DRAW
     bne @Not_In_Start_Pos
-        rts
+        rts 
+
     @Not_In_Start_Pos:
-    sec
+
+    sec 
     sbc #TILE_PIXEL_SIZE
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+    rts 
+
 .endproc
 ; Khine
 
 
 ; Khine
 .proc MoveSelectionStarDown
+
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_3_CLEAR
+
+    cmp #SELECTION_MENU_4_CLEAR
     bne @Not_In_End_Pos
-        rts
+        rts 
+
     @Not_In_End_Pos:
-    clc
+
+    clc 
     adc #TILE_PIXEL_SIZE
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+    rts 
+
 .endproc
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc SelectTool
+
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
+
     cmp #SELECTION_MENU_0_DRAW
     bne @Not_On_Draw
         jsr ToggleDrawTool
-        rts
+        rts 
+
     @Not_On_Draw:
-    cmp #SELECTION_MENU_1_ERASER
+
+    cmp #SELECTION_MENU_1_SHAPE
+    bne @Not_On_Shape
+        jsr ToggleShapeTool
+        rts 
+
+    @Not_On_Shape:
+
+    cmp #SELECTION_MENU_2_ERASER
     bne @Not_On_Eraser
         jsr ToggleEraserTool
-        rts
+        rts 
+
     @Not_On_Eraser:
-    cmp #SELECTION_MENU_3_CLEAR
+
+    cmp #SELECTION_MENU_3_FILL
+    bne @Not_On_Fill
+        jsr ToggleFillTool
+        rts 
+
+    @Not_On_Fill:
+
+    cmp #SELECTION_MENU_4_CLEAR
     bne @Not_On_Clear_Canvas
         ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
-        jsr ppu_off
-        rts
+        rts 
+
     @Not_On_Clear_Canvas:
-    rts
+
+    rts 
 .endproc
+; Khine / BudgetArms
 
 ; Jeronimas 
 ;*********************************************************
@@ -392,3 +503,103 @@
     tay
     rts
 .endproc
+; Jeronimas
+
+; BudgetArms / Joren
+.proc IncreaseColorPaletteIndex
+
+    lda newPaletteColor
+    clc 
+    adc #$01
+    sta newPaletteColor
+
+    rts 
+
+.endproc
+
+; BudgetArms / Joren
+.proc DecreaseColorPaletteIndex
+
+    lda newPaletteColor
+    sec 
+    sbc #$01
+    sta newPaletteColor
+
+    rts 
+
+.endproc
+
+; BudgetArms / Joren
+.proc LoadColorPalette
+
+    lda #$3F        ;high byte of 16-bit PPU address
+    sta PPU_ADDR    ;write to PPU
+    lda #$02        ;low byte of 16-bit PPU address
+    sta PPU_ADDR    ;write to PPU
+
+    lda newPaletteColor ;load collorpalette value
+    sta PPU_DATA        ;write to PPU data register
+
+    rts 
+
+.endproc
+
+
+; BudgetArms
+.proc ResetScroll
+
+    lda #%10000000
+    sta PPU_CONTROL
+    lda PPU_STATUS      ; Reset PPU address latch
+    lda scroll_x_position
+    sta PPU_SCROLL      ; X scroll
+    lda scroll_y_position
+    sta PPU_SCROLL      ; Y scroll
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.macro GetNametableTileX addr_low
+
+    lda addr_low
+    and #PPU_VRAM_MASK_X_POS
+
+.endmacro
+; BudgetArms
+
+; BudgetArms
+.macro GetNametableTileY addr_lo
+
+    ; Get the 3-bits of addr_lo
+    lda addr_lo
+    and #PPU_VRAM_MASK_Y_POS_LOW      
+
+    ; bit-shift right: 5–7 to 0–2
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+
+    ; save a
+    sta fill_temp
+
+    ; Get the 2-bits from addr_high (addr_lo + 1)
+    lda addr_lo + 1
+    and #PPU_VRAM_MASK_Y_POS_HIGH
+    
+    ; bit-shift left: 0-1 to 3-5
+    asl 
+    asl 
+    asl 
+
+    ora fill_temp
+
+.endmacro
+; BudgetArms
+
+

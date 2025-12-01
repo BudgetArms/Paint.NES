@@ -35,28 +35,26 @@ cont_render:
     stx PPU_ADDR
     ldx #0 ; transfer the 32 bytes to VRAM
 
-loop:
+    loop:
         lda palette, x
         sta PPU_DATA
         inx
         cpx #32
         bcc loop
 
-    ; Khine
     jsr ClearCanvas
-    jsr draw_brush
-    ; Khine
+
 
     jsr UpdateOverlayCursorPosition
 
-    ; --- ADD THIS BLOCK: Reset scroll at the very end ---
-    lda #%10000000
-    sta PPU_CONTROL
-    lda PPU_STATUS      ; Reset PPU address latch
-    lda scroll_x_position
-    sta PPU_SCROLL      ; X scroll
-    lda scroll_y_position
-    sta PPU_SCROLL      ; Y scroll
+    jsr DrawBrush
+    jsr UseShapeTool
+    jsr UseFillTool
+
+    jsr LoadColorPalette
+
+
+    jsr ResetScroll
 
     ; enable rendering
     lda #%00011110

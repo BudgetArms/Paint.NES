@@ -47,14 +47,33 @@ frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 2
 ; buttons hold-delays
 ; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
 ; then it executes the button press again
-frame_counter_holding_button_start: .res 1
-frame_counter_holding_button_select: .res 1
 frame_counter_holding_button_a: .res 1
 frame_counter_holding_button_b: .res 1
-frame_counter_holding_button_left: .res 1
-frame_counter_holding_button_right: .res 1
-frame_counter_holding_button_up: .res 1
-frame_counter_holding_button_down: .res 1
+frame_counter_holding_button_dpad: .res 1
+
+; Shape Tool
+shape_tool_type: .res 1
+shape_tool_has_set_first_pos: .res 1
+
+shape_tool_first_pos_x: .res 1
+shape_tool_first_pos_y: .res 1
+
+shape_tool_second_pos_x: .res 1
+shape_tool_second_pos_y: .res 1
+
+shape_tool_staring_pos_x: .res 1
+shape_tool_staring_pos_y: .res 1
+
+
+
+; Fill tool (ring queue)
+fill_temp: .res 1
+
+fill_target_color: .res 1
+queue_head: .res 1
+queue_tail: .res 1
+fill_current_addr: .res 2
+fill_neighbor_addr: .res 2
 
 
 ; Cursor position (single 8x8 sprite)
@@ -80,6 +99,7 @@ drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
 brush_tile_index: .res 1
 brush_size: .res 1
+newPaletteColor: .res 1
 
 ; misc
 abs_address_to_access: .res 2
@@ -101,6 +121,10 @@ oam: .res 256	; sprite OAM data
 ; Remainder of normal RAM area
 .segment "BSS"
 palette: .res 32 ; current palette buffer
+
+; Fill queue (ring queue)
+fill_queue: .res 512
+
 
 ;*****************************************************************
 ; Main application logic section
@@ -185,14 +209,34 @@ FAMISTUDIO_DPCM_OFF             = $c000
 
     initialize_button_held_times:
         lda #00
-        sta frame_counter_holding_button_start
-        sta frame_counter_holding_button_select
         sta frame_counter_holding_button_a
         sta frame_counter_holding_button_b
-        sta frame_counter_holding_button_left
-        sta frame_counter_holding_button_right
-        sta frame_counter_holding_button_up
-        sta frame_counter_holding_button_down
+        sta frame_counter_holding_button_dpad
+
+
+    initialize_cursor:
+        lda #TYPE_CURSOR_STARTUP
+        sta cursor_type
+
+        ; set cursor_x/y
+        lda #CURSOR_MIN_X * 8
+        sta cursor_x
+
+        lda #CURSOR_MIN_Y * 8
+        sta cursor_y
+
+        ; set cursor tile x/y
+        lda #CURSOR_MIN_X
+        sta tile_cursor_x
+
+        lda #CURSOR_MIN_Y
+        sta tile_cursor_y
+
+
+    Initialize_Shape_Tool_Type:
+        lda #SHAPE_TOOL_TYPE_DEFAULT
+        sta shape_tool_type
+
 
 
     jsr ppu_update
@@ -242,8 +286,15 @@ CURSOR_NORMAL_DATA:
     .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
 
 
+CURSOR_MEDIUM_DATA:
+    .byte   $08,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000,     $08     ; TOP-RIGHT: mirrored x
+    .byte   $08,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $08     ; BOTTOM-RIGHT: mirrored x & y
+
+
 CURSOR_BIG_DATA:
-    .byte   $0F,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
     .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %00000000,     $00     ; LEFT
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP,        %00000000,     $08     ; TOP
@@ -251,17 +302,15 @@ CURSOR_BIG_DATA:
     .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
+
+
+CURSOR_SHAPE_TOOL_DATA:
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
 Seletion_Star_Sprite:
     .byte OAM_OFFSCREEN, STAR_TILE, $00000000, SELECTION_STAR_X_OFFSET
 
 Selection_Menu_Tilemap:
     .incbin "./tilemaps/selection_menu.nam"
-    .byte   $0F,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
-    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %00000000,     $00     ; LEFT
-    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
-    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP,        %00000000,     $08     ; TOP
-    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000,     $10     ; TOP-RIGHT: mirrored x
-    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
-    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
-    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
+
