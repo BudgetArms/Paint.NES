@@ -531,13 +531,33 @@
 
 ; BudgetArms
 .proc HandleCursorPressedA
-    lda scroll_y_position
-    cmp #CANVAS_MODE
-    beq @In_Canvas_Mode
-        jsr SelectTool
-        rts
-    @In_Canvas_Mode:
+    lda selected_tool
+
+    ;Check_TOOL_PENCIL:
+    cmp #PENCIL_TOOL_ACTIVATED
+    bne Check_TOOL_ERASER
     ChangeToolAttr #BRUSH_TOOL_ON
+    RTS
+
+    Check_TOOL_ERASER:
+    cmp #ERASER_TOOL_ACTIVATED
+    bne Check_TOOL_FILL
+    ChangeToolAttr #ERASER_TOOL_ON
+    RTS
+
+    Check_TOOL_FILL:
+    cmp #FILL_TOOL_ACTIVATED
+    bne Check_TOOL_CLEAR
+    ChangeToolAttr #FILL_TOOL_ON
+    RTS
+
+    Check_TOOL_CLEAR:
+    cmp #CLEAR_TOOL_ACTIVATED
+    bne Check_TOOL_NEXT
+    ChangeToolAttr #CLEAR_TOOL_ON
+    RTS
+    
+    Check_TOOL_NEXT:
     rts 
 
 
