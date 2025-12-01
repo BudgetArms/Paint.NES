@@ -51,6 +51,21 @@ frame_counter_holding_button_a: .res 1
 frame_counter_holding_button_b: .res 1
 frame_counter_holding_button_dpad: .res 1
 
+; Shape Tool
+shape_tool_type: .res 1
+shape_tool_has_set_first_pos: .res 1
+
+shape_tool_first_pos_x: .res 1
+shape_tool_first_pos_y: .res 1
+
+shape_tool_second_pos_x: .res 1
+shape_tool_second_pos_y: .res 1
+
+shape_tool_staring_pos_x: .res 1
+shape_tool_staring_pos_y: .res 1
+
+
+
 ; Fill tool (ring queue)
 fill_temp: .res 1
 
@@ -177,6 +192,11 @@ irq:
         sta tile_cursor_y
 
 
+    Initialize_Shape_Tool_Type:
+        lda #SHAPE_TOOL_TYPE_DEFAULT
+        sta shape_tool_type
+
+
 
     jsr ppu_update
 
@@ -241,6 +261,11 @@ CURSOR_BIG_DATA:
     .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
+
+
+CURSOR_SHAPE_TOOL_DATA:
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
 Seletion_Star_Sprite:
     .byte OAM_OFFSCREEN, STAR_TILE, $00000000, SELECTION_STAR_X_OFFSET
