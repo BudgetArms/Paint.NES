@@ -254,32 +254,55 @@
 
 ; Khine / BudgetArms
 .proc CycleToolModes
+
     lda tool_mode
     cmp #DRAW_MODE
     bne @Not_Draw_Mode
+        jsr ToggleShapeTool
+        rts 
+
+    @Not_Draw_Mode:
+
+    cmp #SHAPE_MODE
+    bne @Not_Shape_Mode
         jsr ToggleEraserTool
         rts 
-    @Not_Draw_Mode:
+
+    @Not_Shape_Mode:
+
     cmp #ERASER_MODE
     bne @Not_Eraser_Mode
         jsr ToggleFillTool
         rts 
+
     @Not_Eraser_Mode:
+
     cmp #FILL_MODE
     bne @Not_Fill_Mode
         jsr ToggleDrawTool
         rts 
+
     @Not_Fill_Mode:
+
     rts 
 .endproc
 ; Khine / BudgetArms
+
+
+; BudgetArms
+.proc ToggleShapeTool
+    ChangeBrushTileIndex drawing_color_tile_index
+    ChangeToolMode #SHAPE_MODE
+    rts 
+.endproc
+; BudgetArms
 
 
 ; Khine
 .proc ToggleEraserTool
     ChangeBrushTileIndex #BACKGROUND_TILE
     ChangeToolMode #ERASER_MODE
-    rts
+    rts 
 .endproc
 ; Khine
 
@@ -325,25 +348,45 @@
     lda scroll_y_position
     cmp #CANVAS_MODE
     bne @Not_Canvas_Mode
+
         ; In selection menu mode
         lda #SELECTION_MENU_MODE
         sta scroll_y_position
+
+        ; Check what tool mode
         lda tool_mode
+
         cmp #DRAW_MODE
         bne @Not_Draw_Mode
             lda #SELECTION_MENU_0_DRAW
+            jmp @End
+
         @Not_Draw_Mode:
+
+        cmp #SHAPE_MODE
+        bne @Not_Shape_Mode
+            lda #SELECTION_MENU_1_SHAPE
+            jmp @End
+
+        @Not_Shape_Mode:
+
         cmp #ERASER_MODE
         bne @Not_Eraser_Mode
-            lda #SELECTION_MENU_1_ERASER
+            lda #SELECTION_MENU_2_ERASER
+            jmp @End
+
         @Not_Eraser_Mode:
+
         cmp #FILL_MODE
         bne @Not_Fill_Mode
-            lda #SELECTION_MENU_2_FILL
-        @Not_Fill_Mode:
-        sta oam + SELECTION_STAR_OFFSET + OAM_Y
+            lda #SELECTION_MENU_3_FILL
+            jmp @End
 
-        rts
+        @Not_Fill_Mode:
+
+        @End:
+        sta oam + SELECTION_STAR_OFFSET + OAM_Y
+        rts 
 
     @Not_Canvas_Mode:
     lda #CANVAS_MODE
@@ -357,57 +400,83 @@
 
 ; Khine
 .proc MoveSelectionStarUp
+
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
     cmp #SELECTION_MENU_0_DRAW
     bne @Not_In_Start_Pos
-        rts
+        rts 
+
     @Not_In_Start_Pos:
-    sec
+
+    sec 
     sbc #TILE_PIXEL_SIZE
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+    rts 
+
 .endproc
 ; Khine
 
 
 ; Khine
 .proc MoveSelectionStarDown
+
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_3_CLEAR
+
+    cmp #SELECTION_MENU_4_CLEAR
     bne @Not_In_End_Pos
-        rts
+        rts 
+
     @Not_In_End_Pos:
-    clc
+
+    clc 
     adc #TILE_PIXEL_SIZE
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+    rts 
+
 .endproc
 ; Khine
 
 
 ; Khine / BudgetArms
 .proc SelectTool
+
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
+
     cmp #SELECTION_MENU_0_DRAW
     bne @Not_On_Draw
         jsr ToggleDrawTool
         rts 
+
     @Not_On_Draw:
-    cmp #SELECTION_MENU_1_ERASER
+
+    cmp #SELECTION_MENU_1_SHAPE
+    bne @Not_On_Shape
+        jsr ToggleShapeTool
+        rts 
+
+    @Not_On_Shape:
+
+    cmp #SELECTION_MENU_2_ERASER
     bne @Not_On_Eraser
         jsr ToggleEraserTool
         rts 
+
     @Not_On_Eraser:
-    cmp #SELECTION_MENU_2_FILL
+
+    cmp #SELECTION_MENU_3_FILL
     bne @Not_On_Fill
         jsr ToggleFillTool
         rts 
+
     @Not_On_Fill:
-    cmp #SELECTION_MENU_3_CLEAR
+
+    cmp #SELECTION_MENU_4_CLEAR
     bne @Not_On_Clear_Canvas
         ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
         rts 
+
     @Not_On_Clear_Canvas:
+
     rts 
 .endproc
 ; Khine / BudgetArms
