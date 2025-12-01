@@ -255,3 +255,6 @@ Selection_Menu_Tilemap:
     .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
+
+Start_Menu_Tilemap:
+    .incbin "./tilemaps/start_menu_tilemap.nam"
