@@ -254,15 +254,15 @@ default_palette:
 
 
 ;sprites
-.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
-.byte $0f,$0c,$21,$32
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+;.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
+;.byte $0f,$0c,$21,$32
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
 switched_palette:
 ;.byte $idk, $idk, drawColor, $idk
 ;bg tiles/ text
-.byte $01,$28,$1c,$2d
+.byte $00,$00,$00,$00
 ;.byte $00,$00,$00,$00
 .byte $01,$28,$1c,$2d
 .byte $01,$28,$1c,$2d
@@ -273,10 +273,10 @@ switched_palette:
 
 
 ;sprites
-.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
-.byte $0f,$0c,$21,$32
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+;.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
+;.byte $0f,$0c,$21,$32
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
 
 SAMPLE_SPRITE:
