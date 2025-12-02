@@ -45,6 +45,7 @@ cont_render:
 ;
 
 
+    ; Khine
     jsr ClearCanvas
     jsr DrawBrush
 
@@ -54,17 +55,9 @@ cont_render:
     jsr UpdateColorSelectionOverlay
     jsr UpdateToolSelectionOverlay
 
-    ;  Update colors values
-    LDA #$3F ;high byte of 16-bit PPU address
-    STA $2006   ;write to PPU
-    LDA #$02 ;low byte of 16-bit PPU address
-    ;lda chrTileIndex ;low byte of 16-bit PPU address
-    lda selected_color_chrIndex
-    STA $2006   ;write to PPU
-
-    LDA newPalleteColor ;load collorpallete value
-    STA $2007 ;write to PPU data register
-    ;Joren
+    jsr UpdateColorValues
+    jsr ResetScroll
+    
 
     
     ;jsr UpdateOverlayCursorPosition
@@ -73,9 +66,8 @@ cont_render:
     jsr UseShapeTool
     jsr UseFillTool
 
-    jsr LoadColorPalette
+    ;jsr LoadColorPalette
 
-    jsr ResetScroll
 
     ; enable rendering
     lda #%00011110

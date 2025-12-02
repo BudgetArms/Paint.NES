@@ -577,6 +577,10 @@ DontRegisterYet:
     adc #$01
     sta newPaletteColor
 
+    ldx selected_color_chrIndex
+    lda newColorValueForSelectedTile
+    sta four_color_values, x
+
     rts 
 
 .endproc
@@ -676,20 +680,22 @@ DontRegisterYet:
     bne DontRegisterYet
 
     ;ldx chrTileIndex
-    ldx selected_color_chrIndex
-    lda four_color_values, X
+    ;ldx selected_color_chrIndex
+    ;lda four_color_values, X
+    lda newColorValueForSelectedTile
     clc
     adc #$01
-    sta four_color_values, X
-    ;test:
-    sta palette, X
+    ;sta four_color_values, X
+    sta newColorValueForSelectedTile
+
+    ;sta palette, X
 
 
 ;remove{
-    lda newPalleteColor
-    clc
-    adc #$01
-    sta newPalleteColor
+    ;lda newPalleteColor
+    ;clc
+    ;adc #$01
+    ;sta newPalleteColor
 ;}
 
     DontRegisterYet:
@@ -702,15 +708,21 @@ DontRegisterYet:
     bne DontRegisterYet
 
     ;ldx chrTileIndex
-    ldx selected_color_chrIndex
-    lda four_color_values, X
+    ;ldx selected_color_chrIndex
+    ;lda four_color_values, X
+    lda newColorValueForSelectedTile
     sec
     sbc #$01
-    sta four_color_values, X
-    ;test:
-    sta palette, X
+    ;sta four_color_values, X
+    sta newColorValueForSelectedTile
+    
+    ldx selected_color_chrIndex
+    lda newColorValueForSelectedTile
+    sta four_color_values, x
 
-    ;loop:
+    ;sta palette, X
+
+    ; loop:
     ;    lda palette, x
     ;    sta PPU_DATA
     ;    inx
@@ -720,10 +732,10 @@ DontRegisterYet:
 
 
 ;remove{
-    lda newPalleteColor
-    sec
-    sbc #$01
-    sta newPalleteColor
+    ;lda newPalleteColor
+    ;sec
+    ;sbc #$01
+    ;sta newPalleteColor
 ;}
 
     DontRegisterYet:
@@ -950,6 +962,33 @@ DontRegisterYet:
     clc
     adc #$10 ; +16 = +1 row on chr file
     sta PPU_DATA
+
+    rts
+
+.endproc
+
+.proc UpdateColorValues
+    
+    
+
+    LDA #$3F ;high byte of 16-bit PPU address
+    STA $2006   ;write to PPU
+    lda selected_color_chrIndex ;lda chrTileIndex ;low byte of 16-bit PPU address
+    STA $2006   ;write to PPU
+
+    ; loop:
+        ldx selected_color_chrIndex
+        lda four_color_values, x
+        STA $2007 ;write to PPU data register
+        ;inx
+        ;cpx #4
+        ;bne loop
+
+    
+
+    ;lda newColorValueForSelectedTile ;load collorpallete value
+    ;STA $2007 ;write to PPU data register
+    ;Joren
 
     rts
 
