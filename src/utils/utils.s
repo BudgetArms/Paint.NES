@@ -1001,14 +1001,11 @@ DontRegisterYet:
     lda frame_count
     bne DontRegisterYet
     
-    lda newColorValueForSelectedTile
+    ldx selected_color_chrIndex
+    lda four_color_values, X
     clc
     adc #$01
-    sta newColorValueForSelectedTile
-    
-    ldx selected_color_chrIndex
-    lda newColorValueForSelectedTile
-    sta four_color_values, x
+    sta four_color_values, X
 
     DontRegisterYet:
     rts
@@ -1018,15 +1015,12 @@ DontRegisterYet:
     ; Code to slow input registration down
     lda frame_count
     bne DontRegisterYet
-
-    lda newColorValueForSelectedTile
-    sec
-    sbc #$01
-    sta newColorValueForSelectedTile
     
     ldx selected_color_chrIndex
-    lda newColorValueForSelectedTile
-    sta four_color_values, x
+    lda four_color_values, X
+    sec
+    sbc #$01
+    sta four_color_values, X
 
     DontRegisterYet:
     rts
