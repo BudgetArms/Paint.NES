@@ -91,19 +91,25 @@ clear_oam:
     lda #$02
     sta selected_color_chrIndex
 
-
+; Initialize four color values
+; These colors will be the start colors.
     ldx #$00
-    lda #$0c
+
+    lda #$20
     sta four_color_values, x
     inx
-    lda #$0c
+    lda #$02
     sta four_color_values, x
     inx
-    lda #$0c
+    lda #$06
     sta four_color_values, x
     inx
-    lda #$15
+    lda #$0a
     sta four_color_values, x
+
+    jsr InitializeColorValues ; will load the values into the PPU
+
+
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y

@@ -982,6 +982,26 @@ DontRegisterYet:
 
 .endproc
 
+.proc InitializeColorValues
+
+    ldx #$00
+    loop:
+        LDA #$3F ;high byte of 16-bit PPU address
+        STA PPU_ADDR ; $2007
+        ;lda x
+        stx PPU_ADDR ; $2007
+
+        lda four_color_values, x
+        STA PPU_DATA ; $2006
+
+        inx
+        cpx #$04
+        bne loop
+
+    rts
+
+.endproc
+
 
 
 .proc IncreaseColorValueForSelectedTile
