@@ -174,14 +174,16 @@
         cmp #PAD_SELECT_UP
         bne Check_PAD_SELECT_DOWN
         
-        jsr IncreaseColorPalleteIndex
+        ;jsr IncreaseColorPalleteIndex
+        jsr IncreaseColorValueForSelectedTile
         jmp StopChecking
 
     Check_PAD_SELECT_DOWN:
         cmp #PAD_SELECT_DOWN
         bne Check_PAD_START
         
-        jsr DecreaseColorPalleteIndex
+        ;jsr DecreaseColorPalleteIndex
+        jsr DecreaseColorValueForSelectedTile
         jmp StopChecking
 
     Check_PAD_START:

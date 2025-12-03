@@ -577,40 +577,40 @@ DontRegisterYet:
     adc #$01
     sta newPaletteColor
 
-    ldx selected_color_chrIndex
-    lda newColorValueForSelectedTile
-    sta four_color_values, x
+    ;ldx selected_color_chrIndex
+    ;lda newColorValueForSelectedTile
+    ;sta four_color_values, x
 
     rts 
 
 .endproc
 
 ; BudgetArms / Joren
-.proc DecreaseColorPaletteIndex
-
-    lda newPaletteColor
-    sec 
-    sbc #$01
-    sta newPaletteColor
-
-    rts 
-
-.endproc
+;.proc DecreaseColorPaletteIndex
+;
+    ;lda newPaletteColor
+    ;sec 
+    ;sbc #$01
+    ;sta newPaletteColor
+;
+    ;rts 
+;
+;.endproc
 
 ; BudgetArms / Joren
-.proc LoadColorPalette
-
-    lda #$3F        ;high byte of 16-bit PPU address
-    sta PPU_ADDR    ;write to PPU
-    lda #$02        ;low byte of 16-bit PPU address
-    sta PPU_ADDR    ;write to PPU
-
-    lda newPaletteColor ;load collorpalette value
-    sta PPU_DATA        ;write to PPU data register
-
-    rts 
-
-.endproc
+;.proc LoadColorPalette
+;
+    ;lda #$3F        ;high byte of 16-bit PPU address
+    ;sta PPU_ADDR    ;write to PPU
+    ;lda #$02        ;low byte of 16-bit PPU address
+    ;sta PPU_ADDR    ;write to PPU
+;
+    ;lda newPaletteColor ;load collorpalette value
+    ;sta PPU_DATA        ;write to PPU data register
+;
+    ;rts 
+;
+;.endproc
 
 
 ; BudgetArms
@@ -674,73 +674,73 @@ DontRegisterYet:
 
 
 ;Joren
-.proc IncreaseColorPalleteIndex
-; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
-    ;ldx chrTileIndex
-    ;ldx selected_color_chrIndex
-    ;lda four_color_values, X
-    lda newColorValueForSelectedTile
-    clc
-    adc #$01
-    ;sta four_color_values, X
-    sta newColorValueForSelectedTile
-
-    ;sta palette, X
-
-
-;remove{
-    ;lda newPalleteColor
-    ;clc
-    ;adc #$01
-    ;sta newPalleteColor
-;}
-
-    DontRegisterYet:
-    rts
-.endproc
-
-.proc DecreaseColorPalleteIndex
-; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
-    ;ldx chrTileIndex
-    ;ldx selected_color_chrIndex
-    ;lda four_color_values, X
-    lda newColorValueForSelectedTile
-    sec
-    sbc #$01
-    ;sta four_color_values, X
-    sta newColorValueForSelectedTile
-    
-    ldx selected_color_chrIndex
-    lda newColorValueForSelectedTile
-    sta four_color_values, x
-
-    ;sta palette, X
-
-    ; loop:
-    ;    lda palette, x
-    ;    sta PPU_DATA
-    ;    inx
-    ;    cpx #32
-    ;    bcc loop
-
-
-
-;remove{
-    ;lda newPalleteColor
-    ;sec
-    ;sbc #$01
-    ;sta newPalleteColor
-;}
-
-    DontRegisterYet:
-    rts
-.endproc
+; .proc IncreaseColorPalleteIndex
+; ; Code to slow input registration down
+    ; lda frame_count
+    ; bne DontRegisterYet
+; 
+    ; ;ldx chrTileIndex
+    ; ;ldx selected_color_chrIndex
+    ; ;lda four_color_values, X
+    ; lda newColorValueForSelectedTile
+    ; clc
+    ; adc #$01
+    ; ;sta four_color_values, X
+    ; sta newColorValueForSelectedTile
+; 
+    ; ;sta palette, X
+; 
+; 
+; ;remove{
+    ; ;lda newPalleteColor
+    ; ;clc
+    ; ;adc #$01
+    ; ;sta newPalleteColor
+; ;}
+; 
+    ; DontRegisterYet:
+    ; rts
+; .endproc
+; 
+; .proc DecreaseColorPalleteIndex
+; ; Code to slow input registration down
+    ; lda frame_count
+    ; bne DontRegisterYet
+; 
+    ; ;ldx chrTileIndex
+    ; ;ldx selected_color_chrIndex
+    ; ;lda four_color_values, X
+    ; lda newColorValueForSelectedTile
+    ; sec
+    ; sbc #$01
+    ; ;sta four_color_values, X
+    ; sta newColorValueForSelectedTile
+;     
+    ; ldx selected_color_chrIndex
+    ; lda newColorValueForSelectedTile
+    ; sta four_color_values, x
+; 
+    ; ;sta palette, X
+; 
+    ; ; loop:
+    ; ;    lda palette, x
+    ; ;    sta PPU_DATA
+    ; ;    inx
+    ; ;    cpx #32
+    ; ;    bcc loop
+; 
+; 
+; 
+; ;remove{
+    ; ;lda newPalleteColor
+    ; ;sec
+    ; ;sbc #$01
+    ; ;sta newPalleteColor
+; ;}
+; 
+    ; DontRegisterYet:
+    ; rts
+; .endproc
 
 .proc IncreaseChrTileIndex
 ; Code to slow input registration down
@@ -992,4 +992,42 @@ DontRegisterYet:
 
     rts
 
+.endproc
+
+
+
+.proc IncreaseColorValueForSelectedTile
+    ; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+    
+    lda newColorValueForSelectedTile
+    clc
+    adc #$01
+    sta newColorValueForSelectedTile
+    
+    ldx selected_color_chrIndex
+    lda newColorValueForSelectedTile
+    sta four_color_values, x
+
+    DontRegisterYet:
+    rts
+.endproc
+
+.proc DecreaseColorValueForSelectedTile
+    ; Code to slow input registration down
+    lda frame_count
+    bne DontRegisterYet
+
+    lda newColorValueForSelectedTile
+    sec
+    sbc #$01
+    sta newColorValueForSelectedTile
+    
+    ldx selected_color_chrIndex
+    lda newColorValueForSelectedTile
+    sta four_color_values, x
+
+    DontRegisterYet:
+    rts
 .endproc
