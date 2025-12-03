@@ -93,16 +93,16 @@ clear_oam:
 
 
     ldx #$00
-    lda #$00
+    lda #$0c
     sta four_color_values, x
     inx
-    lda #$08
+    lda #$0c
     sta four_color_values, x
     inx
-    lda #$03
+    lda #$0c
     sta four_color_values, x
     inx
-    lda #$2c
+    lda #$15
     sta four_color_values, x
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)

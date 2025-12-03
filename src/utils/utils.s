@@ -968,27 +968,15 @@ DontRegisterYet:
 .endproc
 
 .proc UpdateColorValues
-    
-    
 
     LDA #$3F ;high byte of 16-bit PPU address
-    STA $2006   ;write to PPU
+    STA PPU_ADDR ; $2007
     lda selected_color_chrIndex ;lda chrTileIndex ;low byte of 16-bit PPU address
-    STA $2006   ;write to PPU
+    STA PPU_ADDR ; $2007
 
-    ; loop:
-        ldx selected_color_chrIndex
-        lda four_color_values, x
-        STA $2007 ;write to PPU data register
-        ;inx
-        ;cpx #4
-        ;bne loop
-
-    
-
-    ;lda newColorValueForSelectedTile ;load collorpallete value
-    ;STA $2007 ;write to PPU data register
-    ;Joren
+    ldx selected_color_chrIndex
+    lda four_color_values, x
+    STA PPU_DATA ; $2006
 
     rts
 
