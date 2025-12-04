@@ -95,16 +95,16 @@ clear_oam:
 ; These colors will be the start colors.
     ldx #$00
     
-    lda #$20
+    lda #OFFWHITE
     sta four_color_values, x
     inx
-    lda #$02
+    lda #RED
     sta four_color_values, x
     inx
-    lda #$06
+    lda #GREEN
     sta four_color_values, x
     inx
-    lda #$0a
+    lda #BLUE
     sta four_color_values, x
 
     jsr LoadColorValuesIntoPPU ; will load the values into the PPU
