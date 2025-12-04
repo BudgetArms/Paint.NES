@@ -207,7 +207,7 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ;    sta palette, x
     ;    inx
     ;    cpx #32
-    ;    bcc paletteloop
+    ;    bcc paletteloop$
 
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP
@@ -246,12 +246,12 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ;***************************************
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
-default_palette:
+;default_palette:
 ;bg tiles/ text
-.byte $00,$01,$05,$09
-.byte $0f,$0c,$21,$32
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+;.byte $00,$01,$05,$09
+;.byte $20,$20,$20,$20
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
 
 ;sprites

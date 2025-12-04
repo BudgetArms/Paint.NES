@@ -1034,9 +1034,21 @@ DontRegisterYet:
     rts
 .endproc
 
-.proc SetTopAndBottomRowsColorPallete
+.proc LoadSecondColorPalleteIntoPPU
 
+    ldx #$04
+    loop:
+        LDA #$3F ;high byte of 16-bit PPU address
+        STA PPU_ADDR ; $2007
+        ;lda x
+        stx PPU_ADDR ; $2007
 
+        lda #$18
+        STA PPU_DATA ; $2006
+
+        inx
+        cpx #$08
+        bne loop
 
     rts
 
