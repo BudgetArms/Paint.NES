@@ -15,7 +15,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-.incbin "game_Joren.chr"
+.incbin "game_TestSomething.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
