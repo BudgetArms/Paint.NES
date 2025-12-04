@@ -57,18 +57,22 @@ cont_render:
 
     jsr UpdateColorValues
     
-    LDA #$23 ; high byte of adress in PPU
-    STA PPU_ADDR
-    LDA #$C0 ; low byte of adress in PPU
-    STA PPU_ADDR
+    ;LDA #$23 ; high byte of adress in PPU
+    ;STA PPU_ADDR
+    ;LDA #$C0 ; low byte of adress in PPU
+    ;STA PPU_ADDR
 
-    LDX #$00
-LoopAllBlocks:
-    LDA #$FF
-    STA PPU_DATA
-    INX
-    CPX #64 ; cause there are 64 bytes in attribute table
-    BNE LoopAllBlocks
+    
+    ;LDX #$00
+    ; LoopAllBlocks:
+    ;lda PPU_DATA
+    ;and #%11111100
+    ;ora #%00000010
+    ;;LDA #$FF
+    ;STA PPU_DATA
+    ;INX
+    ;CPX #16 ; cause there are 64 bytes in attribute table
+    ;BNE LoopAllBlocks
 
     ;LDA #$23
     ;STA PPU_ADDR

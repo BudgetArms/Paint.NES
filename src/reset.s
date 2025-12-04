@@ -94,7 +94,7 @@ clear_oam:
 ; Initialize four color values
 ; These colors will be the start colors.
     ldx #$00
-
+    
     lda #$20
     sta four_color_values, x
     inx
@@ -107,7 +107,7 @@ clear_oam:
     lda #$0a
     sta four_color_values, x
 
-    jsr InitializeColorValues ; will load the values into the PPU
+    jsr LoadColorValuesIntoPPU ; will load the values into the PPU
 
 
 

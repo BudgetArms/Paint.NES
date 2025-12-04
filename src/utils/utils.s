@@ -982,7 +982,7 @@ DontRegisterYet:
 
 .endproc
 
-.proc InitializeColorValues
+.proc LoadColorValuesIntoPPU
 
     ldx #$00
     loop:
