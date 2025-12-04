@@ -90,6 +90,7 @@ cont_render:
     ;STA PPU_ADDR
 ;
     ;STA PPU_DATA
+    jsr SetTopAndBottomRowsColorPallete
 
     jsr ResetScroll
     

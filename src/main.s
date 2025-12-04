@@ -201,13 +201,13 @@ FAMISTUDIO_DPCM_OFF             = $c000
     jsr SetupCanvas
 
     ; initialize palette table
-    ldx #0
-    paletteloop:
-        lda default_palette, x
-        sta palette, x
-        inx
-        cpx #32
-        bcc paletteloop
+    ;ldx #0
+    ; paletteloop:
+    ;    lda default_palette, x
+    ;    sta palette, x
+    ;    inx
+    ;    cpx #32
+    ;    bcc paletteloop
 
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP

@@ -1034,3 +1034,10 @@ DontRegisterYet:
     rts
 .endproc
 
+.proc SetTopAndBottomRowsColorPallete
+
+
+
+    rts
+
+.endproc
