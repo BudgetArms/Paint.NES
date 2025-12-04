@@ -56,9 +56,38 @@ cont_render:
     jsr UpdateToolSelectionOverlay
 
     jsr UpdateColorValues
-    jsr ResetScroll
     
+    LDA #$23 ; high byte of adress in PPU
+    STA PPU_ADDR
+    LDA #$C0 ; low byte of adress in PPU
+    STA PPU_ADDR
 
+    LDX #$00
+LoopAllBlocks:
+    LDA #$FF
+    STA PPU_DATA
+    INX
+    CPX #64 ; cause there are 64 bytes in attribute table
+    BNE LoopAllBlocks
+
+    ;LDA #$23
+    ;STA PPU_ADDR
+    ;LDA #$C0
+    ;STA PPU_ADDR
+;
+    ;lda PPU_DATA
+    ;and #%11111100
+    ;ora #%00000010
+;
+    ;; write it back
+    ;LDA #$23
+    ;STA PPU_ADDR
+    ;LDA #$C1
+    ;STA PPU_ADDR
+;
+    ;STA PPU_DATA
+
+    jsr ResetScroll
     
     ;jsr UpdateOverlayCursorPosition
 
