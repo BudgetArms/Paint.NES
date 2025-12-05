@@ -1,10 +1,17 @@
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
-   lda source_tile
-   ;sta brush_tile_index
-   sta selected_color_chrIndex
+    lda source_tile
+    sta selected_color_chrIndex
 .endmacro
 ; Khine
+
+
+; BudgetArms
+.proc ChangeBrushTileIndexFromA
+    sta selected_color_chrIndex
+    rts 
+.endproc
+; BudgetArms
 
 
 ; Khine
@@ -22,6 +29,7 @@
     sta tool_use_attr
 .endmacro
 ; Khine
+
 
 ;*****************************************************************
 ; ppu_update: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
@@ -315,6 +323,7 @@ DontMoveYet:
 ; Khine / BudgetArms
 
 
+; TODO: RENAMED to SelectShapeTool
 ; BudgetArms
 .proc ToggleShapeTool
     ChangeBrushTileIndex drawing_color_tile_index
@@ -324,20 +333,16 @@ DontMoveYet:
 ; BudgetArms
 
 
+; TODO: RENAMED to SelectEraserTool
 ; Khine
 .proc ToggleEraserTool
-    ; ChangeBrushTileIndex #BACKGROUND_TILE
-    ; ChangeToolMode #ERASER_MODE
-    ; rts 
-    lda #$00
-    sta selected_color_chrIndex
-    ;ChangeBrushTileIndex #BACKGROUND_TILE
-    ;ChangeCanvasMode #ERASER_MODE
-    rts
+    ChangeBrushTileIndex #BACKGROUND_TILE
+    rts 
 .endproc
 ; Khine
 
 
+; TODO: RENAMED to SelectFillTool
 ; BudgetArms
 .proc ToggleFillTool
     ChangeBrushTileIndex drawing_color_tile_index
@@ -347,10 +352,12 @@ DontMoveYet:
 ; BudgetArms
 
 
+; TODO: RENAMED to SelectDrawTool
+; TODO: REARRANGE THE FUNCTIONS (draw, eraser, fill, shape, clear)
 ; Khine
 .proc ToggleDrawTool
     ; ChangeBrushTileIndex drawing_color_tile_index
-    ; ChangeToolMode #DRAW_MODE
+    ChangeToolMode #DRAW_MODE
     ; rts 
     ;ChangeBrushTileIndex drawing_color_tile_index
     ;ChangeBrushTileIndex chrTileIndex
@@ -360,178 +367,6 @@ DontMoveYet:
 .endproc
 ; Khine
 
-
-; Khine
-;.proc CycleBrushColor
-;    lda drawing_color_tile_index
-;    cmp #COLOR_TILE_END_INDEX
-;    bne @Not_End
-;        lda #COLOR_TILE_START_INDEX
-;        sta drawing_color_tile_index
-;        sta brush_tile_index
-;        rts
-;    @Not_End:
-;    inc drawing_color_tile_index
-;    inc brush_tile_index
-;    rts
-;.endproc
-; Khine
-
-
-; Khine / BudgetArms
-.proc CycleCanvasModes
-; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
-    ; Cycle between canvas mode and selection menu mode
-    lda scroll_y_position
-    cmp #CANVAS_MODE
-    bne @Not_Canvas_Mode
-
-        ; In selection menu mode
-        lda #SELECTION_MENU_MODE
-        sta scroll_y_position
-
-        ; Check what tool mode
-        lda tool_mode
-
-        cmp #DRAW_MODE
-        bne @Not_Draw_Mode
-            lda #SELECTION_MENU_0_DRAW
-            jmp @End
-
-        @Not_Draw_Mode:
-
-        cmp #SHAPE_MODE
-        bne @Not_Shape_Mode
-            lda #SELECTION_MENU_1_SHAPE
-            jmp @End
-
-        @Not_Shape_Mode:
-
-        cmp #ERASER_MODE
-        bne @Not_Eraser_Mode
-            lda #SELECTION_MENU_2_ERASER
-            jmp @End
-
-        @Not_Eraser_Mode:
-
-        cmp #FILL_MODE
-        bne @Not_Fill_Mode
-            lda #SELECTION_MENU_3_FILL
-            jmp @End
-
-        @Not_Fill_Mode:
-
-        @End:
-        ;lda tool_mode
-        ;cmp #DRAW_MODE
-        ;bne @Not_Draw_Mode
-        ;    lda #SELECTION_MENU_0_DRAW
-        ; @Not_Draw_Mode:
-        ;cmp #ERASER_MODE
-        ;bne @Not_Eraser_Mode
-        ;    lda #SELECTION_MENU_1_ERASER
-        ; @Not_Eraser_Mode:
-        sta oam + SELECTION_STAR_OFFSET + OAM_Y
-        rts 
-
-    @Not_Canvas_Mode:
-    lda #CANVAS_MODE
-    sta scroll_y_position
-    lda #OAM_OFFSCREEN
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-
-DontRegisterYet:
-    rts
-
-.endproc
-; Khine / BudgetArms
-
-
-; Khine
-.proc MoveSelectionStarUp
-
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_In_Start_Pos
-        rts 
-
-    @Not_In_Start_Pos:
-
-    sec 
-    sbc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts 
-
-.endproc
-; Khine
-
-
-; Khine
-.proc MoveSelectionStarDown
-
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-
-    cmp #SELECTION_MENU_4_CLEAR
-    bne @Not_In_End_Pos
-        rts 
-
-    @Not_In_End_Pos:
-
-    clc 
-    adc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts 
-
-.endproc
-; Khine
-
-
-; Khine / BudgetArms
-.proc SelectTool
-
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_On_Draw
-        jsr ToggleDrawTool
-        rts 
-
-    @Not_On_Draw:
-
-    cmp #SELECTION_MENU_1_SHAPE
-    bne @Not_On_Shape
-        jsr ToggleShapeTool
-        rts 
-
-    @Not_On_Shape:
-
-    cmp #SELECTION_MENU_2_ERASER
-    bne @Not_On_Eraser
-        jsr ToggleEraserTool
-        rts 
-
-    @Not_On_Eraser:
-
-    cmp #SELECTION_MENU_3_FILL
-    bne @Not_On_Fill
-        jsr ToggleFillTool
-        rts 
-
-    @Not_On_Fill:
-
-    cmp #SELECTION_MENU_4_CLEAR
-    bne @Not_On_Clear_Canvas
-        ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
-        rts 
-
-    @Not_On_Clear_Canvas:
-
-    rts 
-.endproc
-; Khine / BudgetArms
 
 ; Jeronimas 
 ;*********************************************************
@@ -584,33 +419,6 @@ DontRegisterYet:
     rts 
 
 .endproc
-
-; BudgetArms / Joren
-;.proc DecreaseColorPaletteIndex
-;
-    ;lda newPaletteColor
-    ;sec 
-    ;sbc #$01
-    ;sta newPaletteColor
-;
-    ;rts 
-;
-;.endproc
-
-; BudgetArms / Joren
-;.proc LoadColorPalette
-;
-    ;lda #$3F        ;high byte of 16-bit PPU address
-    ;sta PPU_ADDR    ;write to PPU
-    ;lda #$02        ;low byte of 16-bit PPU address
-    ;sta PPU_ADDR    ;write to PPU
-;
-    ;lda newPaletteColor ;load collorpalette value
-    ;sta PPU_DATA        ;write to PPU data register
-;
-    ;rts 
-;
-;.endproc
 
 
 ; BudgetArms
@@ -671,77 +479,7 @@ DontRegisterYet:
 ; BudgetArms
 
 
-
-
-;Joren
-; .proc IncreaseColorPalleteIndex
-; ; Code to slow input registration down
-    ; lda frame_count
-    ; bne DontRegisterYet
-; 
-    ; ;ldx chrTileIndex
-    ; ;ldx selected_color_chrIndex
-    ; ;lda four_color_values, X
-    ; lda newColorValueForSelectedTile
-    ; clc
-    ; adc #$01
-    ; ;sta four_color_values, X
-    ; sta newColorValueForSelectedTile
-; 
-    ; ;sta palette, X
-; 
-; 
-; ;remove{
-    ; ;lda newPalleteColor
-    ; ;clc
-    ; ;adc #$01
-    ; ;sta newPalleteColor
-; ;}
-; 
-    ; DontRegisterYet:
-    ; rts
-; .endproc
-; 
-; .proc DecreaseColorPalleteIndex
-; ; Code to slow input registration down
-    ; lda frame_count
-    ; bne DontRegisterYet
-; 
-    ; ;ldx chrTileIndex
-    ; ;ldx selected_color_chrIndex
-    ; ;lda four_color_values, X
-    ; lda newColorValueForSelectedTile
-    ; sec
-    ; sbc #$01
-    ; ;sta four_color_values, X
-    ; sta newColorValueForSelectedTile
-;     
-    ; ldx selected_color_chrIndex
-    ; lda newColorValueForSelectedTile
-    ; sta four_color_values, x
-; 
-    ; ;sta palette, X
-; 
-    ; ; loop:
-    ; ;    lda palette, x
-    ; ;    sta PPU_DATA
-    ; ;    inx
-    ; ;    cpx #32
-    ; ;    bcc loop
-; 
-; 
-; 
-; ;remove{
-    ; ;lda newPalleteColor
-    ; ;sec
-    ; ;sbc #$01
-    ; ;sta newPalleteColor
-; ;}
-; 
-    ; DontRegisterYet:
-    ; rts
-; .endproc
-
+; Joren
 .proc IncreaseChrTileIndex
 ; Code to slow input registration down
     lda frame_count
@@ -754,27 +492,17 @@ DontRegisterYet:
 
     cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
     bmi Value_Was_Okay ; branch if not negative
-    lda #00 ; set value back to 0
+        lda #00 ; set value back to 0
 
     Value_Was_Okay:
-    ;sta chrTileIndex
-    sta selected_color_chrIndex
-    ;lda four_color_values, selected_color_chrIndex
-    
-    ;beq Pencil
-    ;Eraser:
-    ;    lda #ERASER_MODE
-    ;    sta tool_mode
-    ;    RTS
-
-    ;Pencil:
-    ;    LDA #DRAW_MODE
-    ;    sta tool_mode
+    jsr ChangeBrushTileIndexFromA
 
     DontRegisterYet:
-    rts
+    rts 
 .endproc
+; Joren
 
+; Joren
 .proc DecreaseChrTileIndex
     ; Code to slow input registration down
     lda frame_count
@@ -789,8 +517,7 @@ DontRegisterYet:
     lda #03 ; set value back to max index
 
     Value_Was_Okay:
-    ;sta chrTileIndex
-    sta selected_color_chrIndex
+    jsr ChangeBrushTileIndexFromA
 
     ;beq Pencil
     ;Eraser:
@@ -808,6 +535,7 @@ DontRegisterYet:
 .endproc
 ;Joren
 
+; Joren
 .proc UpdateColorSelectionOverlay
     ; FIRST tile = background tile
     lda #>FIRST_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
@@ -846,7 +574,7 @@ DontRegisterYet:
     sta PPU_ADDR
     
     lda selected_color_chrIndex
-    CLC
+    clc 
     adc #<FIRST_COLOR_ONSCREEN_ADRESS
     ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
     sta PPU_ADDR
@@ -855,9 +583,10 @@ DontRegisterYet:
     sta PPU_DATA
     ;selected_color_chrIndex
 
-    rts
+    rts 
 .endproc
 
+; Joren
 .proc IncButtonHeldFrameCount
     lda frame_count
     clc
@@ -873,6 +602,7 @@ DontRegisterYet:
 
 .endproc
 
+; Joren
 .proc IncreaseToolSelection
 
     lda frame_count
@@ -894,6 +624,7 @@ DontRegisterYet:
 
 .endproc
 
+; Joren
 .proc DecreaseToolSelection
 
     lda frame_count
@@ -914,6 +645,7 @@ DontRegisterYet:
 
 .endproc
 
+; Joren
 .proc UpdateToolSelectionOverlay
     ; FIRST tile = pencil tool
     lda #>PENCIL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
@@ -966,7 +698,10 @@ DontRegisterYet:
     rts
 
 .endproc
+; Joren
 
+
+; Khine
 .proc UpdateColorValues
 
     LDA #$3F ;high byte of 16-bit PPU address
@@ -981,7 +716,10 @@ DontRegisterYet:
     rts
 
 .endproc
+; Khine
 
+
+; ???
 .proc LoadColorValuesIntoPPU
 
     ldx #$00
@@ -1001,9 +739,10 @@ DontRegisterYet:
     rts
 
 .endproc
+; ???
 
 
-
+; Joren
 .proc IncreaseColorValueForSelectedTile
     ; Code to slow input registration down
     lda frame_count
@@ -1018,7 +757,10 @@ DontRegisterYet:
     DontRegisterYet:
     rts
 .endproc
+; Joren
 
+
+; Joren
 .proc DecreaseColorValueForSelectedTile
     ; Code to slow input registration down
     lda frame_count
@@ -1033,7 +775,11 @@ DontRegisterYet:
     DontRegisterYet:
     rts
 .endproc
+; Joren
 
+
+; TODO: use lowercase for instructions
+; Joren
 .proc LoadSecondColorPalleteIntoPPU
 
     ldx #$04
@@ -1053,7 +799,12 @@ DontRegisterYet:
     rts
 
 .endproc
+; Joren
 
+
+; TODO: WTF, use constants, not magic numbers, ...
+; TODO: use lowercase for instructions
+; Joren
 .proc SetCollorPaletteForUI
 
     ; pick nametable 0 attribute table
@@ -1071,3 +822,5 @@ DontRegisterYet:
     rts
 
 .endproc
+; Joren
+
