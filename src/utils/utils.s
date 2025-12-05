@@ -1053,3 +1053,21 @@ DontRegisterYet:
     rts
 
 .endproc
+
+.proc SetCollorPaletteForUI
+
+    ; pick nametable 0 attribute table
+    LDA $2002        ; reset latch
+    LDA #$23
+    STA $2006        ; high byte
+    LDA #$C0
+    STA $2006        ; low byte (start of attr table)
+
+; write an attribute byte (palettes for 4 quadrants)
+    LDA #%01100011  ; 2 bits per quadrant
+    STA $2007
+
+
+    rts
+
+.endproc
