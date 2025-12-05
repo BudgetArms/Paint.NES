@@ -11,14 +11,14 @@
 ;*****************************************************************
 .proc ClearCanvas
     lda tool_use_attr
-    and #CLEAR_CANVAS_TOOL_ON
+    and #CLEAR_TOOL_ON
     bne @Use_Brush
         rts
     @Use_Brush:
     jsr ppu_off
     
     lda tool_use_attr
-    eor #CLEAR_CANVAS_TOOL_ON
+    eor #CLEAR_TOOL_ON
     sta tool_use_attr
 
     lda PPU_STATUS ; reset address latch
@@ -76,52 +76,13 @@
         dex 
         bne loop
 
-
-    ; Selection Menu
-    lda PPU_STATUS ; reset address latch
-    lda #>NAME_TABLE_3 ; High bit of the location
-    sta PPU_ADDR
-    lda #<NAME_TABLE_3 ; Low bit of the location
-    sta PPU_ADDR
-
-    ldx #$00
-    lda #<Selection_Menu_Tilemap
-    sta abs_address_to_access
-    lda #>Selection_Menu_Tilemap
-    sta abs_address_to_access + 1
-    @Outer_Loop:
-    ldy #$00
-        @Inner_Loop:
-        lda (abs_address_to_access), y
-        sta PPU_DATA
-        iny
-        bne @Inner_Loop
-    lda abs_address_to_access + 1
-    clc
-    adc #$01
-    sta abs_address_to_access + 1
-    inx
-    cpx #$04
-    bne @Outer_Loop
-
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc InitializeSelectionStar
-    ldx #$00
-    @Load_One_To_OAM:
-        lda Seletion_Star_Sprite, x
-        sta oam + SELECTION_STAR_OFFSET, x
-        inx
-        cpx #$04
-    bne @Load_One_To_OAM
-
     rts 
+
 .endproc
 ; Khine
+
+
+
 
 ; BudgetArms
 .macro HideCursor oamOffset, oamSize
@@ -145,21 +106,6 @@
         bne Loop   ; Loop until everything is hidden
 
 .endmacro
-
-; BudgetArms
-.proc HideActiveCursorIfSelectionMenu
-
-    lda scroll_y_position
-    cmp #SELECTION_MENU_MODE
-    bne Not_In_Selection_Menu
-
-        jsr HideActiveCursor    
-
-    Not_In_Selection_Menu:
-    rts 
-
-.endproc
-; BudgetArms
 
 
 ; BudgetArms
