@@ -92,9 +92,9 @@ DISPLAY_SCREEN_HEIGHT   = 30
 TILE_PIXEL_SIZE         = $08
 
 ; oam offsets
-CURSOR_OFFSET_SMALL     = $00      ; 4 sprites, -> 4 (sprites) * 4 bytes (per sprite) = 16 bytes
-CURSOR_OFFSET_NORMAL    = $10     ; 1 sprites, -> 4 bytes
-CURSOR_OFFSET_BIG       = $14        ; 4 sprites, -> 16 bytes
+CURSOR_OFFSET_SMALL     = $00       ; 4 sprites, -> 4 (sprites) * 4 bytes (per sprite) = 16 bytes
+CURSOR_OFFSET_NORMAL    = $10       ; 1 sprites, -> 4 bytes
+CURSOR_OFFSET_BIG       = $14       ; 4 sprites, -> 16 bytes
 
 ; Hold Times (in frames)
 BUTTON_HOLD_TIME_SLOW       = DISPLAY_REFRESH_RATE_HZ
