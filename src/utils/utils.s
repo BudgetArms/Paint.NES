@@ -2,7 +2,7 @@
 .macro ChangeBrushTileIndex    source_tile
    lda source_tile
    ;sta brush_tile_index
-   sta selected_color_chrIndex
+   sta selected_color_chr_index
 .endmacro
 ; Khine
 
@@ -330,7 +330,7 @@ DontMoveYet:
     ; ChangeToolMode #ERASER_MODE
     ; rts 
     lda #$00
-    sta selected_color_chrIndex
+    sta selected_color_chr_index
     ;ChangeBrushTileIndex #BACKGROUND_TILE
     ;ChangeCanvasMode #ERASER_MODE
     rts
@@ -354,7 +354,7 @@ DontMoveYet:
     ; rts 
     ;ChangeBrushTileIndex drawing_color_tile_index
     ;ChangeBrushTileIndex chrTileIndex
-    ;ChangeBrushTileIndex selected_color_chrIndex
+    ;ChangeBrushTileIndex selected_color_chr_index
     ;ChangeCanvasMode #DRAW_MODE
     rts
 .endproc
@@ -577,7 +577,7 @@ DontRegisterYet:
     adc #$01
     sta newPaletteColor
 
-    ;ldx selected_color_chrIndex
+    ;ldx selected_color_chr_index
     ;lda newColorValueForSelectedTile
     ;sta four_color_values, x
 
@@ -680,7 +680,7 @@ DontRegisterYet:
     ; bne DontRegisterYet
 ; 
     ; ;ldx chrTileIndex
-    ; ;ldx selected_color_chrIndex
+    ; ;ldx selected_color_chr_index
     ; ;lda four_color_values, X
     ; lda newColorValueForSelectedTile
     ; clc
@@ -708,7 +708,7 @@ DontRegisterYet:
     ; bne DontRegisterYet
 ; 
     ; ;ldx chrTileIndex
-    ; ;ldx selected_color_chrIndex
+    ; ;ldx selected_color_chr_index
     ; ;lda four_color_values, X
     ; lda newColorValueForSelectedTile
     ; sec
@@ -716,7 +716,7 @@ DontRegisterYet:
     ; ;sta four_color_values, X
     ; sta newColorValueForSelectedTile
 ;     
-    ; ldx selected_color_chrIndex
+    ; ldx selected_color_chr_index
     ; lda newColorValueForSelectedTile
     ; sta four_color_values, x
 ; 
@@ -748,7 +748,7 @@ DontRegisterYet:
     bne DontRegisterYet
 
     ;lda chrTileIndex
-    lda selected_color_chrIndex
+    lda selected_color_chr_index
     clc
     adc #$01
 
@@ -758,8 +758,8 @@ DontRegisterYet:
 
     Value_Was_Okay:
     ;sta chrTileIndex
-    sta selected_color_chrIndex
-    ;lda four_color_values, selected_color_chrIndex
+    sta selected_color_chr_index
+    ;lda four_color_values, selected_color_chr_index
     
     ;beq Pencil
     ;Eraser:
@@ -781,7 +781,7 @@ DontRegisterYet:
     bne DontRegisterYet
 
     ;lda chrTileIndex
-    lda selected_color_chrIndex
+    lda selected_color_chr_index
     sec
     sbc #$01
 
@@ -790,7 +790,7 @@ DontRegisterYet:
 
     Value_Was_Okay:
     ;sta chrTileIndex
-    sta selected_color_chrIndex
+    sta selected_color_chr_index
 
     ;beq Pencil
     ;Eraser:
@@ -845,15 +845,15 @@ DontRegisterYet:
     lda #$20 ; same as all previous ones
     sta PPU_ADDR
     
-    lda selected_color_chrIndex
+    lda selected_color_chr_index
     CLC
     adc #<FIRST_COLOR_ONSCREEN_ADRESS
     ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
     sta PPU_ADDR
 
-    lda selected_color_chrIndex
+    lda selected_color_chr_index
     sta PPU_DATA
-    ;selected_color_chrIndex
+    ;selected_color_chr_index
 
     rts
 .endproc
@@ -971,10 +971,10 @@ DontRegisterYet:
 
     LDA #$3F ;high byte of 16-bit PPU address
     STA PPU_ADDR ; $2007
-    lda selected_color_chrIndex ;lda chrTileIndex ;low byte of 16-bit PPU address
+    lda selected_color_chr_index ;lda chrTileIndex ;low byte of 16-bit PPU address
     STA PPU_ADDR ; $2007
 
-    ldx selected_color_chrIndex
+    ldx selected_color_chr_index
     lda four_color_values, x
     STA PPU_DATA ; $2006
 
@@ -1009,7 +1009,7 @@ DontRegisterYet:
     lda frame_count
     bne DontRegisterYet
     
-    ldx selected_color_chrIndex
+    ldx selected_color_chr_index
     lda four_color_values, X
     clc
     adc #$01
@@ -1024,7 +1024,7 @@ DontRegisterYet:
     lda frame_count
     bne DontRegisterYet
     
-    ldx selected_color_chrIndex
+    ldx selected_color_chr_index
     lda four_color_values, X
     sec
     sbc #$01

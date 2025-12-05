@@ -88,7 +88,7 @@
         bne Check_PAD_A_LEFT
         jsr HandleCursorPressedA
         jmp StopChecking
-    
+
     Check_PAD_A_LEFT:
         cmp #PAD_A_LEFT
         bne Check_PAD_A_RIGHT
@@ -300,7 +300,6 @@
     StopChecking:
         jsr IncButtonHeldFrameCount
         rts
-    
 
 .endproc
 

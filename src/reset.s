@@ -89,7 +89,7 @@ clear_oam:
 
     ;initialise collors
     lda #$02
-    sta selected_color_chrIndex
+    sta selected_color_chr_index
 
 ; Initialize four color values
 ; These colors will be the start colors.

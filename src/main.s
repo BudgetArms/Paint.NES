@@ -112,7 +112,7 @@ music_paused: .res 1    ; this is a flag changing this does not actually pause t
 four_color_values: .res 4
 ;newColorValueForSelectedTile: .res 1
 ;newPalleteColor: .res 1
-selected_color_chrIndex: .res 1
+selected_color_chr_index: .res 1
 frame_count: .res 1
 selected_tool: .res 1
 ;selection_star_y_pos: .res 1
