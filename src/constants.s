@@ -109,7 +109,7 @@ CANVAS = 1
 
 
 ; Cursor locks (can't go lower/higher)
-CURSOR_MIN_X = 1
+CURSOR_MIN_X = 0
 CURSOR_MAX_X = 32
 
 CURSOR_MIN_Y = 2
