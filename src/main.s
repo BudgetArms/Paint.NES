@@ -110,12 +110,9 @@ music_paused: .res 1    ; this is a flag changing this does not actually pause t
 
 ;Joren
 four_color_values: .res 4
-;newColorValueForSelectedTile: .res 1
-;newPalleteColor: .res 1
 selected_color_chrIndex: .res 1
 frame_count: .res 1
 selected_tool: .res 1
-;selection_star_y_pos: .res 1
 
 
 .segment "OAM"
@@ -157,7 +154,7 @@ fill_queue: .res 512
 .segment "CODE"
 irq:
     ;handle interrupt if needed
-    rti
+    rti 
 
 ;***************************************
 
@@ -200,14 +197,6 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; clear 1st name table
     jsr SetupCanvas
 
-    ; initialize palette table
-    ;ldx #0
-    ; paletteloop:
-    ;    lda default_palette, x
-    ;    sta palette, x
-    ;    inx
-    ;    cpx #32
-    ;    bcc paletteloop$
 
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP
@@ -246,55 +235,35 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ;***************************************
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
-;default_palette:
-;bg tiles/ text
-;.byte $00,$01,$05,$09
-;.byte $20,$20,$20,$20
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
 
-
-;sprites
-;.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
-;.byte $0f,$0c,$21,$32
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
 
 switched_palette:
 ;.byte $idk, $idk, drawColor, $idk
 ;bg tiles/ text
 .byte $00,$00,$00,$00
-;.byte $00,$00,$00,$00
 .byte $01,$28,$1c,$2d
 .byte $01,$28,$1c,$2d
 .byte $01,$28,$1c,$2d 
-;.byte $0f,$0c,$21,$32
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
 
 
-;sprites
-;.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
-;.byte $0f,$0c,$21,$32
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
+; EXAMPLE_DATA:
+    ; .byte EXAMPLE_Y_POS, TILEINDEX_EXAMPLE,   %10000001, $10
 
-
-SAMPLE_SPRITE:
-;    .byte $00,SMILEYFACE_TILE, %10000001, $10
-                                ;76543210
-                                ;||||||||
-                                ;||||||++- Palette of sprite
-                                ;|||+++--- Unimplemented
-                                ;||+------ Priority (0: in front of background; 1: behind background)
-                                ;|+------- Flip sprite horizontally
-                                ;+-------- Flip sprite vertically
+    ; Sprite Attributes:
+        ;%76543210
+        ;||||||||
+        ;||||||++- Palette of sprite
+        ;|||+++--- Unimplemented
+        ;||+------ Priority (0: in front of background; 1: behind background)
+        ;|+------- Flip sprite horizontally
+        ;+-------- Flip sprite vertically
 
 CURSOR_SMALL_DATA:
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %00000000, $00      ; top-left
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %01000000, $00      ; top-right
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %10000000, $00      ; bottom-left
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %11000000, $00      ; bottom-right
+
 
 CURSOR_NORMAL_DATA:
     .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
@@ -325,3 +294,4 @@ CURSOR_SHAPE_TOOL_DATA:
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/start_menu_tilemap.nam"
+
