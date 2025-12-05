@@ -322,11 +322,6 @@ CURSOR_SHAPE_TOOL_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
-Seletion_Star_Sprite:
-    .byte OAM_OFFSCREEN, STAR_TILE, $00000000, SELECTION_STAR_X_OFFSET
-
-Selection_Menu_Tilemap:
-    .incbin "./tilemaps/selection_menu.nam"
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/start_menu_tilemap.nam"
