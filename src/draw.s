@@ -302,79 +302,8 @@
         cpy brush_size
         bne @column_loop
 
-rts
+    rts 
     
-
-    ; Check if the PAD_A has been pressed
-    ; This is not checked in the `input_utils.s` because this can run into issues with
-    ; the program updating the PPU even though PPU has not finished drawing on the screen
-    ; not waiting for the VBLANK
-
-    ; If tool_use_attr does not have brush tool ON, return
-;     lda tool_use_attr
-;     and #BRUSH_TOOL_ON
-;     bne Use_Brush
-;         rts 
-
-;     Use_Brush:
-;     ; Remove BRUSH_TOOL_ON from the tool_use_attributes
-;     lda tool_use_attr
-;     eor #BRUSH_TOOL_ON
-;     sta tool_use_attr
-
-;     ; Play drawing sound effect here based on tool mode
-;     lda tool_mode
-;     cmp #DRAW_MODE
-;     beq @play_splash
-    
-;     ; Eraser mode - play bird sound (index 0)
-;     lda #0
-;     jmp @play_sound
-    
-; @play_splash:
-;     ; Draw mode - play splash sound (index 1)
-;     lda #1
-    
-; @play_sound:
-;     jsr PlaySfx     ; Call the wrapper function
-
-;     ; ...existing code...
-;     ; Store the tile position in a different var
-;     ; This is done so that the cursor position can stay on the original spot
-;     ; after drawing has completed.
-;     lda cursor_tile_position
-;     sta drawing_tile_position
-;     lda cursor_tile_position + 1
-;     sta drawing_tile_position + 1
-
-;     ; square brush
-;     ldy #$00
-;     @column_loop:
-;         lda PPU_STATUS ; reset address latch
-;         lda drawing_tile_position + 1 ; High bit of the location
-;         sta PPU_ADDR
-;         lda drawing_tile_position ; Low bit of the location
-;         sta PPU_ADDR
-
-;         ldx #$00
-;         ;lda brush_tile_index ; Color index of the tile
-;         lda selected_color_chrIndex
-;         @row_loop:
-;             sta PPU_DATA
-;             inx
-;             cpx brush_size
-;             bne @row_loop
-;         clc
-;         lda drawing_tile_position
-;         adc #32
-;         sta drawing_tile_position
-;         lda drawing_tile_position + 1
-;         adc #$00
-;         sta drawing_tile_position + 1
-;         iny
-;         cpy brush_size
-;         bne @column_loop
-;     rts
 .endproc
 ; Khine / BudgetArms
 

@@ -874,12 +874,12 @@ DontRegisterYet:
 .endproc
 
 .proc IncreaseToolSelection
-    ; Code to slow input registration down
+
     lda frame_count
     bne DontRegisterYet
 
     lda selected_tool
-    clc
+    clc 
     adc #$01
 
     cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
@@ -890,12 +890,12 @@ DontRegisterYet:
     sta selected_tool
 
     DontRegisterYet:
-    rts
+    rts 
 
 .endproc
 
 .proc DecreaseToolSelection
-    ; Code to slow input registration down
+
     lda frame_count
     bne DontRegisterYet
 

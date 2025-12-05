@@ -118,6 +118,8 @@
         inx
         cpx #$04
     bne @Load_One_To_OAM
+
+    rts 
 .endproc
 ; Khine
 

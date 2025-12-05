@@ -174,7 +174,6 @@
         cmp #PAD_SELECT_UP
         bne Check_PAD_SELECT_DOWN
         
-        ;jsr IncreaseColorPalleteIndex
         jsr IncreaseColorValueForSelectedTile
         jmp StopChecking
 
@@ -182,7 +181,6 @@
         cmp #PAD_SELECT_DOWN
         bne Check_PAD_START
         
-        ;jsr DecreaseColorPalleteIndex
         jsr DecreaseColorValueForSelectedTile
         jmp StopChecking
 
@@ -293,13 +291,9 @@
         jsr HandleCursorPressedB
         jmp StopChecking
 
-    ; Check_REST:               ; Might need this later
-        ; jmp StopChecking
-
-
     StopChecking:
         jsr IncButtonHeldFrameCount
-        rts
+        rts 
     
 
 .endproc
@@ -312,26 +306,26 @@
     ;Check_TOOL_PENCIL:
     cmp #PENCIL_TOOL_ACTIVATED
     bne Check_TOOL_ERASER
-    ChangeToolAttr #BRUSH_TOOL_ON
-    RTS
+        ChangeToolAttr #BRUSH_TOOL_ON
+        rts 
 
     Check_TOOL_ERASER:
     cmp #ERASER_TOOL_ACTIVATED
     bne Check_TOOL_FILL
-    ChangeToolAttr #ERASER_TOOL_ON
-    RTS
+        ChangeToolAttr #ERASER_TOOL_ON
+        rts 
 
     Check_TOOL_FILL:
     cmp #FILL_TOOL_ACTIVATED
     bne Check_TOOL_CLEAR
-    ChangeToolAttr #FILL_TOOL_ON
-    RTS
+        ChangeToolAttr #FILL_TOOL_ON
+        rts 
 
     Check_TOOL_CLEAR:
     cmp #CLEAR_TOOL_ACTIVATED
     bne Check_TOOL_NEXT
-    ChangeToolAttr #CLEAR_TOOL_ON
-    RTS
+        ChangeToolAttr #CLEAR_TOOL_ON
+        rts 
     
     Check_TOOL_NEXT:
     rts 
