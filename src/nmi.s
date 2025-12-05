@@ -48,7 +48,7 @@ cont_render:
 
     jsr UpdateColorValues
     
-    jsr SetTopAndBottomRowsColorPallete    
+    ; jsr SetTopAndBottomRowsColorPallete    
 
     jsr ResetScroll
     
