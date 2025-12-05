@@ -83,13 +83,9 @@ clear_oam:
     sta tool_use_attr
 
     jsr ToggleDrawTool
-    jsr InitializeSelectionStar
-    ;lda #SELECTION_STAR_Y_END_POS
-    ;sta selection_star_y_pos
 
     ;initialise collors
-    lda #$02
-    sta selected_color_chrIndex
+    ChangeBrushTileIndex #$02
 
 ; Initialize four color values
 ; These colors will be the start colors.
