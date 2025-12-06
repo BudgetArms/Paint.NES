@@ -16,7 +16,7 @@
         rts
     @Use_Brush:
     jsr ppu_off
-    
+
     lda tool_use_attr
     eor #CLEAR_CANVAS_TOOL_ON
     sta tool_use_attr

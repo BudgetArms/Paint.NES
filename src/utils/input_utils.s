@@ -316,52 +316,32 @@
 
     lda selected_tool
 
-    ;Check_TOOL_PENCIL:
+    Check_Brush_Tool:
     cmp #PENCIL_TOOL_ACTIVATED
-    bne Check_TOOL_ERASER
+    bne Check_Eraser_Tool
     ChangeToolAttr #BRUSH_TOOL_ON
-    RTS
-
-    Check_TOOL_ERASER:
-    cmp #ERASER_TOOL_ACTIVATED
-    bne Check_TOOL_FILL
-    ChangeToolAttr #ERASER_TOOL_ON
-    RTS
-
-    Check_TOOL_FILL:
-    cmp #FILL_TOOL_ACTIVATED
-    bne Check_TOOL_CLEAR
-    ChangeToolAttr #FILL_TOOL_ON
-    RTS
-
-    Check_TOOL_CLEAR:
-    cmp #CLEAR_TOOL_ACTIVATED
-    bne Check_TOOL_NEXT
-    ChangeToolAttr #CLEAR_TOOL_ON
-    RTS
-    
-    Check_TOOL_NEXT:
-    rts 
-
-    lda tool_mode
-    cmp #FILL_MODE
-    beq In_Fill_Mode
-
-    lda tool_mode
-    cmp #SHAPE_MODE
-    beq In_Shape_Mode
-
     rts
 
-    In_Fill_Mode:
-        ChangeToolAttr #FILL_TOOL_ON
-        rts 
+    Check_Eraser_Tool:
+    cmp #ERASER_TOOL_ACTIVATED
+    bne Check_Fill_Tool
+    ChangeToolAttr #ERASER_TOOL_ON
+    rts
 
-    In_Shape_Mode:
-        ChangeToolAttr #SHAPE_TOOL_ON
-        rts 
+    Check_Fill_Tool:
+    cmp #FILL_TOOL_ACTIVATED
+    bne Check_Clear_Tool
+    ChangeToolAttr #FILL_TOOL_ON
+    rts
 
+    Check_Clear_Tool:
+    cmp #CLEAR_TOOL_ACTIVATED
+    bne End_Check
+    ChangeToolAttr #CLEAR_TOOL_ON
+    rts
 
+    End_Check:
+    rts
 .endproc
 
 ; BudgetArms
