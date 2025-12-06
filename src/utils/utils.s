@@ -1,13 +1,42 @@
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
-    lda source_tile
-    sta brush_tile_index
+   lda source_tile
+   sta selected_color_chr_index
+.endmacro
+; Khine
+
+
+; BudgetArms
+.macro ChangeBrushTileIndexFromA
+    sta selected_color_chr_index
+.endmacro
+; BudgetArms
+
+
+; Khine
+.macro ChangePPUNameTableAddr address_to_change
+    lda PPU_STATUS ; reset address latch
+    lda #>address_to_change ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<address_to_change ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
 .endmacro
 ; Khine
 
 
 ; Khine
-.macro ChangeCanvasMode    new_mode
+.macro ChangePPUNameTableAddr2 high_byte, low_byte
+    lda PPU_STATUS ; reset address latch
+    lda #>high_byte ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<low_byte ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+.endmacro
+; Khine
+
+
+; Khine
+.macro ChangeToolMode    new_mode
     lda new_mode
     sta tool_mode
 .endmacro
@@ -22,10 +51,65 @@
 .endmacro
 ; Khine
 
+
+; BudgetArms
+.macro ResetFrameCounterHolder frameCounterHolder
+    ; Save register A
+    pha 
+
+    lda #$00
+    sta frameCounterHolder
+
+    ; Restore register A
+    pla 
+.endmacro
+; BudgetArms
+
+
+; BudgetArms
+.macro GetNametableTileX addr_low
+    lda addr_low
+    and #PPU_VRAM_MASK_X_POS
+.endmacro
+; BudgetArms
+
+
+; BudgetArms
+.macro GetNametableTileY addr_lo
+
+    ; Get the 3-bits of addr_lo
+    lda addr_lo
+    and #PPU_VRAM_MASK_Y_POS_LOW      
+
+    ; bit-shift right: 5–7 to 0–2
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+
+    ; save a
+    sta fill_temp
+
+    ; Get the 2-bits from addr_high (addr_lo + 1)
+    lda addr_lo + 1
+    and #PPU_VRAM_MASK_Y_POS_HIGH
+    
+    ; bit-shift left: 0-1 to 3-5
+    asl 
+    asl 
+    asl 
+
+    ora fill_temp
+
+.endmacro
+; BudgetArms
+
+
 ;*****************************************************************
-; ppu_update: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
+; PPUUpdate: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
 ;*****************************************************************
-.proc ppu_update
+.proc PPUUpdate
     lda #1
     sta nmi_ready
     loop:
@@ -35,9 +119,9 @@
 .endproc
 
 ;*****************************************************************
-; ppu_off: waits until next NMI, turns rendering off (now safe to write PPU directly via PPU_DATA)
+; PPUOff: waits until next NMI, turns rendering off (now safe to write PPU directly via PPU_DATA)
 ;*****************************************************************
-.proc ppu_off
+.proc PPUOff
     lda #2
     sta nmi_ready
     loop:
@@ -97,30 +181,18 @@
     sta cursor_tile_position + 1
     rts
 .endproc
-
-
-; BudgetArms
-.macro ResetFrameCounterHolder frameCounterHolder
-
-    ; save register a
-    pha 
-
-    lda #$00
-    sta frameCounterHolder
-
-    ; restore register a
-    pla 
-
-.endmacro
-
-
 ; Khine
+
+
+; Khine / BudgetArms
 .proc MoveCursorUp
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
-    cmp #$00
+
+    cmp #CURSOR_MIN_Y
     bne @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
     sec
     lda cursor_y
@@ -128,70 +200,84 @@
     sta cursor_y
 
     dec tile_cursor_y
+
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorDown
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
-    clc
+    clc 
     lda tile_cursor_y
     adc brush_size
-    cmp #DISPLAY_SCREEN_HEIGHT
+
+    cmp #CURSOR_MAX_Y
     bmi @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    clc
+
+    clc 
     lda cursor_y
     adc #TILE_PIXEL_SIZE
     sta cursor_y
 
     inc tile_cursor_y
+
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorLeft
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
-    cmp #$00
+    cmp #CURSOR_MIN_X
     bne @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    sec
+
+    sec 
     lda cursor_x
     sbc #TILE_PIXEL_SIZE
     sta cursor_x
 
     dec tile_cursor_x
+
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc MoveCursorRight
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
-    clc
+    clc 
+
     lda tile_cursor_x
     adc brush_size
-    cmp #DISPLAY_SCREEN_WIDTH
+
+    cmp #CURSOR_MAX_X
     bmi @Apply_Move
-        rts
+        rts 
+
     @Apply_Move:
-    clc
+
+    clc 
     lda cursor_x
     adc #TILE_PIXEL_SIZE
     sta cursor_x
 
     inc tile_cursor_x
+
     rts
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
 ; Khine
@@ -232,140 +318,251 @@
         sta cursor_y
     @No_Y_Move_Needed:
     rts
+
 .endproc
 ; Khine
 
 
-; Khine
-.proc CycleToolModes
-    lda tool_mode
-    cmp #DRAW_MODE
-    bne @Not_Draw_Mode
-        jsr ToggleEraserTool
-        rts
-    @Not_Draw_Mode:
-    cmp #ERASER_MODE
-    bne @Not_Eraser_Mode
-        jsr ToggleDrawTool
-        rts
-    @Not_Eraser_Mode:
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc ToggleEraserTool
-    ChangeBrushTileIndex #BACKGROUND_TILE
-    ChangeCanvasMode #ERASER_MODE
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc ToggleDrawTool
-    ChangeBrushTileIndex drawing_color_tile_index
-    ChangeCanvasMode #DRAW_MODE
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc CycleBrushColor
-    lda drawing_color_tile_index
-    cmp #COLOR_TILE_END_INDEX
-    bne @Not_End
-        lda #COLOR_TILE_START_INDEX
-        sta drawing_color_tile_index
-        sta brush_tile_index
-        rts
-    @Not_End:
-    inc drawing_color_tile_index
-    inc brush_tile_index
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc CycleCanvasModes
-    ; Cycle between canvas mode and selection menu mode
+; BudgetArms
+.proc ResetScroll
+    lda #%10000000
+    sta PPU_CONTROL
+    lda PPU_STATUS      ; Reset PPU address latch
+    lda scroll_x_position
+    sta PPU_SCROLL      ; X scroll
     lda scroll_y_position
-    cmp #CANVAS_MODE
-    bne @Not_Canvas_Mode
-        lda #SELECTION_MENU_MODE
-        sta scroll_y_position
-        lda tool_mode
-        cmp #DRAW_MODE
-        bne @Not_Draw_Mode
-            lda #SELECTION_MENU_0_DRAW
-        @Not_Draw_Mode:
-        cmp #ERASER_MODE
-        bne @Not_Eraser_Mode
-            lda #SELECTION_MENU_1_ERASER
-        @Not_Eraser_Mode:
-        sta oam + SELECTION_STAR_OFFSET + OAM_Y
-        rts
-    @Not_Canvas_Mode:
-    lda #CANVAS_MODE
-    sta scroll_y_position
-    lda #OAM_OFFSCREEN
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
+    sta PPU_SCROLL      ; Y scroll
+
+    rts 
 .endproc
-; Khine
+; BudgetArms
 
 
-; Khine
-.proc MoveSelectionStarUp
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_In_Start_Pos
-        rts
-    @Not_In_Start_Pos:
-    sec
-    sbc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts
-.endproc
-; Khine
-
-
-; Khine
-.proc MoveSelectionStarDown
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_3_CLEAR
-    bne @Not_In_End_Pos
-        rts
-    @Not_In_End_Pos:
+; Joren
+.proc IncreaseChrTileIndex
+    ;lda chrTileIndex
+    lda selected_color_chr_index
     clc
-    adc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
+    adc #$01
+
+    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    bmi Value_Was_Okay ; branch if not negative
+        lda #00 ; set value back to 0
+
+    Value_Was_Okay:
+    ChangeBrushTileIndexFromA
+
+    rts 
+.endproc
+; Joren
+
+
+;Joren
+.proc DecreaseChrTileIndex
+    ;lda chrTileIndex
+    lda selected_color_chr_index
+    sec
+    sbc #$01
+
+    bpl Value_Was_Okay ; branch if not negative
+    lda #03 ; set value back to max index
+
+    Value_Was_Okay:
+    ChangeBrushTileIndexFromA
+
     rts
+.endproc
+;Joren
+
+
+; Joren
+.proc InitializeColorSelectionOverlay
+    ; FIRST tile = background tile
+    ChangePPUNameTableAddr FIRST_COLOR_ONSCREEN_ADRESS
+    lda #FIRST_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+    ; SECOND tile
+    ChangePPUNameTableAddr SECOND_COLOR_ONSCREEN_ADRESS
+    lda #SECOND_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+    ; THIRD tile
+    ChangePPUNameTableAddr THIRD_COLOR_ONSCREEN_ADRESS
+    lda #THIRD_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+    ; FOURTH tile
+    ChangePPUNameTableAddr FOURTH_COLOR_ONSCREEN_ADRESS
+    lda #FOURTH_COLOR_TILE_INDEX
+    sta PPU_DATA
+
+    rts
+.endproc
+; Joren
+
+
+; Joren
+.proc InitializeToolSelectionOverlay
+    ; FIRST tile = brush tool
+    ChangePPUNameTableAddr BRUSH_TOOL_ONSCREEN_ADRESS
+    lda #BRUSH_ICON_TILE_INDEX
+    sta PPU_DATA
+
+    ; SECOND tile = eraser tool
+    ChangePPUNameTableAddr ERASER_TOOL_ONSCREEN_ADRESS
+    lda #ERASER_ICON_TILE_INDEX
+    sta PPU_DATA
+
+    ; THIRD tile = fill tool
+    ChangePPUNameTableAddr FILL_TOOL_ONSCREEN_ADRESS
+    lda #FILL_ICON_TILE_INDEX
+    sta PPU_DATA
+
+    ; FOURTH tile = clear tool
+    ChangePPUNameTableAddr CLEAR_TOOL_ONSCREEN_ADRESS
+    lda #CLEAR_ICON_TILE_INDEX
+    sta PPU_DATA
+    rts
+.endproc
+;Joren
+
+
+; Khine
+.proc OverwriteAllBackgroundColorIndex
+    ldx #$00
+    lda palette
+
+    @Loop:
+        sta palette, x
+        inx
+        inx
+        inx
+        inx
+        cpx #PALETTE_SIZE
+        bcc @Loop
+
+    rts
+
 .endproc
 ; Khine
 
 
-; Khine
-.proc SelectTool
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_On_Draw
-        jsr ToggleDrawTool
-        rts
-    @Not_On_Draw:
-    cmp #SELECTION_MENU_1_ERASER
-    bne @Not_On_Eraser
-        jsr ToggleEraserTool
-        rts
-    @Not_On_Eraser:
-    cmp #SELECTION_MENU_3_CLEAR
-    bne @Not_On_Clear_Canvas
-        ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
-        jsr ppu_off
-        rts
-    @Not_On_Clear_Canvas:
+.proc UpdateColorSelectionOverlay
+    ; SELECTED tile
+    lda #$20 ; same as all previous ones
+    sta PPU_ADDR
+    
+    lda selected_color_chr_index
+    clc
+    adc #<FIRST_COLOR_ONSCREEN_ADRESS
+    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+
+    lda selected_color_chr_index
+    sta PPU_DATA
+    ;selected_color_chr_index
+
     rts
 .endproc
+
+
+; Joren
+.proc UpdateToolSelectionOverlay
+    ; SELECTED tile
+    lda #$20 ; > takes highbyte of 16 bit value
+    sta PPU_ADDR
+    lda #<BRUSH_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    clc
+    adc selected_tool
+    clc
+    adc selected_tool
+    sta PPU_ADDR
+    lda selected_tool
+    clc
+    adc #BRUSH_ICON_TILE_INDEX
+    clc
+    adc #$10 ; +16 = +1 row on chr file
+    sta PPU_DATA
+
+    rts
+.endproc
+; Joren
+
+
+; Joren
+.proc IncreaseColorValueForSelectedTile
+    ldx selected_color_chr_index
+    lda palette, x
+    clc
+    adc #$01
+    sta palette, x
+    rts
+.endproc
+; Joren
+
+
+; Joren
+.proc DecreaseColorValueForSelectedTile
+    ldx selected_color_chr_index
+    lda palette, x
+    sec
+    sbc #$01
+    sta palette, x
+    rts
+.endproc
+; Joren
+
+
+; Joren
+.proc IncreaseButtonHeldFrameCount
+    lda frame_count
+    clc
+    adc #$01
+    cmp #FRAMES_BETWEEN_MOVEMENT
+    bne Value_Is_Okay
+        lda #$00
+
+    Value_Is_Okay:
+    sta frame_count
+
+    rts
+.endproc
+; Joren
+
+
+; Joren
+.proc IncreaseToolSelection
+    lda selected_tool
+    clc 
+    adc #$01
+
+    cmp #TOOLS_TOTAL_AMOUNT
+    bmi Value_Was_Okay ; branch if not negative
+
+        lda #00 ; set value back to 0
+
+    Value_Was_Okay:
+    sta selected_tool
+
+    rts
+.endproc
+; Joren
+
+
+; Joren
+.proc DecreaseToolSelection
+    ; Code to slow input registration down
+    lda selected_tool
+    sec 
+    sbc #$01
+
+    bpl Value_Was_Okay ; branch if not negative
+    ; lda #03 ; set value back to max index
+    lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
+
+    Value_Was_Okay:
+    sta selected_tool
+    rts
+.endproc
+; Joren

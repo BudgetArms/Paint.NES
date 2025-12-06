@@ -9,35 +9,41 @@
 ;     - Writes 0s to all 64 bytes of the attribute table
 ;     - Leaves the PPU ready to receive further data if needed
 ;*****************************************************************
-.proc ClearCanvas
+
+; Khine
+.proc UseClearCanvasTool
     lda tool_use_attr
-    and #CLEAR_CANVAS_TOOL_ON
+    and #CLEAR_TOOL_ON
     bne @Use_Brush
         rts
     @Use_Brush:
     lda tool_use_attr
-    eor #CLEAR_CANVAS_TOOL_ON
+    eor #CLEAR_TOOL_ON
     sta tool_use_attr
 
+    jsr PPUOff
+
     lda PPU_STATUS ; reset address latch
-    lda #>NAME_TABLE_1 ; set PPU address to $2000
+    lda #>CANVAS_START_ADDRESS ; set PPU address to $2000
     sta PPU_ADDR
-    lda #<NAME_TABLE_1
+    lda #<CANVAS_START_ADDRESS
     sta PPU_ADDR
 
     ; empty nametable A
     lda #BACKGROUND_TILE
-    ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
+    ldy #CANVAS_ROWS ; clear 30 rows
     rowloop:
-        ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
+        ldx #CANVAS_COLUMNS ; 32 columns
         columnloop:
             sta PPU_DATA
             dex 
             bne columnloop
         dey 
         bne rowloop
+
     rts
 .endproc
+; Khine
 
 
 ; Khine
@@ -69,50 +75,35 @@
         dex 
         bne loop
 
+    rts 
 
-    ; Selection Menu
-    lda PPU_STATUS ; reset address latch
-    lda #>NAME_TABLE_3 ; High bit of the location
-    sta PPU_ADDR
-    lda #<NAME_TABLE_3 ; Low bit of the location
-    sta PPU_ADDR
-
-    ldx #$00
-    lda #<Selection_Menu_Tilemap
-    sta abs_address_to_access
-    lda #>Selection_Menu_Tilemap
-    sta abs_address_to_access + 1
-    @Outer_Loop:
-    ldy #$00
-        @Inner_Loop:
-        lda (abs_address_to_access), y
-        sta PPU_DATA
-        iny
-        bne @Inner_Loop
-    lda abs_address_to_access + 1
-    clc
-    adc #$01
-    sta abs_address_to_access + 1
-    inx
-    cpx #$04
-    bne @Outer_Loop
-
-    rts
 .endproc
 ; Khine
 
 
-; Khine
-.proc InitializeSelectionStar
+; BudgetArms
+.macro HideCursor oamOffset, oamSize
+
+    ; to make labels work in macro's
+    .local Loop
+
+    ; Hide medium cursor
+    lda #OAM_OFFSCREEN
     ldx #$00
-    @Load_One_To_OAM:
-        lda Seletion_Star_Sprite, x
-        sta oam + SELECTION_STAR_OFFSET, x
-        inx
-        cpx #$04
-    bne @Load_One_To_OAM
-.endproc
-; Khine
+    Loop:
+        sta oam + oamOffset, X
+        
+        ; Go to next sprite (Y-pos)
+        inx 
+        inx 
+        inx 
+        inx 
+
+        cpx #oamSize
+        bne Loop   ; Loop until everything is hidden
+
+.endmacro
+; BudgetArms
 
 
 ; BudgetArms
@@ -121,76 +112,151 @@
     lda cursor_type
 
     cmp #TYPE_CURSOR_SMALL
-    beq @smallCursor
+    beq Small_Cursor
 
     cmp #TYPE_CURSOR_NORMAL
-    beq @normalCursor
+    beq Normal_Cursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
 
     cmp #TYPE_CURSOR_BIG
-    beq @bigCursor
+    beq Big_Cursor
 
     ; this should never be reached
     rts 
 
-    @smallCursor:
+    Small_Cursor:
         jsr UpdateSmallCursorPosition
         rts 
 
-    @normalCursor:
+    Normal_Cursor:
         jsr UpdateNormalCursorPosition
         rts 
 
-    @bigCursor:
+    Medium_Cursor:
+        jsr UpdateMediumCursorPosition
+        rts 
+
+    Big_Cursor:
         jsr UpdateBigCursorPosition
         rts 
 
 .endproc
+; BudgetArms
 
 
 ; BudgetArms
 .proc UpdateSmallCursorPosition
 
-    ; load cursor_y
-    lda cursor_y    
+    ; Increase cursor_y with oam data's y-pos
+    clc 
+    lda cursor_y
+    adc oam + OAM_OFFSET_CURSOR_SMALL
 
-    ; overwrite the Small Cursor's default y-pos with the cursor y-Position 
-    ; sta oam + OAM_OFFSET_CURSOR_SMALL
+    ; subtract A (y pos) by one bc it's draw on the next scanline  
+    clc 
+    sbc #$00
+
+    ; Store data to OAM
     sta oam + OAM_OFFSET_CURSOR_SMALL
 
-    ; load cursor_x
+    ; Increase cursor_x with oam data's x-pos
+    clc 
     lda cursor_x
-
-    ; overwrite the Small Small Cursor's default x-pos with the cursor x-Position 
-    ; sta oam + OAM_OFFSET_CURSOR_SMALL + 3  
+    adc oam + OAM_OFFSET_CURSOR_SMALL + 3
     sta oam + OAM_OFFSET_CURSOR_SMALL + 3
 
     rts 
 
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc UpdateNormalCursorPosition
+
+    ; Increase cursor_y with oam data's y-pos
+    clc 
     lda cursor_y
+    adc oam + OAM_OFFSET_CURSOR_NORMAL
+
+    ; subtract A (y pos) by one bc it's draw on the next scanline  
+    clc 
+    sbc #$00
+
+    ; Store data to OAM
     sta oam + OAM_OFFSET_CURSOR_NORMAL
 
+    ; Increase cursor_x with oam data's x-pos
+    clc 
     lda cursor_x
+    adc oam + OAM_OFFSET_CURSOR_NORMAL + 3
     sta oam + OAM_OFFSET_CURSOR_NORMAL + 3
 
     rts 
 
 .endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc UpdateMediumCursorPosition
+
+    ldx #$00
+    Loop:
+        ; Increase cursor_y with oam data's y-pos
+        clc 
+        lda cursor_y
+        adc oam + OAM_OFFSET_CURSOR_MEDIUM, X 
+
+        ; subtract A (y pos) by one bc it's draw on the next scanline  
+        clc 
+        sbc #$00
+
+        ; Store data to OAM
+        sta oam + OAM_OFFSET_CURSOR_MEDIUM, X 
+
+        ; Increase cursor_x with oam data's x-pos
+        clc 
+        lda cursor_x
+        adc oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
+        sta oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
+
+        ; x += 4 bytes, to go to the next sprite
+        inx 
+        inx 
+        inx 
+        inx 
+
+        cpx #OAM_SIZE_CURSOR_MEDIUM
+        bne Loop
+
+    rts 
+
+.endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc UpdateBigCursorPosition
 
     ldx #$00
-    @Loop:
+    Loop:
         ; Increase cursor_y with oam data's y-pos
+        clc 
         lda cursor_y
         adc oam + OAM_OFFSET_CURSOR_BIG, X 
+
+        ; subtract A (y pos) by one bc it's draw on the next scanline  
+        clc 
+        sbc #$00
+
+        ; Store data to OAM
         sta oam + OAM_OFFSET_CURSOR_BIG, X 
 
         ; Increase cursor_x with oam data's x-pos
+        clc 
         lda cursor_x
         adc oam + OAM_OFFSET_CURSOR_BIG + 3, X 
         sta oam + OAM_OFFSET_CURSOR_BIG + 3, X 
@@ -202,24 +268,12 @@
         inx 
 
         cpx #OAM_SIZE_CURSOR_BIG
-        bne @Loop
+        bne Loop
 
     rts 
 
 .endproc
-
-
 ; BudgetArms
-.proc UpdateSmileyPosition
-    lda cursor_y 
-    sta oam + OAM_OFFSET_SMILEY
-
-    lda cursor_x
-    sta oam + OAM_OFFSET_SMILEY + 3
-
-    rts 
-
-.endproc
 
 
 ; BudgetArms
@@ -233,8 +287,11 @@
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
+
     cmp #TYPE_CURSOR_BIG
-    beq Big_Cursor
+    beq Big_Cursor_Jump
 
 
     ;this should never be reached
@@ -242,44 +299,94 @@
 
 
     Small_Cursor:
-        ; Hide normal cursor
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_NORMAL
+        ; Hide normal, medium and big cursor
+        HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
 
-        jmp HideBigCursor 
+        rts 
 
 
     Normal_Cursor:
-        ; Hide small cursor
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_SMALL
+        ; Hide small, medium and big cursor
+        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
 
-        jmp HideBigCursor
+        rts 
+
+    ; to fix range error
+    Big_Cursor_Jump:
+        jmp Big_Cursor
+
+
+    Medium_Cursor:
+        ; Hide small, normal and big cursor
+        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
+        HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
+
+        rts 
 
 
     Big_Cursor:
-        ; Hide small and normal cursor
-        lda #$FF
-        sta oam + OAM_OFFSET_CURSOR_SMALL
-        sta oam + OAM_OFFSET_CURSOR_NORMAL
+        ; Hide small, normal and medium cursor
+        HideCursor OAM_OFFSET_CURSOR_SMALL, OAM_SIZE_CURSOR_SMALL
+        HideCursor OAM_OFFSET_CURSOR_NORMAL, OAM_SIZE_CURSOR_NORMAL
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM, OAM_SIZE_CURSOR_MEDIUM
 
         rts 
 
 
-    HideBigCursor:
-        ; Hide big cursor
-        ldx #$FF
-        @Loop:
-            sta oam + OAM_OFFSET_CURSOR_BIG, X
-            inx 
-
-            cpx #OAM_SIZE_CURSOR_BIG
-            bne @Loop   ; Loop until everything is hidden
-        
-        rts 
-
+    ; this should never be reached
+    rts 
 
 .endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc HideActiveCursor
+
+    lda cursor_type
+
+    cmp #TYPE_CURSOR_SMALL
+    beq Small_Cursor
+
+    cmp #TYPE_CURSOR_NORMAL
+    beq Normal_Cursor
+
+    cmp #TYPE_CURSOR_MEDIUM
+    beq Medium_Cursor
+
+    cmp #TYPE_CURSOR_BIG
+    beq Big_Cursor
+
+
+    ;this should never be reached
+    rts 
+
+    Small_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
+        rts 
+
+    Normal_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
+        rts 
+
+    Medium_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
+        rts 
+
+    Big_Cursor:
+        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
+        rts 
+
+    ; this should never be reached
+    rts 
+
+.endproc
+; BudgetArms
 
 
 ; Jeronimas
@@ -305,23 +412,49 @@
     jsr DivideByX
     sta cursor_y_digits + 1 ; tens digit (0-9)
     stx cursor_y_digits + 2 ; ones digit (0-9)
-    
+    rts
+.endproc
+; Jeronimas
+
+
+; Jeronimas
+; Simple division: divides A by X, returns quotient in A, remainder in X
+.proc DivideByX
+    ; Input: A = dividend, X = divisor
+    ; Output: A = quotient, X = remainder
+
+    stx divide_by_x_divisor   ; Store divisor in zero page
+    ldy #0                   ; Y will hold quotient
+
+    Divide_Loop:
+        cmp divide_by_x_divisor   ; Compare A with divisor
+        bcc Divide_Done           ; If A < divisor, we're done
+        sbc divide_by_x_divisor   ; Subtract divisor from A
+        iny                      ; Increment quotient
+        jmp Divide_Loop
+
+    Divide_Done:
+        tax                    ; Move remainder (in A) to X
+        tya                    ; Move quotient (in Y) to A
+    rts
+.endproc
+; Jeronimas
+
+
+; Jeronimas
+.proc DrawOverlayCursorPosition
     ; Write overlay to nametable during VBlank
     ; Reset PPU address latch
-    bit PPU_STATUS
-    
     ; Set PPU address to nametable location
-    lda #>OVERLAY_NAMETABLE_ADDR
-    sta PPU_ADDR
-    lda #<OVERLAY_NAMETABLE_ADDR
-    sta PPU_ADDR
+
+    ChangePPUNameTableAddr OVERLAY_NAMETABLE_ADDR
     
     ; Write "X:"
     lda #OVERLAY_TILE_CURSOR_X_LABEL
     sta PPU_DATA
     lda #OVERLAY_TILE_COLON
     sta PPU_DATA
-    
+
     ; Write X digits as decimal (000-255)
     lda cursor_x_digits
     clc
@@ -335,7 +468,7 @@
     clc
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
-    
+
     ; Write " Y:"
     lda #OVERLAY_TILE_SPACE
     sta PPU_DATA
@@ -343,7 +476,7 @@
     sta PPU_DATA
     lda #OVERLAY_TILE_COLON
     sta PPU_DATA
-    
+
     ; Write Y digits as decimal (000-240)
     lda cursor_y_digits
     clc
@@ -357,28 +490,134 @@
     clc
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
-    
+
     rts
 .endproc
-
 ; Jeronimas
-; Simple division: divides A by X, returns quotient in A, remainder in X
-.proc DivideByX
-    ; Input: A = dividend, X = divisor
-    ; Output: A = quotient, X = remainder
 
-    stx divide_by_x_divisor   ; Store divisor in zero page
-    ldy #0                   ; Y will hold quotient
 
-Divide_Loop:
-    cmp divide_by_x_divisor   ; Compare A with divisor
-    bcc Divide_Done           ; If A < divisor, we're done
-    sbc divide_by_x_divisor   ; Subtract divisor from A
-    iny                      ; Increment quotient
-    jmp Divide_Loop
+; BudgetArms
+.proc ReadPPUAtCurrentAddr
+    ; read current tile and output to A
 
-Divide_Done:
-    tax                    ; Move remainder (in A) to X
-    tya                    ; Move quotient (in Y) to A
-    rts
+    ; Reset PPU latch
+    lda PPU_STATUS
+
+    ; Setting address to PPU
+
+    ; Set high byte
+    lda fill_current_addr + 1
+    sta PPU_ADDR
+
+    ; Set low byte
+    lda fill_current_addr
+    sta PPU_ADDR
+
+    ; Read vram (at current address)
+    lda PPU_DATA
+    lda PPU_DATA
+
+    rts 
+
 .endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc WriteBrushToCurrentAddr
+    ; write brush_tile_index to current tile
+
+    ; Reset PPU latch
+    lda PPU_STATUS
+
+    ; Setting address to PPU
+
+    ; Set high byte
+    lda fill_current_addr + 1
+    sta PPU_ADDR
+
+    ; Set low byte
+    lda fill_current_addr
+    sta PPU_ADDR
+
+    ; write brush color (at current address) to vram 
+    lda selected_color_chr_index ;brush_tile_index
+    sta PPU_DATA
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc ReadPPUAtNeighbor
+    ; read neighbor tile and output to a
+
+    ; Reset PPU latch
+    lda PPU_STATUS
+
+    ; Setting address to PPU
+
+    ; set high byte
+    lda fill_neighbor_addr + 1
+    sta PPU_ADDR
+
+    ; set low byte
+    lda fill_neighbor_addr
+    sta PPU_ADDR
+
+    ; read vram (at neighbor)
+    lda PPU_DATA
+    lda PPU_DATA
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc PushToQueue
+    ; Push A (low) and X (high) to queue
+
+    ; store low byte
+    ldy queue_tail
+    sta fill_queue, y
+
+    ; store high byte
+    txa 
+    sta fill_queue + 256, y
+
+    ; Increase tail index
+    inc queue_tail
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc PopFromQueue
+    ; Pops and outputs to current tile
+
+    ; head is address to pop
+    ldy queue_head
+
+    ; get low byte
+    lda fill_queue, y
+    sta fill_current_addr
+
+    ; get high byte
+    lda fill_queue + 256, y
+    sta fill_current_addr + 1
+
+    ; Increase head index
+    inc queue_head
+
+    rts 
+
+.endproc
+; BudgetArms
+

@@ -16,9 +16,6 @@
     ldx #$FF
     txs			; initialise stack
 
-    ; wait for first vBlank
-    bit PPU_STATUS
-
 wait_vblank:
     bit PPU_STATUS
     bpl wait_vblank
@@ -53,15 +50,13 @@ clear_oam:
     bne clear_oam
 
     ; Initialize cursor starting position
-    lda #$00
+    lda #$05
     sta tile_cursor_x
     sta tile_cursor_y
     sta cursor_x
     sta cursor_y
 
     ; Initialize brush variables
-    lda #$02
-    sta drawing_color_tile_index ; Color index
     lda #$01
     sta brush_size ; Brush size
     lda #$00
@@ -81,8 +76,13 @@ clear_oam:
     lda #ALL_TOOLS_OFF
     sta tool_use_attr
 
-    jsr ToggleDrawTool
-    jsr InitializeSelectionStar
+    ;initialise collors
+    ChangeBrushTileIndex #$02
+
+    ; Initialize four color values
+    ; These colors will be the start colors.
+    ldx #$00
+
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y
@@ -108,8 +108,11 @@ wait_vblank2:
     ; NES is initialized and ready to begin
     ; - enable the NMI for graphical updates and jump to our main program
 
+    jsr InitializeAudio
+
     lda #%10000000
     sta PPU_CONTROL
 
     jmp main
+
 .endproc

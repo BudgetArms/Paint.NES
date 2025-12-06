@@ -4,14 +4,17 @@ mainloop:
     cmp #0
     bne mainloop
     ; read the gamepad (updates current_input, input_pressed_this_frame and input_released_this_frame )
-    jsr poll_gamepad
+    jsr PollGamepad
     jsr HandleInput
 
     jsr HideInactiveCursors
     jsr LoadCursor
     jsr UpdateCursorPosition
+    jsr UpdateOverlayCursorPosition
     jsr ConvertCursorPosToTilePositions
 
+    jsr DrawShapeToolCursor
+    jsr OverwriteAllBackgroundColorIndex
 
     ; ensure our changes are rendered
     lda #1

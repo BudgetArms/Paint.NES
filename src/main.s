@@ -35,26 +35,38 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
-current_input:				.res 1 ; stores the current gamepad values
-last_frame_input:			.res 1
-input_pressed_this_frame:	.res 1
-input_released_this_frame:	.res 1
-input_holding_this_frame:	.res 1
-
+current_input: .res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
                         ;this is to do stuff like "every time an 8th frame passes, do this"
 
 ; buttons hold-delays
 ; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
 ; then it executes the button press again
-frame_counter_holding_button_start: .res 1
-frame_counter_holding_button_select: .res 1
-frame_counter_holding_button_a: .res 1
-frame_counter_holding_button_b: .res 1
-frame_counter_holding_button_left: .res 1
-frame_counter_holding_button_right: .res 1
-frame_counter_holding_button_up: .res 1
-frame_counter_holding_button_down: .res 1
+
+
+; Shape Tool
+shape_tool_type: .res 1
+shape_tool_has_set_first_pos: .res 1
+
+shape_tool_first_pos_x: .res 1
+shape_tool_first_pos_y: .res 1
+
+shape_tool_second_pos_x: .res 1
+shape_tool_second_pos_y: .res 1
+
+shape_tool_staring_pos_x: .res 1
+shape_tool_staring_pos_y: .res 1
+
+
+
+; Fill tool (ring queue)
+fill_temp: .res 1
+
+fill_target_color: .res 1
+queue_head: .res 1
+queue_tail: .res 1
+fill_current_addr: .res 2
+fill_neighbor_addr: .res 2
 
 
 ; Cursor position (single 8x8 sprite)
@@ -78,8 +90,8 @@ tool_mode: .res 1
 tool_use_attr: .res 1
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
-brush_tile_index: .res 1
 brush_size: .res 1
+new_palette_color: .res 1
 
 ; misc
 abs_address_to_access: .res 2
@@ -87,13 +99,32 @@ current_program_mode: .res 1
 scroll_x_position: .res 1
 scroll_y_position: .res 1
 
+
+; Sound engine variables
+sfx_temp: .res 1        ; Temporary storage for SFX operations
+sfx_channel: .res 1     ; SFX channel to use
+music_paused: .res 1    ; this is a flag changing this does not actually pause the music
+
+
 ; Sprite OAM Data area - copied to VRAM in NMI routine
+
+;Joren
+four_color_values: .res 4
+selected_color_chr_index: .res 1
+frame_count: .res 1
+selected_tool: .res 1
+
+
 .segment "OAM"
 oam: .res 256	; sprite OAM data
 
 ; Remainder of normal RAM area
 .segment "BSS"
 palette: .res 32 ; current palette buffer
+
+; Fill queue (ring queue)
+fill_queue: .res 512
+
 
 ;*****************************************************************
 ; Main application logic section
@@ -106,7 +137,7 @@ palette: .res 32 ; current palette buffer
 .include "utils/drawing_utils.s"
 .include "utils/input_utils.s"
 .include "draw.s"
-
+.include "audio.s"
 
 ;***************************************
 ; starting point
@@ -123,38 +154,88 @@ palette: .res 32 ; current palette buffer
 .segment "CODE"
 irq:
     ;handle interrupt if needed
-    rti
+    rti 
 
 ;***************************************
+
+;***************************************
+; FamiStudio Sound Engine Configuration
+;***************************************
+.segment "CODE"
+
+; FamiStudio config
+FAMISTUDIO_CFG_EXTERNAL         = 1
+FAMISTUDIO_CFG_DPCM_SUPPORT     = 0  ; We do not have DPCM samples in our music or sfx
+FAMISTUDIO_CFG_SFX_SUPPORT      = 1  ; Set to 1 if you want sound effects
+FAMISTUDIO_CFG_SFX_STREAMS      = 2
+FAMISTUDIO_USE_VOLUME_TRACK     = 1
+FAMISTUDIO_USE_PITCH_TRACK      = 1
+FAMISTUDIO_USE_SLIDE_NOTES      = 1
+FAMISTUDIO_USE_VIBRATO          = 1
+FAMISTUDIO_USE_ARPEGGIO         = 1
+FAMISTUDIO_USE_RELEASE_NOTES    = 1
+FAMISTUDIO_DPCM_OFF             = $c000
+
+; CA65-specific config
+.define FAMISTUDIO_CA65_ZP_SEGMENT ZEROPAGE
+.define FAMISTUDIO_CA65_RAM_SEGMENT BSS
+.define FAMISTUDIO_CA65_CODE_SEGMENT CODE
+
+; Include FamiStudio sound engine
+.include "famistudio_ca65.s"
+
+; Include music data
+.segment "RODATA"
+; This makes Background_music.s read only
+.include "Background_music.s" 
+; Include SFX data
+.include "SFX.s"
+;***************************************
+
 .segment "CODE"
 .proc main
     ; main application - rendering is currently off
+    
     ; clear 1st name table
     jsr SetupCanvas
+    ; Overlay Initialization
+    jsr InitializeColorSelectionOverlay
+    jsr InitializeToolSelectionOverlay
+    ;jsr InitializeColorValues
 
     ; initialize palette table
-    ldx #0
+    ldx #$00
     paletteloop:
         lda default_palette, x
         sta palette, x
         inx
-        cpx #32
+        cpx #PALETTE_SIZE
         bcc paletteloop
-    
 
-    initialize_button_held_times:
-        lda #00
-        sta frame_counter_holding_button_start
-        sta frame_counter_holding_button_select
-        sta frame_counter_holding_button_a
-        sta frame_counter_holding_button_b
-        sta frame_counter_holding_button_left
-        sta frame_counter_holding_button_right
-        sta frame_counter_holding_button_up
-        sta frame_counter_holding_button_down
+    initialize_cursor:
+        lda #TYPE_CURSOR_STARTUP
+        sta cursor_type
+
+        ; set cursor_x/y
+        lda #CURSOR_MIN_X * 8
+        sta cursor_x
+
+        lda #CURSOR_MIN_Y * 8
+        sta cursor_y
+
+        ; set cursor tile x/y
+        lda #CURSOR_MIN_X
+        sta tile_cursor_x
+
+        lda #CURSOR_MIN_Y
+        sta tile_cursor_y
 
 
-    jsr ppu_update
+    Initialize_Shape_Tool_Type:
+        lda #SHAPE_TOOL_TYPE_DEFAULT
+        sta shape_tool_type
+
+    jsr PPUUpdate
 
 .ifdef TESTS
 .include "tests/tests.s"
@@ -168,28 +249,28 @@ irq:
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
+.byte OFFWHITE, RED, GREEN, BLUE
 .byte $0f,$00,$10,$30
-.byte $0f,$0c,$21,$32
+.byte $0f,$05,$16,$27
+.byte $0f,$0b,$1a,$29
+.byte OFFWHITE, RED, GREEN, BLUE
+.byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
 
 
-;sprites
-.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
-.byte $0f,$0c,$21,$32
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+; EXAMPLE_DATA:
+    ; .byte EXAMPLE_Y_POS, TILEINDEX_EXAMPLE,   %10000001, $10
 
+    ; Sprite Attributes:
+        ;%76543210
+        ;||||||||
+        ;||||||++- Palette of sprite
+        ;|||+++--- Unimplemented
+        ;||+------ Priority (0: in front of background; 1: behind background)
+        ;|+------- Flip sprite horizontally
+        ;+-------- Flip sprite vertically
 
-SAMPLE_SPRITE:
-;    .byte $00,SMILEYFACE_TILE, %10000001, $10
-                                ;76543210
-                                ;||||||||
-                                ;||||||++- Palette of sprite
-                                ;|||+++--- Unimplemented
-                                ;||+------ Priority (0: in front of background; 1: behind background)
-                                ;|+------- Flip sprite horizontally
-                                ;+-------- Flip sprite vertically
 
 CURSOR_SMALL_DATA:
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %00000000, $00      ; top-left
@@ -197,12 +278,20 @@ CURSOR_SMALL_DATA:
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %10000000, $00      ; bottom-left
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %11000000, $00      ; bottom-right
 
+
 CURSOR_NORMAL_DATA:
     .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
 
 
+CURSOR_MEDIUM_DATA:
+    .byte   $08,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
+    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000,     $08     ; TOP-RIGHT: mirrored x
+    .byte   $08,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $08     ; BOTTOM-RIGHT: mirrored x & y
+
+
 CURSOR_BIG_DATA:
-    .byte   $0F,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
+    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
     .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %00000000,     $00     ; LEFT
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
     .byte   $00,  TILEINDEX_CURSOR_BIG_TOP,        %00000000,     $08     ; TOP
@@ -211,16 +300,11 @@ CURSOR_BIG_DATA:
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
 
-Seletion_Star_Sprite:
-    .byte OAM_OFFSCREEN, STAR_TILE, $00000000, SELECTION_STAR_X_OFFSET
 
-Selection_Menu_Tilemap:
-    .incbin "./tilemaps/selection_menu.nam"
-    .byte   $0F,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %10000000,     $00     ; BOTTOM-LEFT: mirrored y
-    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %00000000,     $00     ; LEFT
-    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %00000000,     $00     ; TOP-LEFT
-    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP,        %00000000,     $08     ; TOP
-    .byte   $00,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %01000000,     $10     ; TOP-RIGHT: mirrored x
-    .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
-    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
-    .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
+CURSOR_SHAPE_TOOL_DATA:
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
+
+
+Start_Menu_Tilemap:
+    .incbin "./tilemaps/start_menu_tilemap.nam"
