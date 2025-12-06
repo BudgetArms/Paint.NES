@@ -144,7 +144,6 @@ TILEINDEX_CURSOR_BIG_TOP_LEFT   = $30
 TILEINDEX_CURSOR_BIG_TOP        = $40
 TILEINDEX_CURSOR_BIG_LEFT       = $50
 
-TILEINDEX_SMILEY = $60
 
 TILEINDEX_CURSOR_SHAPE_TOOL_FIRST   = $A0
 TILEINDEX_CURSOR_SHAPE_TOOL_SECOND  = $B0
@@ -163,7 +162,6 @@ OAM_OFFSET_CURSOR_SMALL     = $00   ; 1 sprite (4 bytes)
 OAM_OFFSET_CURSOR_NORMAL    = $04   ; 1 sprite (4 bytes)
 OAM_OFFSET_CURSOR_MEDIUM    = $08   ; 4 sprite (16 bytes), different location to avoid overwriting star
 OAM_OFFSET_CURSOR_BIG       = $18   ; 8 sprites (32 bytes)
-OAM_OFFSET_SMILEY           = $28   ; 1 sprite (4 bytes) 
 
 OAM_OFFSET_CURSOR_BIG_BOTTOM_LEFT   = $00
 OAM_OFFSET_CURSOR_BIG_LEFT          = $04

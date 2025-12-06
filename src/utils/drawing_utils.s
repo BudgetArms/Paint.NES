@@ -271,19 +271,6 @@
 
 
 ; BudgetArms
-.proc UpdateSmileyPosition
-    lda cursor_y 
-    sta oam + OAM_OFFSET_SMILEY
-
-    lda cursor_x
-    sta oam + OAM_OFFSET_SMILEY + 3
-
-    rts 
-
-.endproc
-
-
-; BudgetArms
 .proc HideInactiveCursors
 
     lda cursor_type
