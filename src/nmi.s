@@ -49,6 +49,9 @@ cont_render:
     jsr UseFillTool
 
     jsr DrawOverlayCursorPosition
+    ;jsr UpdateToolSelectionOverlay
+    ;jsr UpdateColorSelectionOverlay
+    ;jsr UpdateColorValues
 
     jsr ResetScroll
 

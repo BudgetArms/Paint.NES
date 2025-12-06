@@ -83,18 +83,6 @@ clear_oam:
     ; Initialize four color values
     ; These colors will be the start colors.
     ldx #$00
-    
-    lda #OFFWHITE
-    sta four_color_values, x
-    inx
-    lda #RED
-    sta four_color_values, x
-    inx
-    lda #GREEN
-    sta four_color_values, x
-    inx
-    lda #BLUE
-    sta four_color_values, x
 
     jsr LoadColorValuesIntoPPU ; will load the values into the PPU
     jsr SetColorPaletteForUI

@@ -248,11 +248,11 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
-.byte $0f,$0c,$21,$32
+.byte OFFWHITE,RED, GREEN, BLUE
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
-.byte $0f,$0c,$21,$32
+.byte OFFWHITE, RED, GREEN, BLUE
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29

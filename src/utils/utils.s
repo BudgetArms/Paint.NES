@@ -45,6 +45,61 @@
 .endmacro
 ; Khine
 
+
+; BudgetArms
+.macro ResetFrameCounterHolder frameCounterHolder
+    ; save register a
+    pha 
+
+    lda #$00
+    sta frameCounterHolder
+
+    ; restore register a
+    pla 
+.endmacro
+; BudgetArms
+
+
+; BudgetArms
+.macro GetNametableTileX addr_low
+    lda addr_low
+    and #PPU_VRAM_MASK_X_POS
+.endmacro
+; BudgetArms
+
+
+; BudgetArms
+.macro GetNametableTileY addr_lo
+
+    ; Get the 3-bits of addr_lo
+    lda addr_lo
+    and #PPU_VRAM_MASK_Y_POS_LOW      
+
+    ; bit-shift right: 5–7 to 0–2
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+    lsr 
+
+    ; save a
+    sta fill_temp
+
+    ; Get the 2-bits from addr_high (addr_lo + 1)
+    lda addr_lo + 1
+    and #PPU_VRAM_MASK_Y_POS_HIGH
+    
+    ; bit-shift left: 0-1 to 3-5
+    asl 
+    asl 
+    asl 
+
+    ora fill_temp
+
+.endmacro
+; BudgetArms
+
+
 ;*****************************************************************
 ; ppu_update: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
 ;*****************************************************************
@@ -120,21 +175,6 @@
     sta cursor_tile_position + 1
     rts
 .endproc
-
-
-; BudgetArms
-.macro ResetFrameCounterHolder frameCounterHolder
-
-    ; save register a
-    pha 
-
-    lda #$00
-    sta frameCounterHolder
-
-    ; restore register a
-    pla 
-
-.endmacro
 
 
 ; Khine / BudgetArms
@@ -450,7 +490,7 @@
 
 ; Khine / BudgetArms
 .proc SelectTool
-
+    ; Not used
     lda oam + SELECTION_STAR_OFFSET + OAM_Y
 
     cmp #SELECTION_MENU_0_DRAW
@@ -495,6 +535,7 @@
 
 ; BudgetArms / Joren
 .proc IncreaseColorPaletteIndex
+    ; Not used
     lda new_palette_color
     clc 
     adc #$01
@@ -520,48 +561,6 @@
 
     rts 
 .endproc
-; BudgetArms
-
-
-; BudgetArms
-.macro GetNametableTileX addr_low
-
-    lda addr_low
-    and #PPU_VRAM_MASK_X_POS
-
-.endmacro
-; BudgetArms
-
-
-; BudgetArms
-.macro GetNametableTileY addr_lo
-
-    ; Get the 3-bits of addr_lo
-    lda addr_lo
-    and #PPU_VRAM_MASK_Y_POS_LOW      
-
-    ; bit-shift right: 5–7 to 0–2
-    lsr 
-    lsr 
-    lsr 
-    lsr 
-    lsr 
-
-    ; save a
-    sta fill_temp
-
-    ; Get the 2-bits from addr_high (addr_lo + 1)
-    lda addr_lo + 1
-    and #PPU_VRAM_MASK_Y_POS_HIGH
-    
-    ; bit-shift left: 0-1 to 3-5
-    asl 
-    asl 
-    asl 
-
-    ora fill_temp
-
-.endmacro
 ; BudgetArms
 
 
@@ -643,78 +642,9 @@
     lda #FOURTH_COLOR_TILE_INDEX
     sta PPU_DATA
 
-    ; SELECTED tile
-    lda #$20 ; same as all previous ones
-    sta PPU_ADDR
-    
-    lda selected_color_chr_index
-    clc
-    adc #<FIRST_COLOR_ONSCREEN_ADRESS
-    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-
-    lda selected_color_chr_index
-    sta PPU_DATA
-    ;selected_color_chr_index
-
     rts
 .endproc
 ; Joren
-
-
-.proc UpdateColorSelectionOverlay
-    ; FIRST tile = background tile
-    lda PPU_STATUS ; reset address latch
-    lda #>FIRST_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<FIRST_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #FIRST_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    ; SECOND tile
-    lda PPU_STATUS ; reset address latch
-    lda #>SECOND_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<SECOND_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #SECOND_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    ; THIRD tile
-    lda PPU_STATUS ; reset address latch
-    lda #>THIRD_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<THIRD_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #THIRD_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    ; FOURTH tile
-    lda PPU_STATUS ; reset address latch
-    lda #>FOURTH_COLOR_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #FOURTH_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    ; SELECTED tile
-    lda #$20 ; same as all previous ones
-    sta PPU_ADDR
-    
-    lda selected_color_chr_index
-    clc
-    adc #<FIRST_COLOR_ONSCREEN_ADRESS
-    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-
-    lda selected_color_chr_index
-    sta PPU_DATA
-    ;selected_color_chr_index
-
-    rts
-.endproc
 
 
 .proc IncButtonHeldFrameCount
@@ -759,6 +689,7 @@
 
     Value_Was_Okay:
     sta selected_tool
+    rts
 .endproc
 
 
@@ -783,23 +714,6 @@
     ChangePPUNameTableAddr CLEAR_TOOL_ONSCREEN_ADRESS
     lda #CLEAR_ICON_TILE_INDEX
     sta PPU_DATA
-
-    ; SELECTED tile
-    lda #$20 ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    clc
-    adc selected_tool
-    clc
-    adc selected_tool
-    sta PPU_ADDR
-    lda selected_tool
-    clc
-    adc #PENCIL_ICON_TILE_INDEX
-    clc
-    adc #$10 ; +16 = +1 row on chr file
-    sta PPU_DATA
-
     rts
 .endproc
 ;Joren
@@ -813,7 +727,7 @@
     sta PPU_ADDR ; $2007
 
     ldx selected_color_chr_index
-    lda four_color_values, x
+    lda palette, x
     sta PPU_DATA ; $2006
 
     rts
@@ -828,50 +742,33 @@
     sta PPU_ADDR ; $2007
 
     ldx selected_color_chr_index
-    lda four_color_values, x
+    lda palette, x
     sta PPU_DATA ; $2006
 
     rts
 .endproc
 
 
+.proc UpdateColorSelectionOverlay
+    ; SELECTED tile
+    lda #$20 ; same as all previous ones
+    sta PPU_ADDR
+    
+    lda selected_color_chr_index
+    clc
+    adc #<FIRST_COLOR_ONSCREEN_ADRESS
+    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    sta PPU_ADDR
+
+    lda selected_color_chr_index
+    sta PPU_DATA
+    ;selected_color_chr_index
+
+    rts
+.endproc
+
+
 .proc UpdateToolSelectionOverlay
-    ; FIRST tile = pencil tool
-    lda PPU_STATUS ; reset address latch
-    lda #>PENCIL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #PENCIL_ICON_TILE_INDEX
-    sta PPU_DATA
-
-    ; SECOND tile = eraser tool
-    lda PPU_STATUS ; reset address latch
-    lda #>ERASER_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<ERASER_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #ERASER_ICON_TILE_INDEX
-    sta PPU_DATA
-
-    ; THIRD tile = fill tool
-    lda PPU_STATUS ; reset address latch
-    lda #>FILL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<FILL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #FILL_ICON_TILE_INDEX
-    sta PPU_DATA
-
-    ; FOURTH tile = clear tool
-    lda PPU_STATUS ; reset address latch
-    lda #>CLEAR_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-    lda #<CLEAR_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    sta PPU_ADDR
-    lda #CLEAR_ICON_TILE_INDEX
-    sta PPU_DATA
-
     ; SELECTED tile
     lda #$20 ; > takes highbyte of 16 bit value
     sta PPU_ADDR
@@ -900,7 +797,7 @@
         ;lda x
         stx PPU_ADDR ; $2007
 
-        lda four_color_values, x
+        lda palette, x
         sta PPU_DATA ; $2006
 
         inx
@@ -913,25 +810,24 @@
 
 .proc IncreaseColorValueForSelectedTile
     ldx selected_color_chr_index
-    lda four_color_values, X
+    lda palette, X
     clc
     adc #$01
-    sta four_color_values, X
+    sta palette, X
     rts
 .endproc
 
 
 .proc DecreaseColorValueForSelectedTile
     ldx selected_color_chr_index
-    lda four_color_values, X
+    lda palette, X
     sec
     sbc #$01
-    sta four_color_values, X
+    sta palette, X
     rts
 .endproc
 
 .proc LoadSecondColorPalleteIntoPPU
-
     ldx #$04
     loop:
         LDA #$3F ;high byte of 16-bit PPU address
@@ -961,7 +857,6 @@
 ; write an attribute byte (palettes for 4 quadrants)
     LDA #%01100011  ; 2 bits per quadrant
     STA $2007
-
 
     rts
 .endproc
