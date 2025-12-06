@@ -60,7 +60,7 @@
     lda #$00
     sta frameCounterHolder
 
-    ; restore register a
+    ; Restore register A
     pla 
 .endmacro
 ; BudgetArms
