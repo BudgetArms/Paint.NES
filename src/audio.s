@@ -1,4 +1,6 @@
+; Jeronimas
 .proc InitializeAudio
+
     ; Initialize FamiStudio sound engine
     ldx #.lobyte(music_data_untitled) ; Sets the address of the background music
     ldy #.hibyte(music_data_untitled)
@@ -17,45 +19,51 @@
     ; Initialize music state
     lda #0
     sta music_paused
-    rts
-.endproc
 
+    rts 
+
+.endproc
+; Jeronimas
+
+
+; Jeronimas
 .proc PlayBrushSoundEffect
 
     ; Play drawing sound effect here based on tool mode
-
     lda selected_tool
     cmp #BRUSH_TOOL_ACTIVATED
     beq @Play_Splash
     
     ; Eraser mode - play bird sound (index 0)
-    lda #0
+    lda #$00
     jmp @Play_Sound
     
     @Play_Splash:
         ; Draw mode - play splash sound (index 1)
-        lda #1
+        lda #$01
     
     @Play_Sound:
         ; Set the appropriate SFX channel based on which sound we're playing
         ; Bird (0) uses square channel, Splash (1) uses noise channel
-        cmp #0
-        beq @use_square_channel
+        cmp #$00
+        beq @Use_Square_Channel
         
         ; Splash sound - use noise channel (SFX_CH1)
         ldx #FAMISTUDIO_SFX_CH1
-        jmp @play_it
+        jmp @Play_It
         
-    @use_square_channel:
+    @Use_Square_Channel:
         ; Bird sound - use square channel (SFX_CH0)
         ldx #FAMISTUDIO_SFX_CH0
         
-    @play_it:
+    @Play_It:
         jsr famistudio_sfx_play  ; Call FamiStudio directly with correct channel
         lda #0
     
-    rts
+    rts 
+
 .endproc
+; Jeronimas
 
 
 ; Jeronimas 
@@ -66,30 +74,35 @@
 ; Preserves: X, Y registers
 ;*********************************************************
 .proc PlaySFX
+
     sta sfx_temp + 9
-    tya
-    pha
-    txa
-    pha
+
+    tya 
+    pha 
+    txa 
+    pha 
     
     lda sfx_temp + 9
     ; Select channel based on sound effect index
     ; Bird (0) = square (CH0), Splash (1) = noise (CH1)
     tax  ; Use sound index as channel selector
     and #$01
-    beq @ch0
+    beq @Ch0
     ldx #FAMISTUDIO_SFX_CH1
-    jmp @play
-@ch0:
-    ldx #FAMISTUDIO_SFX_CH0
-@play:
-    lda sfx_temp + 9
-    jsr famistudio_sfx_play
+    jmp @Play
+
+    @Ch0:
+        ldx #FAMISTUDIO_SFX_CH0
+    @Play:
+        lda sfx_temp + 9
+        jsr famistudio_sfx_play
     
-    pla
-    tax
-    pla
-    tay
-    rts
+    pla 
+    tax 
+    pla 
+    tay 
+
+    rts 
+
 .endproc
 ; Jeronimas

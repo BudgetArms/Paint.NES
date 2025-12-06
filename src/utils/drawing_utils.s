@@ -15,7 +15,7 @@
     lda tool_use_attr
     and #CLEAR_TOOL_ON
     bne @Use_Brush
-        rts
+        rts 
     @Use_Brush:
     lda tool_use_attr
     eor #CLEAR_TOOL_ON
@@ -41,7 +41,8 @@
         dey 
         bne rowloop
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
@@ -164,8 +165,8 @@
     ; Increase cursor_x with oam data's x-pos
     clc 
     lda cursor_x
-    adc oam + OAM_OFFSET_CURSOR_SMALL + 3
-    sta oam + OAM_OFFSET_CURSOR_SMALL + 3
+    adc oam + OAM_OFFSET_CURSOR_SMALL + OAM_X
+    sta oam + OAM_OFFSET_CURSOR_SMALL + OAM_X
 
     rts 
 
@@ -191,8 +192,8 @@
     ; Increase cursor_x with oam data's x-pos
     clc 
     lda cursor_x
-    adc oam + OAM_OFFSET_CURSOR_NORMAL + 3
-    sta oam + OAM_OFFSET_CURSOR_NORMAL + 3
+    adc oam + OAM_OFFSET_CURSOR_NORMAL + OAM_X
+    sta oam + OAM_OFFSET_CURSOR_NORMAL + OAM_X
 
     rts 
 
@@ -220,8 +221,8 @@
         ; Increase cursor_x with oam data's x-pos
         clc 
         lda cursor_x
-        adc oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
-        sta oam + OAM_OFFSET_CURSOR_MEDIUM + 3, X 
+        adc oam + OAM_OFFSET_CURSOR_MEDIUM + OAM_X, X 
+        sta oam + OAM_OFFSET_CURSOR_MEDIUM + OAM_X, X 
 
         ; x += 4 bytes, to go to the next sprite
         inx 
@@ -258,8 +259,8 @@
         ; Increase cursor_x with oam data's x-pos
         clc 
         lda cursor_x
-        adc oam + OAM_OFFSET_CURSOR_BIG + 3, X 
-        sta oam + OAM_OFFSET_CURSOR_BIG + 3, X 
+        adc oam + OAM_OFFSET_CURSOR_BIG + OAM_X, X 
+        sta oam + OAM_OFFSET_CURSOR_BIG + OAM_X, X 
 
         ; x += 4 bytes, to go to the next sprite
         inx 
@@ -391,12 +392,13 @@
 
 ; Jeronimas
 .proc UpdateOverlayCursorPosition
+
     ; Convert cursor_x to three decimal digits
     lda cursor_x
     ldx #100
     jsr DivideByX           ; hundreds in A, remainder in X
     sta cursor_x_digits     ; hundreds digit (0-2)
-    txa
+    txa 
     ldx #10
     jsr DivideByX           ; tens in A, ones in X
     sta cursor_x_digits + 1 ; tens digit (0-9)
@@ -407,12 +409,13 @@
     ldx #100
     jsr DivideByX
     sta cursor_y_digits     ; hundreds digit (0-2)
-    txa
+    txa 
     ldx #10
     jsr DivideByX
     sta cursor_y_digits + 1 ; tens digit (0-9)
     stx cursor_y_digits + 2 ; ones digit (0-9)
-    rts
+    rts 
+
 .endproc
 ; Jeronimas
 
@@ -436,7 +439,9 @@
     Divide_Done:
         tax                    ; Move remainder (in A) to X
         tya                    ; Move quotient (in Y) to A
-    rts
+
+    rts 
+
 .endproc
 ; Jeronimas
 
@@ -457,15 +462,15 @@
 
     ; Write X digits as decimal (000-255)
     lda cursor_x_digits
-    clc
+    clc 
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
     lda cursor_x_digits + 1
-    clc
+    clc 
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
     lda cursor_x_digits + 2
-    clc
+    clc 
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
 
@@ -479,19 +484,20 @@
 
     ; Write Y digits as decimal (000-240)
     lda cursor_y_digits
-    clc
+    clc 
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
     lda cursor_y_digits + 1
-    clc
+    clc 
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
     lda cursor_y_digits + 2
-    clc
+    clc 
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
 
-    rts
+    rts 
+
 .endproc
 ; Jeronimas
 

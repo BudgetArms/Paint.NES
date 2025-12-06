@@ -1,7 +1,7 @@
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
-   lda source_tile
-   sta selected_color_chr_index
+    lda source_tile
+    sta selected_color_chr_index
 .endmacro
 ; Khine
 
@@ -110,24 +110,32 @@
 ; PPUUpdate: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
 ;*****************************************************************
 .proc PPUUpdate
-    lda #1
+
+    lda #$01
     sta nmi_ready
+
     loop:
         lda nmi_ready
         bne loop
-    rts
+
+    rts 
+
 .endproc
 
 ;*****************************************************************
 ; PPUOff: waits until next NMI, turns rendering off (now safe to write PPU directly via PPU_DATA)
 ;*****************************************************************
 .proc PPUOff
-    lda #2
+
+    lda #$02
     sta nmi_ready
+
     loop:
         lda nmi_ready
         bne loop
-    rts
+
+    rts 
+
 .endproc
 
 
@@ -148,19 +156,21 @@
     ; and then adding the resultant number to the X coordinate
     ; Simple table to index conversion
     ; For example, X: 2, Y: 6 would convert to (6 * 32) + 2 = 194
-    clc
+    clc 
     lda #$00
     ldx tile_cursor_y
     beq SkipLoop
+
     RowLoop:
     adc #DISPLAY_SCREEN_WIDTH
     ; Check for carry bit and then increment the high bit when carry is set
     bcc @SkipHighBitIncrement
         inc cursor_tile_position + 1
-        clc
+        clc 
     @SkipHighBitIncrement:
-    dex
+    dex 
     bne RowLoop
+
     SkipLoop:
     adc tile_cursor_x
     sta cursor_tile_position ; Low bit of the location
@@ -168,7 +178,7 @@
     ; Increment the high bit position if there is a remaining carry flag set
     bcc @SkipHighBitIncrement
         inc cursor_tile_position + 1 ; High bit of the location
-        clc
+        clc 
     @SkipHighBitIncrement:
 
     ; Add the offset of nametable 1 to the tile index
@@ -179,7 +189,8 @@
     adc #$00
     adc cursor_tile_position + 1
     sta cursor_tile_position + 1
-    rts
+    rts 
+
 .endproc
 ; Khine
 
@@ -194,14 +205,15 @@
         rts 
 
     @Apply_Move:
-    sec
+    sec 
     lda cursor_y
     sbc #TILE_PIXEL_SIZE
     sta cursor_y
 
     dec tile_cursor_y
 
-    rts
+    rts 
+
 .endproc
 ; Khine / BudgetArms
 
@@ -226,7 +238,8 @@
 
     inc tile_cursor_y
 
-    rts
+    rts 
+
 .endproc
 ; Khine / BudgetArms
 
@@ -248,7 +261,8 @@
 
     dec tile_cursor_x
 
-    rts
+    rts 
+
 .endproc
 ; Khine / BudgetArms
 
@@ -274,7 +288,7 @@
 
     inc tile_cursor_x
 
-    rts
+    rts 
 
 .endproc
 ; Khine / BudgetArms
@@ -290,34 +304,36 @@
     bne @Not_Max
         lda #MINIMUM_BRUSH_SIZE
         sta brush_size
-        rts
+        rts 
+
     @Not_Max:
     inc brush_size
 
-    clc
+    clc 
     lda tile_cursor_x
     adc brush_size
     cmp #DISPLAY_SCREEN_WIDTH
     bcc @No_X_Move_Needed
         dec tile_cursor_x
-        sec
+        sec 
         lda cursor_x
         sbc #TILE_PIXEL_SIZE
         sta cursor_x
     @No_X_Move_Needed:
 
-    clc
+    clc 
     lda tile_cursor_y
     adc brush_size
     cmp #DISPLAY_SCREEN_HEIGHT
     bcc @No_Y_Move_Needed
         dec tile_cursor_y
-        sec
+        sec 
         lda cursor_y
         sbc #TILE_PIXEL_SIZE
         sta cursor_y
+
     @No_Y_Move_Needed:
-    rts
+    rts 
 
 .endproc
 ; Khine
@@ -325,26 +341,31 @@
 
 ; BudgetArms
 .proc ResetScroll
+
     lda #%10000000
     sta PPU_CONTROL
+
     lda PPU_STATUS      ; Reset PPU address latch
+
     lda scroll_x_position
     sta PPU_SCROLL      ; X scroll
     lda scroll_y_position
     sta PPU_SCROLL      ; Y scroll
 
     rts 
+
 .endproc
 ; BudgetArms
 
 
 ; Joren
 .proc IncreaseChrTileIndex
-    ;lda chrTileIndex
+
     lda selected_color_chr_index
-    clc
+    clc 
     adc #$01
 
+    ; TODO: use constant
     cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
     bmi Value_Was_Okay ; branch if not negative
         lda #00 ; set value back to 0
@@ -353,30 +374,34 @@
     ChangeBrushTileIndexFromA
 
     rts 
+
 .endproc
 ; Joren
 
 
 ;Joren
 .proc DecreaseChrTileIndex
-    ;lda chrTileIndex
+
     lda selected_color_chr_index
-    sec
+    sec 
     sbc #$01
 
     bpl Value_Was_Okay ; branch if not negative
     lda #03 ; set value back to max index
+    ; TODO: USE CONSTANT
 
     Value_Was_Okay:
     ChangeBrushTileIndexFromA
 
-    rts
+    rts 
+
 .endproc
 ;Joren
 
 
 ; Joren
 .proc InitializeColorSelectionOverlay
+
     ; FIRST tile = background tile
     ChangePPUNameTableAddr FIRST_COLOR_ONSCREEN_ADRESS
     lda #FIRST_COLOR_TILE_INDEX
@@ -397,13 +422,15 @@
     lda #FOURTH_COLOR_TILE_INDEX
     sta PPU_DATA
 
-    rts
+    rts 
+
 .endproc
 ; Joren
 
 
 ; Joren
 .proc InitializeToolSelectionOverlay
+
     ; FIRST tile = brush tool
     ChangePPUNameTableAddr BRUSH_TOOL_ONSCREEN_ADRESS
     lda #BRUSH_ICON_TILE_INDEX
@@ -419,30 +446,35 @@
     lda #FILL_ICON_TILE_INDEX
     sta PPU_DATA
 
+    ; TODO: Add shape tool
+
     ; FOURTH tile = clear tool
     ChangePPUNameTableAddr CLEAR_TOOL_ONSCREEN_ADRESS
     lda #CLEAR_ICON_TILE_INDEX
     sta PPU_DATA
-    rts
+
+    rts 
+
 .endproc
 ;Joren
 
 
 ; Khine
 .proc OverwriteAllBackgroundColorIndex
+
     ldx #$00
     lda palette
 
     @Loop:
         sta palette, x
-        inx
-        inx
-        inx
-        inx
+        inx 
+        inx 
+        inx 
+        inx 
         cpx #PALETTE_SIZE
         bcc @Loop
 
-    rts
+    rts 
 
 .endproc
 ; Khine
@@ -454,70 +486,81 @@
     sta PPU_ADDR
     
     lda selected_color_chr_index
-    clc
+    clc 
     adc #<FIRST_COLOR_ONSCREEN_ADRESS
-    ;lda #<FOURTH_COLOR_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
     sta PPU_ADDR
 
     lda selected_color_chr_index
     sta PPU_DATA
-    ;selected_color_chr_index
 
-    rts
+    rts 
+
 .endproc
 
 
 ; Joren
 .proc UpdateToolSelectionOverlay
+
     ; SELECTED tile
     lda #$20 ; > takes highbyte of 16 bit value
     sta PPU_ADDR
+
     lda #<BRUSH_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    clc
+    clc 
     adc selected_tool
-    clc
+    clc 
     adc selected_tool
     sta PPU_ADDR
+
     lda selected_tool
-    clc
+    clc 
     adc #BRUSH_ICON_TILE_INDEX
-    clc
+    clc 
     adc #$10 ; +16 = +1 row on chr file
     sta PPU_DATA
 
-    rts
+    rts 
+
 .endproc
 ; Joren
 
 
 ; Joren
 .proc IncreaseColorValueForSelectedTile
+    
     ldx selected_color_chr_index
+
     lda palette, x
-    clc
+    clc 
     adc #$01
     sta palette, x
-    rts
+
+    rts 
+
 .endproc
 ; Joren
 
 
 ; Joren
 .proc DecreaseColorValueForSelectedTile
+
     ldx selected_color_chr_index
     lda palette, x
-    sec
+    sec 
     sbc #$01
     sta palette, x
-    rts
+
+    rts 
+
 .endproc
 ; Joren
 
 
 ; Joren
 .proc IncreaseButtonHeldFrameCount
+
     lda frame_count
-    clc
+    clc 
     adc #$01
     cmp #FRAMES_BETWEEN_MOVEMENT
     bne Value_Is_Okay
@@ -526,13 +569,15 @@
     Value_Is_Okay:
     sta frame_count
 
-    rts
+    rts 
+
 .endproc
 ; Joren
 
 
 ; Joren
 .proc IncreaseToolSelection
+
     lda selected_tool
     clc 
     adc #$01
@@ -545,24 +590,27 @@
     Value_Was_Okay:
     sta selected_tool
 
-    rts
+    rts 
+
 .endproc
 ; Joren
 
 
 ; Joren
 .proc DecreaseToolSelection
+
     ; Code to slow input registration down
     lda selected_tool
     sec 
     sbc #$01
 
     bpl Value_Was_Okay ; branch if not negative
-    ; lda #03 ; set value back to max index
     lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
 
     Value_Was_Okay:
     sta selected_tool
-    rts
+
+    rts 
+
 .endproc
 ; Joren

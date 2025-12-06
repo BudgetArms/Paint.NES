@@ -1002,7 +1002,7 @@ famistudio_sfx_base_addr:  .res (FAMISTUDIO_CFG_SFX_STREAMS * FAMISTUDIO_SFX_STR
 famistudio_sfx_repeat = famistudio_sfx_base_addr + 0
 famistudio_sfx_ptr_lo = famistudio_sfx_base_addr + 1
 famistudio_sfx_ptr_hi = famistudio_sfx_base_addr + 2
-famistudio_sfx_offset = famistudio_sfx_base_addr + 3
+famistudio_sfx_offset = famistudio_sfx_base_addr + OAM_X
 famistudio_sfx_buffer = famistudio_sfx_base_addr + 4
 
 .endif 
@@ -1263,7 +1263,7 @@ FAMISTUDIO_FDS_ENV_SPEED  = $408A
     FAMISTUDIO_ALIAS_PL1_VOL    = famistudio_output_buf + 0
     FAMISTUDIO_ALIAS_PL1_LO     = famistudio_output_buf + 1
     FAMISTUDIO_ALIAS_PL1_HI     = famistudio_output_buf + 2
-    FAMISTUDIO_ALIAS_PL2_VOL    = famistudio_output_buf + 3
+    FAMISTUDIO_ALIAS_PL2_VOL    = famistudio_output_buf + OAM_X
     FAMISTUDIO_ALIAS_PL2_LO     = famistudio_output_buf + 4
     FAMISTUDIO_ALIAS_PL2_HI     = famistudio_output_buf + 5
     FAMISTUDIO_ALIAS_TRI_LINEAR = famistudio_output_buf + 6

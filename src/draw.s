@@ -213,7 +213,7 @@
         ; Increase cursor_x with oam data's x-pos
         clc 
         lda cursor_x
-        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
+        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + OAM_X
 
     rts 
 
@@ -264,14 +264,15 @@
             inx
             cpx brush_size
             bne @row_loop
-        clc
+
+        clc 
         lda drawing_tile_position
         adc #32
         sta drawing_tile_position
         lda drawing_tile_position + 1
         adc #$00
         sta drawing_tile_position + 1
-        iny
+        iny 
         cpy brush_size
         bne @column_loop
 
@@ -571,7 +572,6 @@
         rts 
 
 
-
     Do_Up:
 
         ; Move up, by subtracing (screen_width + 1)
@@ -740,7 +740,7 @@
 ; BudgetArms
 .proc DrawShapeCircle
 
-
+    ; stub (aka yet to be implemented)
 
     rts 
 

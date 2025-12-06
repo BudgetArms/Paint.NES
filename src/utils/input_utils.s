@@ -14,20 +14,20 @@
     ldx #8
 
     poll_loop:
-        pha
+        pha 
         lda JOYPAD1
         ; combine low two bits and store in carry bit
         and #%00000011
         cmp #%00000001
-        pla
+        pla 
         ; rotate carry into gamepad variable
-        ror
-        dex
+        ror 
+        dex 
         bne poll_loop
 
     sta current_input
 
-    rts
+    rts 
 
 .endproc
 
@@ -63,6 +63,7 @@
 ; BudgetArms
 .proc HandleMenuInput
 
+    ; stub (yet to be implemented)
     rts 
 
 .endproc
@@ -109,7 +110,7 @@
 
     Check_PAD_A_UP:
         cmp #PAD_A_UP
-        BNE Check_PAD_A_DOWN
+        bne Check_PAD_A_DOWN
         jsr UseSelectedTool
         jsr MoveCursorUp
         jmp Stop_Checking
@@ -278,7 +279,7 @@
 
     Stop_Checking:
         jsr IncreaseButtonHeldFrameCount
-        rts
+        rts 
 
 .endproc
 ; Joren
@@ -320,7 +321,7 @@
         rts 
 
     @End:
-    rts
+    rts 
 
 .endproc
 ; BudgetArms
@@ -328,6 +329,7 @@
 
 ; BudgetArms
 .proc ChangeBrushSize
+
     jsr CycleBrushSize
 
     lda cursor_type     ; load cursor type
@@ -352,6 +354,8 @@
         ; set new cursor_type
         sta cursor_type
 
-        rts
+        rts 
+
 .endproc
 ; BudgetArms
+

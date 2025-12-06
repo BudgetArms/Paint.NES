@@ -3,6 +3,7 @@ mainloop:
     lda nmi_ready
     cmp #0
     bne mainloop
+
     ; read the gamepad (updates current_input, input_pressed_this_frame and input_released_this_frame )
     jsr PollGamepad
     jsr HandleInput
@@ -20,3 +21,4 @@ mainloop:
     lda #1
     sta nmi_ready
     jmp mainloop
+

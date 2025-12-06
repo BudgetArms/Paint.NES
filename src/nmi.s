@@ -39,7 +39,7 @@
     loop:
         lda palette, x
         sta PPU_DATA
-        inx
+        inx 
         cpx #PALETTE_SIZE
         bcc loop
 
@@ -76,3 +76,4 @@
     rti 
 
 .endproc
+
