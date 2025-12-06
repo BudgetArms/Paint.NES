@@ -107,9 +107,9 @@
 
 
 ;*****************************************************************
-; ppu_update: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
+; PPUUpdate: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
 ;*****************************************************************
-.proc ppu_update
+.proc PPUUpdate
     lda #1
     sta nmi_ready
     loop:
@@ -119,9 +119,9 @@
 .endproc
 
 ;*****************************************************************
-; ppu_off: waits until next NMI, turns rendering off (now safe to write PPU directly via PPU_DATA)
+; PPUOff: waits until next NMI, turns rendering off (now safe to write PPU directly via PPU_DATA)
 ;*****************************************************************
-.proc ppu_off
+.proc PPUOff
     lda #2
     sta nmi_ready
     loop:
@@ -181,6 +181,7 @@
     sta cursor_tile_position + 1
     rts
 .endproc
+; Khine
 
 
 ; Khine / BudgetArms
@@ -274,6 +275,7 @@
     inc tile_cursor_x
 
     rts
+
 .endproc
 ; Khine / BudgetArms
 
@@ -316,90 +318,9 @@
         sta cursor_y
     @No_Y_Move_Needed:
     rts
+
 .endproc
 ; Khine
-
-
-; Khine / BudgetArms
-.proc CycleToolModes
-
-    lda tool_mode
-    cmp #DRAW_MODE
-    bne @Not_Draw_Mode
-        jsr ToggleShapeTool
-        rts 
-
-    @Not_Draw_Mode:
-
-    cmp #SHAPE_MODE
-    bne @Not_Shape_Mode
-        jsr ToggleEraserTool
-        rts
-
-    @Not_Shape_Mode:
-
-    cmp #ERASER_MODE
-    bne @Not_Eraser_Mode
-        jsr ToggleFillTool
-        rts 
-
-    @Not_Eraser_Mode:
-
-    cmp #FILL_MODE
-    bne @Not_Fill_Mode
-        ;jsr ToggleDrawTool
-        rts 
-
-    @Not_Fill_Mode:
-
-    rts 
-.endproc
-; Khine / BudgetArms
-
-
-; TODO: RENAMED to SelectShapeTool
-; BudgetArms
-.proc ToggleShapeTool
-    ChangeBrushTileIndex drawing_color_tile_index
-    ChangeToolMode #SHAPE_MODE
-    rts 
-.endproc
-; BudgetArms
-
-
-; TODO: RENAMED to SelectEraserTool
-; Khine
-.proc ToggleEraserTool
-    ChangeBrushTileIndex #BACKGROUND_TILE
-    rts 
-.endproc
-; Khine
-
-
-; TODO: RENAMED to SelectFillTool
-; BudgetArms
-.proc ToggleFillTool
-    ChangeBrushTileIndex drawing_color_tile_index
-    ChangeToolMode #FILL_MODE
-    rts 
-.endproc
-; BudgetArms
-
-
-; BudgetArms / Joren
-.proc IncreaseColorPaletteIndex
-    ; Not used
-    lda new_palette_color
-    clc 
-    adc #$01
-    sta new_palette_color
-
-    ;ldx selected_color_chr_index
-    ;lda newColorValueForSelectedTile
-    ;sta four_color_values, x
-
-    rts 
-.endproc
 
 
 ; BudgetArms
@@ -417,6 +338,7 @@
 ; BudgetArms
 
 
+; Joren
 .proc IncreaseChrTileIndex
     ;lda chrTileIndex
     lda selected_color_chr_index
@@ -435,6 +357,7 @@
 ; Joren
 
 
+;Joren
 .proc DecreaseChrTileIndex
     ;lda chrTileIndex
     lda selected_color_chr_index
@@ -480,55 +403,6 @@
 
 
 ; Joren
-.proc IncButtonHeldFrameCount
-    lda frame_count
-    clc
-    adc #$01
-    cmp #FRAMES_BETWEEN_MOVEMENT
-    bne Value_Is_Okay
-        lda #$00
-
-    Value_Is_Okay:
-    sta frame_count
-
-    rts
-.endproc
-
-
-.proc IncreaseToolSelection
-    lda selected_tool
-    clc 
-    adc #$01
-
-    cmp #TOOLS_TOTAL_AMOUNT
-    bmi Value_Was_Okay ; branch if not negative
-
-        lda #00 ; set value back to 0
-
-    Value_Was_Okay:
-    sta selected_tool
-
-    rts
-.endproc
-
-
-.proc DecreaseToolSelection
-    ; Code to slow input registration down
-    lda selected_tool
-    sec 
-    sbc #$01
-
-    bpl Value_Was_Okay ; branch if not negative
-    ; lda #03 ; set value back to max index
-    lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
-
-    Value_Was_Okay:
-    sta selected_tool
-    rts
-.endproc
-
-
-; Joren
 .proc InitializeToolSelectionOverlay
     ; FIRST tile = brush tool
     ChangePPUNameTableAddr BRUSH_TOOL_ONSCREEN_ADRESS
@@ -554,34 +428,24 @@
 ;Joren
 
 
-.proc InitializeColorValues
-    lda PPU_STATUS ; reset address latch
-    lda #$3F ;high byte of 16-bit PPU address
-    sta PPU_ADDR ; $2007
-    lda selected_color_chr_index ;lda chrTileIndex ;low byte of 16-bit PPU address
-    sta PPU_ADDR ; $2007
+; Khine
+.proc OverwriteAllBackgroundColorIndex
+    ldx #$00
+    lda palette
 
-    ldx selected_color_chr_index
-    lda palette, x
-    sta PPU_DATA ; $2006
-
-    rts
-.endproc
-
-
-.proc UpdateColorValues
-    lda PPU_STATUS ; reset address latch
-    lda #$3F ;high byte of 16-bit PPU address
-    sta PPU_ADDR ; $2007
-    lda selected_color_chr_index ;lda chrTileIndex ;low byte of 16-bit PPU address
-    sta PPU_ADDR ; $2007
-
-    ldx selected_color_chr_index
-    lda palette, x
-    sta PPU_DATA ; $2006
+    @Loop:
+        sta palette, x
+        inx
+        inx
+        inx
+        inx
+        cpx #PALETTE_SIZE
+        bcc @Loop
 
     rts
+
 .endproc
+; Khine
 
 
 .proc UpdateColorSelectionOverlay
@@ -603,6 +467,7 @@
 .endproc
 
 
+; Joren
 .proc UpdateToolSelectionOverlay
     ; SELECTED tile
     lda #$20 ; > takes highbyte of 16 bit value
@@ -625,89 +490,79 @@
 ; Joren
 
 
-
-; ???
-.proc LoadColorValuesIntoPPU
-    ldx #$00
-    loop:
-        lda #$3F ;high byte of 16-bit PPU address
-        sta PPU_ADDR ; $2007
-        ;lda x
-        stx PPU_ADDR ; $2007
-
-        lda palette, x
-        sta PPU_DATA ; $2006
-
-        inx
-        cpx #$04
-        bne loop
-
-    rts
-.endproc
-; ???
-
-
+; Joren
 .proc IncreaseColorValueForSelectedTile
     ldx selected_color_chr_index
-    lda palette, X
+    lda palette, x
     clc
     adc #$01
-    sta palette, X
+    sta palette, x
     rts
 .endproc
 ; Joren
 
 
+; Joren
 .proc DecreaseColorValueForSelectedTile
     ldx selected_color_chr_index
-    lda palette, X
+    lda palette, x
     sec
     sbc #$01
-    sta palette, X
+    sta palette, x
     rts
 .endproc
 ; Joren
 
 
-; TODO: use lowercase for instructions
 ; Joren
-.proc LoadSecondColorPalleteIntoPPU
-    ldx #$04
-    loop:
-        LDA #$3F ;high byte of 16-bit PPU address
-        STA PPU_ADDR ; $2007
-        ;lda x
-        stx PPU_ADDR ; $2007
+.proc IncreaseButtonHeldFrameCount
+    lda frame_count
+    clc
+    adc #$01
+    cmp #FRAMES_BETWEEN_MOVEMENT
+    bne Value_Is_Okay
+        lda #$00
 
-        lda #$18
-        STA PPU_DATA ; $2006
-
-        inx
-        cpx #$08
-        bne loop
+    Value_Is_Okay:
+    sta frame_count
 
     rts
 .endproc
-
-
-; TODO: WTF, use constants, not magic numbers, ...
-; TODO: use lowercase for instructions
 ; Joren
-.proc SetColorPaletteForUI
 
-    ; pick nametable 0 attribute table
-    LDA $2002        ; reset latch
-    LDA #$23
-    STA $2006        ; high byte
-    LDA #$C0
-    STA $2006        ; low byte (start of attr table)
 
-    ; write an attribute byte (palettes for 4 quadrants)
-    LDA #%01100011  ; 2 bits per quadrant
-    STA $2007
+; Joren
+.proc IncreaseToolSelection
+    lda selected_tool
+    clc 
+    adc #$01
 
+    cmp #TOOLS_TOTAL_AMOUNT
+    bmi Value_Was_Okay ; branch if not negative
+
+        lda #00 ; set value back to 0
+
+    Value_Was_Okay:
+    sta selected_tool
 
     rts
+.endproc
+; Joren
 
+
+; Joren
+.proc DecreaseToolSelection
+    ; Code to slow input registration down
+    lda selected_tool
+    sec 
+    sbc #$01
+
+    bpl Value_Was_Okay ; branch if not negative
+    ; lda #03 ; set value back to max index
+    lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
+
+    Value_Was_Okay:
+    sta selected_tool
+    rts
 .endproc
 ; Joren

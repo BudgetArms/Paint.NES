@@ -1,6 +1,5 @@
 ;file for all drawing functions
 
-
 ; BudgetArms
 .proc LoadCursor
 
@@ -41,6 +40,7 @@
     rts 
 
 .endproc
+; BudgetArms
 
 
 ; BudgetArms
@@ -99,6 +99,7 @@
         rts 
 
 .endproc
+; BudgetArms
 
 
 ; BudgetArms
@@ -117,6 +118,7 @@
     rts 
 
 .endproc
+; BudgetArms
 
 
 ; BudgetArms
@@ -135,6 +137,7 @@
     rts 
 
 .endproc
+; BudgetArms
 
 
 ; BudgetArms
@@ -153,6 +156,8 @@
     rts 
 
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc LoadCursorShapeTool
@@ -215,8 +220,9 @@
 .endproc
 ; BudgetArms
 
+
 ; Khine / BudgetArms / Jeronimas
-.proc DrawBrush
+.proc UseBrushTool
 
     ; Check if the PAD_A has been pressed
     ; This is not checked in the `input_utils.s` because this can run into issues with
@@ -443,7 +449,7 @@
     jsr ResetScroll
     
     ; turn ppu off
-    jsr ppu_off
+    jsr PPUOff
 
     ; Store the current tile position to the cursor_pos 
     lda cursor_tile_position + 1

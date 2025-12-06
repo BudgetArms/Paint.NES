@@ -14,6 +14,7 @@ mainloop:
     jsr ConvertCursorPosToTilePositions
 
     jsr DrawShapeToolCursor
+    jsr OverwriteAllBackgroundColorIndex
 
     ; ensure our changes are rendered
     lda #1

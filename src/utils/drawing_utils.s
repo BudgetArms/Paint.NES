@@ -9,7 +9,9 @@
 ;     - Writes 0s to all 64 bytes of the attribute table
 ;     - Leaves the PPU ready to receive further data if needed
 ;*****************************************************************
-.proc ClearCanvas
+
+; Khine
+.proc UseClearCanvasTool
     lda tool_use_attr
     and #CLEAR_TOOL_ON
     bne @Use_Brush
@@ -19,7 +21,7 @@
     eor #CLEAR_TOOL_ON
     sta tool_use_attr
 
-    jsr ppu_off
+    jsr PPUOff
 
     lda PPU_STATUS ; reset address latch
     lda #>CANVAS_START_ADDRESS ; set PPU address to $2000
@@ -41,6 +43,7 @@
 
     rts
 .endproc
+; Khine
 
 
 ; Khine
@@ -78,8 +81,6 @@
 ; Khine
 
 
-
-
 ; BudgetArms
 .macro HideCursor oamOffset, oamSize
 
@@ -102,6 +103,7 @@
         bne Loop   ; Loop until everything is hidden
 
 .endmacro
+; BudgetArms
 
 
 ; BudgetArms
@@ -141,6 +143,7 @@
         rts 
 
 .endproc
+; BudgetArms
 
 
 ; BudgetArms
@@ -167,6 +170,8 @@
     rts 
 
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc UpdateNormalCursorPosition
@@ -192,6 +197,8 @@
     rts 
 
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc UpdateMediumCursorPosition
@@ -228,6 +235,8 @@
     rts 
 
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc UpdateBigCursorPosition
@@ -264,6 +273,7 @@
     rts 
 
 .endproc
+; BudgetArms
 
 
 ; BudgetArms
@@ -332,6 +342,8 @@
     rts 
 
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc HideActiveCursor
@@ -402,6 +414,7 @@
     stx cursor_y_digits + 2 ; ones digit (0-9)
     rts
 .endproc
+; Jeronimas
 
 
 ; Jeronimas
@@ -425,6 +438,7 @@
         tya                    ; Move quotient (in Y) to A
     rts
 .endproc
+; Jeronimas
 
 
 ; Jeronimas
@@ -479,6 +493,7 @@
 
     rts
 .endproc
+; Jeronimas
 
 
 ; BudgetArms

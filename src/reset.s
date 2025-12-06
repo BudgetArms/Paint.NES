@@ -83,9 +83,6 @@ clear_oam:
     ; These colors will be the start colors.
     ldx #$00
 
-    jsr LoadColorValuesIntoPPU ; will load the values into the PPU
-    jsr SetColorPaletteForUI
-
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
 ; 	lda cursor_y

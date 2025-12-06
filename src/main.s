@@ -185,9 +185,10 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .include "famistudio_ca65.s"
 
 ; Include music data
-.segment "RODATA"               ; this makes Background_music.s read only
+.segment "RODATA"
+; This makes Background_music.s read only
 .include "Background_music.s" 
-; INclude SFX data
+; Include SFX data
 .include "SFX.s"
 ;***************************************
 
@@ -200,15 +201,15 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; Overlay Initialization
     jsr InitializeColorSelectionOverlay
     jsr InitializeToolSelectionOverlay
-    jsr InitializeColorValues
+    ;jsr InitializeColorValues
 
     ; initialize palette table
-    ldx #0
+    ldx #$00
     paletteloop:
         lda default_palette, x
         sta palette, x
         inx
-        cpx #32
+        cpx #PALETTE_SIZE
         bcc paletteloop
 
     initialize_cursor:
@@ -234,7 +235,7 @@ FAMISTUDIO_DPCM_OFF             = $c000
         lda #SHAPE_TOOL_TYPE_DEFAULT
         sta shape_tool_type
 
-    jsr ppu_update
+    jsr PPUUpdate
 
 .ifdef TESTS
 .include "tests/tests.s"
@@ -248,7 +249,7 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
-.byte OFFWHITE,RED, GREEN, BLUE
+.byte OFFWHITE, RED, GREEN, BLUE
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
@@ -256,15 +257,6 @@ default_palette:
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
-
-
-switched_palette:
-;.byte $idk, $idk, drawColor, $idk
-;bg tiles/ text
-.byte $00,$00,$00,$00
-.byte $01,$28,$1c,$2d
-.byte $01,$28,$1c,$2d
-.byte $01,$28,$1c,$2d 
 
 
 ; EXAMPLE_DATA:
@@ -278,6 +270,7 @@ switched_palette:
         ;||+------ Priority (0: in front of background; 1: behind background)
         ;|+------- Flip sprite horizontally
         ;+-------- Flip sprite vertically
+
 
 CURSOR_SMALL_DATA:
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %00000000, $00      ; top-left
@@ -315,4 +308,3 @@ CURSOR_SHAPE_TOOL_DATA:
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/start_menu_tilemap.nam"
-

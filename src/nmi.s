@@ -29,29 +29,29 @@
     ; transfer current palette to PPU
     lda #%10001000 ; set horizontal nametable increment
     sta PPU_CONTROL
+
     lda PPU_STATUS
-    lda #$3F ; set PPU address to $3F00
+    lda #>PPU_PALETTE_START
     sta PPU_ADDR
+    ldx #$00 ; transfer the 32 bytes to VRAM
     stx PPU_ADDR
-    ldx #0 ; transfer the 32 bytes to VRAM
 
     loop:
         lda palette, x
         sta PPU_DATA
         inx
-        cpx #32
+        cpx #PALETTE_SIZE
         bcc loop
 
     ; Khine
-    jsr ClearCanvas
-    jsr DrawBrush
+    jsr UseClearCanvasTool
+    jsr UseBrushTool
     jsr UseShapeTool
     jsr UseFillTool
 
     jsr DrawOverlayCursorPosition
     ;jsr UpdateToolSelectionOverlay
     ;jsr UpdateColorSelectionOverlay
-    ;jsr UpdateColorValues
 
     jsr ResetScroll
 

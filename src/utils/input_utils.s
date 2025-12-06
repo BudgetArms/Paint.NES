@@ -57,6 +57,8 @@
     rts 
 
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc HandleMenuInput
@@ -65,6 +67,7 @@
 
 .endproc
 ; BudgetArms
+
 
 ; Joren
 .proc HandleCanvasInput
@@ -275,7 +278,7 @@
         jmp Stop_Checking
 
     Stop_Checking:
-        jsr IncButtonHeldFrameCount
+        jsr IncreaseButtonHeldFrameCount
         rts
 
 .endproc
@@ -352,3 +355,4 @@
 
         rts
 .endproc
+; BudgetArms
