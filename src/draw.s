@@ -708,7 +708,7 @@
 
     ; X offset is stored in X
     sec  
-    sta shape_tool_second_pos_x
+    lda shape_tool_second_pos_x
     sbc shape_tool_first_pos_x
 
     tax 
