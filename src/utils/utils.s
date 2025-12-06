@@ -612,9 +612,10 @@ DontMoveYet:
     clc 
     adc #$01
 
-    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    cmp #TOOLS_TOTAL_AMOUNT
     bmi Value_Was_Okay ; branch if not negative
-    lda #00 ; set value back to 0
+
+        lda #00 ; set value back to 0
 
     Value_Was_Okay:
     sta selected_tool
@@ -631,11 +632,12 @@ DontMoveYet:
     bne DontRegisterYet
 
     lda selected_tool
-    sec
+    sec 
     sbc #$01
 
     bpl Value_Was_Okay ; branch if not negative
-    lda #03 ; set value back to max index
+    ; lda #03 ; set value back to max index
+    lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
 
     Value_Was_Okay:
     sta selected_tool

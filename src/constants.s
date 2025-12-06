@@ -242,19 +242,29 @@ SECOND_COLOR_ONSCREEN_ADRESS    = $2031
 THIRD_COLOR_ONSCREEN_ADRESS     = $2032
 FOURTH_COLOR_ONSCREEN_ADRESS    = $2033
 
-PENCIL_TOOL_ONSCREEN_ADRESS = $2037
+BRUSH_TOOL_ONSCREEN_ADRESS = $2037
 ERASER_TOOL_ONSCREEN_ADRESS = $2039
 FILL_TOOL_ONSCREEN_ADRESS   = $203b
 CLEAR_TOOL_ONSCREEN_ADRESS  = $203d
-PENCIL_ICON_TILE_INDEX      = $08 ; also known as the background color tile
+BRUSH_ICON_TILE_INDEX      = $08 ; also known as the background color tile
 ERASER_ICON_TILE_INDEX      = $09
 FILL_ICON_TILE_INDEX        = $0a
 CLEAR_ICON_TILE_INDEX       = $0b
 
-BRUSH_TOOL_ACTIVATED   = $00
+; Tools
+; TODO: now it's 5: draw, eraser (doesn't do shit), fill, shape, clear
+; TODO: reduce this to 4: draw, shape, fill, clear
+TOOLS_TOTAL_AMOUNT = 5
+
+BRUSH_TOOL_ACTIVATED    = $00
 ERASER_TOOL_ACTIVATED   = $01
 FILL_TOOL_ACTIVATED     = $02
-CLEAR_TOOL_ACTIVATED    = $03
+SHAPE_TOOL_ACTIVATED    = $03
+CLEAR_TOOL_ACTIVATED    = $04
+
+
+
+
 
 ;Color values
 WHITE       = $30
@@ -263,3 +273,4 @@ GRAY        = $00
 RED         = $05
 GREEN       = $0a
 BLUE        = $01
+
