@@ -12,7 +12,6 @@ mainloop:
     jsr UpdateCursorPosition
     jsr UpdateOverlayCursorPosition
     jsr ConvertCursorPosToTilePositions
-    ;jsr HideActiveCursorIfSelectionMenu
 
     jsr DrawShapeToolCursor
 

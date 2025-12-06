@@ -25,7 +25,7 @@
     ; Play drawing sound effect here based on tool mode
 
     lda selected_tool
-    cmp #PENCIL_TOOL_ACTIVATED
+    cmp #BRUSH_TOOL_ACTIVATED
     beq @Play_Splash
     
     ; Eraser mode - play bird sound (index 0)

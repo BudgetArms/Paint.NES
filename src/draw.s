@@ -208,7 +208,6 @@
         ; Increase cursor_x with oam data's x-pos
         clc 
         lda cursor_x
-        ; adc oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
         sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
 
     rts 
@@ -270,7 +269,8 @@
         cpy brush_size
         bne @column_loop
 
-rts
+    rts
+
 .endproc
 ; Khine / BudgetArms
 
@@ -296,9 +296,25 @@ rts
     First_Position:
         ; First position set
 
+        ; if current pos same as previous shape's tool second pos
+        ; eg. bc called on held, fix it by checking if it's still in the same location
+        lda cursor_x
+        cmp shape_tool_second_pos_x
+        bne @Use_Second_Position
+
+        lda cursor_y
+        cmp shape_tool_second_pos_y
+        bne @Use_Second_Position
+
+        ; if current pos == previous pos
+        jmp Finish
+
+
+        @Use_Second_Position:
+
         lda #$01
         sta shape_tool_has_set_first_pos
-
+    
         ; store x/y
         lda cursor_x
         sta shape_tool_first_pos_x
@@ -308,12 +324,29 @@ rts
         
         rts 
 
+
     Second_Position:
         ; Second position set
 
+        ; if first pos and second pos the same, rts, else @Use_Second_Position
+        lda cursor_x
+        cmp shape_tool_first_pos_x
+        bne @Use_Second_Position
+
+        lda cursor_y
+        cmp shape_tool_first_pos_y
+        bne @Use_Second_Position
+
+
+        ; if First pos == Second pos, rts
+        rts 
+
+
+        @Use_Second_Position:
+
         lda #$00
         sta shape_tool_has_set_first_pos
-        
+
         ; store x/y
         lda cursor_x
         sta shape_tool_second_pos_x
@@ -322,34 +355,34 @@ rts
         sta shape_tool_second_pos_y
         
 
-        ; call the shape type funcction
+        ; Rectangle
         lda shape_tool_type
         and #SHAPE_TOOL_TYPE_RECTANGLE
-        bne Not_Rectangle_Type
+        bne @Not_Rectangle_Type
 
             ; if rectangle mode
-
-
+            jsr DrawShapeRectangle
             rts 
 
-        Not_Rectangle_Type:
+        @Not_Rectangle_Type:
 
-
+        ; Circle
         lda shape_tool_type
         and #SHAPE_TOOL_TYPE_CIRCLE
-        bne Not_Circle_Type
+        bne @Not_Circle_Type
 
             ; if circle mode
-
-
+            jsr DrawShapeCircle
             rts 
 
-        Not_Circle_Type:
+        @Not_Circle_Type:
 
-
-        ; should never be reached !!!
+        ; this should never be reached
         rts 
-    
+
+
+    Finish:
+    rts 
 
 .endproc
 ; BudgetArms
@@ -358,18 +391,17 @@ rts
 ; BudgetArms
 .proc DrawShapeToolCursor
 
-    ; if in shape mode
-    lda tool_mode    
-    and #SHAPE_MODE
-    bne Use_Shape_Mode
+    lda selected_tool 
+    cmp #SHAPE_TOOL_ACTIVATED
+    beq Use_Shape
 
         ; hide shape cursor
         lda #OAM_OFFSCREEN
         sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL
 
         rts 
-
-    Use_Shape_Mode:
+    
+    Use_Shape:
 
     ; hide all cursors
     jsr HideActiveCursor
@@ -396,10 +428,11 @@ rts
 
     lda tool_use_attr
     and #FILL_TOOL_ON
-    bne @Use_Fill
+    bne Use_Fill
         rts 
 
-    @Use_Fill:
+    Use_Fill:
+
     ; Remove FILL_TOOL_ON from the tool_use_attributes
     lda tool_use_attr
     eor #FILL_TOOL_ON
@@ -443,7 +476,6 @@ rts
 
 
     Fill_Loop:
-        
         ; if head == tail -> Finish, else Not_Finish
         lda queue_head
         cmp queue_tail
@@ -461,21 +493,80 @@ rts
         cmp fill_target_color
         bne Fill_Loop
 
-        ; fill the tile in the target color
+        ; Draw current tile
         jsr WriteBrushToCurrentAddr
 
-        ; If tile not on top of screen, check up
-        GetNametableTileY fill_current_addr
-        cmp #$00
-        bne Check_Up
+    Start_Algorithm:
 
-        ; if tile on right side of screen, check down
+    ; Checks if it can fill current tile, then
+    ; tries to check neighbors in order:
+    ; Up, Down, Left, Right
+    ; if tile is good, add tile to queue 
+
+
+    Try_Up:
+    
+        ; If tile not on top of screen, Do_Up
+        GetNametableTileY fill_current_addr
+        cmp #CURSOR_MIN_Y
+        bne Do_Up
+
+
+        ; else if tile on right side of screen, Try_Down
+        clc 
         GetNametableTileX fill_current_addr
         cmp #DISPLAY_SCREEN_WIDTH
         bcc Try_Down
 
+        ; this should never be reached
+        rts 
 
-    Check_Up:
+
+    Try_Down:
+
+        ; if not last row, Do_Down
+        GetNametableTileY fill_current_addr
+        cmp #CURSOR_MAX_Y - 1
+        bne Do_Down
+        
+        ; if last row, try_left
+        beq Try_Left
+
+        ; this should never be reached
+        rts 
+
+
+    Try_Left:
+
+        ; if not first column, Do_Left
+        GetNametableTileX fill_current_addr
+        cmp #CURSOR_MIN_X
+        bne Do_Left
+
+        ; if first column, Try_Right 
+        beq Try_Right
+
+        ; this should never be reached
+        rts 
+
+
+    Try_Right:
+
+        ; If not last column, Do_Right
+        clc 
+        GetNametableTileX fill_current_addr
+        cmp #CURSOR_MAX_X - 1
+        bne Do_Right
+
+        ; if last column, Loop_End
+        beq Loop_End
+
+        ; this should never be reached
+        rts 
+
+
+
+    Do_Up:
 
         ; Move up, by subtracing (screen_width + 1)
         sec 
@@ -493,21 +584,13 @@ rts
         cmp fill_target_color
         bne Try_Down
 
-        ; Draw tile
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
 
-
-    Try_Down:
-
-        ; if not last row, do  
-        GetNametableTileY fill_current_addr
-        cmp #DISPLAY_SCREEN_HEIGHT - 1
-        beq Try_Left
-
-        ; else do down
-        jmp Do_Down
+        ; Go Try_Down
+        jmp Try_Down
 
 
     Do_Down:
@@ -529,17 +612,16 @@ rts
         cmp fill_target_color
         bne Try_Left
 
-        ; draw tile
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
 
+        ; Go Try_Left
+        jmp Try_Left
 
-    Try_Left:
 
-        ; if first column, try right
-        GetNametableTileX fill_current_addr
-        beq Try_Right
+    Do_Left:
 
         ; set neighbor tile (low) 
         sec 
@@ -558,19 +640,16 @@ rts
         cmp fill_target_color
         bne Try_Right
         
-        ; draw tile
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
 
+        ; Go Try_Right
+        jmp Try_Right
 
-    Try_Right:
 
-        ; If last column, LoopEnd
-        GetNametableTileX fill_current_addr
-        cmp #DISPLAY_SCREEN_WIDTH - 1 
-        beq Loop_End
-
+    Do_Right:
 
         ; Set fill_neighbor low byte address to right neighbor
         clc 
@@ -588,10 +667,14 @@ rts
         cmp fill_target_color
         bne Loop_End
 
-        ; Add right tile to queue
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
+
+        ; Go Loop_End
+        jmp Loop_End
+
 
 
     Loop_End:
@@ -604,6 +687,7 @@ rts
 .endproc
 ; BudgetArms
 
+
 ; BudgetArms
 .proc DrawShapeRectangle
 
@@ -614,7 +698,7 @@ rts
     lda shape_tool_first_pos_y
     sta shape_tool_staring_pos_y
 
-    ; check where the second pos X is compaared to first    
+    ; check where the second pos X is compared to first    
 
     ; X offset is stored in X
     sec  
@@ -641,16 +725,18 @@ rts
     sbc shape_tool_second_pos_y
     
 
-
-
-
+    rts 
 
 .endproc
 ; BudgetArms
 
+
 ; BudgetArms
 .proc DrawShapeCircle
 
+
+
+    rts 
 
 .endproc
 ; BudgetArms

@@ -77,8 +77,7 @@ clear_oam:
     sta tool_use_attr
 
     ;initialise collors
-    lda #$02
-    sta selected_color_chr_index
+    ChangeBrushTileIndex #$02
 
     ; Initialize four color values
     ; These colors will be the start colors.
@@ -118,4 +117,5 @@ wait_vblank2:
     sta PPU_CONTROL
 
     jmp main
+
 .endproc

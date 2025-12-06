@@ -53,17 +53,9 @@
 
     Not_In_Menu:
 
-    ; else
-    ; if in canvas
-    lda scroll_y_position
-    cmp #CANVAS_MODE
-    bne Not_In_Canvas
-
-        jsr HandleCanvasInput
-        rts 
-
-    Not_In_Canvas:
+    jsr HandleCanvasInput
     rts 
+
 .endproc
 
 ; BudgetArms
@@ -72,22 +64,22 @@
     rts 
 
 .endproc
-
 ; BudgetArms
+
+; Joren
 .proc HandleCanvasInput
 
     lda current_input
     bne Input_Detected
-
-    lda #$00 ; reset frame count to 0
-    sta frame_count
-    rts ; if no buttons are pressed, skip all checks.
+        lda #$00 ; reset frame count to 0
+        sta frame_count
+        rts ; if no buttons are pressed, skip all checks.
 
     Input_Detected:
     ; Check if the frame count is 0
     lda frame_count
     beq Start_Checking_Input
-    jmp Stop_Checking
+        jmp Stop_Checking
 
     Start_Checking_Input:
     lda current_input
@@ -95,42 +87,42 @@
     Check_PAD_A:
         cmp #PAD_A
         bne Check_PAD_A_LEFT
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jmp Stop_Checking
-
+    
     Check_PAD_A_LEFT:
         cmp #PAD_A_LEFT
         bne Check_PAD_A_RIGHT
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jsr MoveCursorLeft
         jmp Stop_Checking
 
     Check_PAD_A_RIGHT:
         cmp #PAD_A_RIGHT
         bne Check_PAD_A_UP
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jsr MoveCursorRight
         jmp Stop_Checking
 
     Check_PAD_A_UP:
         cmp #PAD_A_UP
         BNE Check_PAD_A_DOWN
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jsr MoveCursorUp
         jmp Stop_Checking
 
     Check_PAD_A_DOWN:
         cmp #PAD_A_DOWN
         bne Check_PAD_A_UP_LEFT
-        jsr HandleCursorPressedA
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
+        jsr UseSelectedTool
         jsr MoveCursorDown
         jmp Stop_Checking
 
     Check_PAD_A_UP_LEFT:
         cmp #PAD_A_UP_LEFT
         bne Check_PAD_A_DOWN_LEFT
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jsr MoveCursorUp
         jsr MoveCursorLeft
         jmp Stop_Checking
@@ -138,7 +130,7 @@
     Check_PAD_A_DOWN_LEFT:
         cmp #PAD_A_DOWN_LEFT
         bne Check_PAD_A_UP_RIGHT
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jsr MoveCursorDown
         jsr MoveCursorLeft
         jmp Stop_Checking
@@ -146,7 +138,7 @@
     Check_PAD_A_UP_RIGHT:
         cmp #PAD_A_UP_RIGHT
         bne Check_PAD_A_DOWN_RIGHT
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jsr MoveCursorUp
         jsr MoveCursorRight
         jmp Stop_Checking
@@ -154,7 +146,7 @@
     Check_PAD_A_DOWN_RIGHT:
         cmp #PAD_A_DOWN_RIGHT
         bne Check_PAD_SELECT
-        jsr HandleCursorPressedA
+        jsr UseSelectedTool
         jsr MoveCursorDown
         jsr MoveCursorRight
         jmp Stop_Checking
@@ -183,7 +175,6 @@
         cmp #PAD_SELECT_UP
         bne Check_PAD_SELECT_DOWN
         
-        ;jsr IncreaseColorPalleteIndex
         jsr IncreaseColorValueForSelectedTile
         jmp Stop_Checking
 
@@ -191,7 +182,6 @@
         cmp #PAD_SELECT_DOWN
         bne Check_PAD_START
         
-        ;jsr DecreaseColorPalleteIndex
         jsr DecreaseColorValueForSelectedTile
         jmp Stop_Checking
 
@@ -219,7 +209,6 @@
         bne Check_PAD_START_DOWN
         jmp Stop_Checking
 
-
     Check_PAD_START_DOWN:
         cmp #PAD_START_DOWN
         bne Check_PAD_LEFT
@@ -240,33 +229,17 @@
     Check_PAD_UP:
         cmp #PAD_UP
         bne Check_PAD_DOWN
-        lda scroll_y_position
-        cmp #CANVAS_MODE
-        bne MoveUpInMenu
-        ;InCanvas:
-        jsr MoveCursorUp
-        jmp Stop_Checking
 
-        MoveUpInMenu:
-        jsr MoveSelectionStarUp
-        
+        jsr MoveCursorUp
         jmp Stop_Checking
 
     Check_PAD_DOWN:
         cmp #PAD_DOWN
         bne Check_PAD_UP_LEFT
-        lda scroll_y_position
-        cmp #CANVAS_MODE
-        bne MoveDownInMenu
-        ;InCanvas:
+
         jsr MoveCursorDown
         jmp Stop_Checking
-
-        MoveDownInMenu:
-        jsr MoveSelectionStarDown
         
-        jmp Stop_Checking
-
     Check_PAD_UP_LEFT:
         cmp #PAD_UP_LEFT
         bne Check_PAD_DOWN_LEFT
@@ -298,54 +271,61 @@
     Check_PAD_B:
         cmp #PAD_B
         bne Stop_Checking
-        jsr HandleCursorPressedB
+        jsr ChangeBrushSize
         jmp Stop_Checking
-
-    ; Check_REST:               ; Might need this later
-        ; jmp Stop_Checking
-
 
     Stop_Checking:
         jsr IncButtonHeldFrameCount
         rts
 
 .endproc
+; Joren
+
 
 ; BudgetArms
-.proc HandleCursorPressedA
+.proc UseSelectedTool
 
     lda selected_tool
 
     Check_Brush_Tool:
-    cmp #PENCIL_TOOL_ACTIVATED
+    cmp #BRUSH_TOOL_ACTIVATED
     bne Check_Eraser_Tool
-    ChangeToolAttr #BRUSH_TOOL_ON
-    rts
+        ChangeToolAttr #BRUSH_TOOL_ON
+        rts 
 
     Check_Eraser_Tool:
     cmp #ERASER_TOOL_ACTIVATED
     bne Check_Fill_Tool
-    ChangeToolAttr #ERASER_TOOL_ON
-    rts
+        ChangeToolAttr #ERASER_TOOL_ON
+        rts 
 
     Check_Fill_Tool:
     cmp #FILL_TOOL_ACTIVATED
+    bne Check_Shape_Tool
+        ChangeToolAttr #FILL_TOOL_ON
+        rts 
+
+    Check_Shape_Tool:
+    cmp #SHAPE_TOOL_ACTIVATED
     bne Check_Clear_Tool
-    ChangeToolAttr #FILL_TOOL_ON
-    rts
+        ChangeToolAttr #SHAPE_TOOL_ON
+        rts 
 
     Check_Clear_Tool:
     cmp #CLEAR_TOOL_ACTIVATED
-    bne End_Check
-    ChangeToolAttr #CLEAR_TOOL_ON
+    bne @End
+        ChangeToolAttr #CLEAR_TOOL_ON
+        rts 
+
+    @End:
     rts
 
-    End_Check:
-    rts
 .endproc
+; BudgetArms
+
 
 ; BudgetArms
-.proc HandleCursorPressedB
+.proc ChangeBrushSize
     jsr CycleBrushSize
 
     lda cursor_type     ; load cursor type

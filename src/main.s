@@ -15,7 +15,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-.incbin "game_Joren.chr"
+.incbin "game.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
@@ -154,7 +154,7 @@ fill_queue: .res 512
 .segment "CODE"
 irq:
     ;handle interrupt if needed
-    rti
+    rti 
 
 ;***************************************
 
@@ -258,47 +258,33 @@ default_palette:
 .byte $0f,$0b,$1a,$29
 
 
-;sprites
-;.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
-;.byte $0f,$0c,$21,$32
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
-
 switched_palette:
 ;.byte $idk, $idk, drawColor, $idk
 ;bg tiles/ text
 .byte $00,$00,$00,$00
-;.byte $00,$00,$00,$00
 .byte $01,$28,$1c,$2d
 .byte $01,$28,$1c,$2d
 .byte $01,$28,$1c,$2d 
-;.byte $0f,$0c,$21,$32
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
 
 
-;sprites
-;.byte $0f,$20,$10,$30 ; changed Color 1 to $20 for testing
-;.byte $0f,$0c,$21,$32
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
+; EXAMPLE_DATA:
+    ; .byte EXAMPLE_Y_POS, TILEINDEX_EXAMPLE,   %10000001, $10
 
-
-SAMPLE_SPRITE:
-;    .byte $00,SMILEYFACE_TILE, %10000001, $10
-                                ;76543210
-                                ;||||||||
-                                ;||||||++- Palette of sprite
-                                ;|||+++--- Unimplemented
-                                ;||+------ Priority (0: in front of background; 1: behind background)
-                                ;|+------- Flip sprite horizontally
-                                ;+-------- Flip sprite vertically
+    ; Sprite Attributes:
+        ;%76543210
+        ;||||||||
+        ;||||||++- Palette of sprite
+        ;|||+++--- Unimplemented
+        ;||+------ Priority (0: in front of background; 1: behind background)
+        ;|+------- Flip sprite horizontally
+        ;+-------- Flip sprite vertically
 
 CURSOR_SMALL_DATA:
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %00000000, $00      ; top-left
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %01000000, $00      ; top-right
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %10000000, $00      ; bottom-left
     .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %11000000, $00      ; bottom-right
+
 
 CURSOR_NORMAL_DATA:
     .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
@@ -326,11 +312,7 @@ CURSOR_SHAPE_TOOL_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
-Seletion_Star_Sprite:
-    .byte OAM_OFFSCREEN, STAR_TILE, $00000000, SELECTION_STAR_X_OFFSET
-
-Selection_Menu_Tilemap:
-    .incbin "./tilemaps/selection_menu.nam"
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/start_menu_tilemap.nam"
+

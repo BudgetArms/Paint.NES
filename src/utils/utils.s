@@ -1,10 +1,16 @@
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
    lda source_tile
-   ;sta brush_tile_index
    sta selected_color_chr_index
 .endmacro
 ; Khine
+
+
+; BudgetArms
+.macro ChangeBrushTileIndexFromA
+    sta selected_color_chr_index
+.endmacro
+; BudgetArms
 
 
 ; Khine
@@ -351,6 +357,7 @@
 ; Khine / BudgetArms
 
 
+; TODO: RENAMED to SelectShapeTool
 ; BudgetArms
 .proc ToggleShapeTool
     ChangeBrushTileIndex drawing_color_tile_index
@@ -360,20 +367,16 @@
 ; BudgetArms
 
 
+; TODO: RENAMED to SelectEraserTool
 ; Khine
 .proc ToggleEraserTool
-    ; ChangeBrushTileIndex #BACKGROUND_TILE
-    ; ChangeToolMode #ERASER_MODE
-    ; rts 
-    lda #$00
-    sta selected_color_chr_index
-    ;ChangeBrushTileIndex #BACKGROUND_TILE
-    ;ChangeCanvasMode #ERASER_MODE
-    rts
+    ChangeBrushTileIndex #BACKGROUND_TILE
+    rts 
 .endproc
 ; Khine
 
 
+; TODO: RENAMED to SelectFillTool
 ; BudgetArms
 .proc ToggleFillTool
     ChangeBrushTileIndex drawing_color_tile_index
@@ -381,156 +384,6 @@
     rts 
 .endproc
 ; BudgetArms
-
-
-; Khine / BudgetArms
-.proc CycleCanvasModes
-    ; Cycle between canvas mode and selection menu mode
-    lda scroll_y_position
-    cmp #CANVAS_MODE
-    bne @Not_Canvas_Mode
-
-        ; In selection menu mode
-        lda #SELECTION_MENU_MODE
-        sta scroll_y_position
-
-        ; Check what tool mode
-        lda tool_mode
-
-        cmp #DRAW_MODE
-        bne @Not_Draw_Mode
-            lda #SELECTION_MENU_0_DRAW
-            jmp @End
-
-        @Not_Draw_Mode:
-
-        cmp #SHAPE_MODE
-        bne @Not_Shape_Mode
-            lda #SELECTION_MENU_1_SHAPE
-            jmp @End
-
-        @Not_Shape_Mode:
-
-        cmp #ERASER_MODE
-        bne @Not_Eraser_Mode
-            lda #SELECTION_MENU_2_ERASER
-            jmp @End
-
-        @Not_Eraser_Mode:
-
-        cmp #FILL_MODE
-        bne @Not_Fill_Mode
-            lda #SELECTION_MENU_3_FILL
-            jmp @End
-
-        @Not_Fill_Mode:
-
-        @End:
-        ;lda tool_mode
-        ;cmp #DRAW_MODE
-        ;bne @Not_Draw_Mode
-        ;    lda #SELECTION_MENU_0_DRAW
-        ; @Not_Draw_Mode:
-        ;cmp #ERASER_MODE
-        ;bne @Not_Eraser_Mode
-        ;    lda #SELECTION_MENU_1_ERASER
-        ; @Not_Eraser_Mode:
-        sta oam + SELECTION_STAR_OFFSET + OAM_Y
-        rts 
-
-    @Not_Canvas_Mode:
-    lda #CANVAS_MODE
-    sta scroll_y_position
-    lda #OAM_OFFSCREEN
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-
-    rts
-.endproc
-; Khine / BudgetArms
-
-
-; Khine
-.proc MoveSelectionStarUp
-
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_In_Start_Pos
-        rts 
-
-    @Not_In_Start_Pos:
-
-    sec 
-    sbc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts 
-
-.endproc
-; Khine
-
-
-; Khine
-.proc MoveSelectionStarDown
-
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-
-    cmp #SELECTION_MENU_4_CLEAR
-    bne @Not_In_End_Pos
-        rts 
-
-    @Not_In_End_Pos:
-
-    clc 
-    adc #TILE_PIXEL_SIZE
-    sta oam + SELECTION_STAR_OFFSET + OAM_Y
-    rts 
-
-.endproc
-; Khine
-
-
-; Khine / BudgetArms
-.proc SelectTool
-    ; Not used
-    lda oam + SELECTION_STAR_OFFSET + OAM_Y
-
-    cmp #SELECTION_MENU_0_DRAW
-    bne @Not_On_Draw
-        ;jsr ToggleDrawTool
-        rts 
-
-    @Not_On_Draw:
-
-    cmp #SELECTION_MENU_1_SHAPE
-    bne @Not_On_Shape
-        jsr ToggleShapeTool
-        rts 
-
-    @Not_On_Shape:
-
-    cmp #SELECTION_MENU_2_ERASER
-    bne @Not_On_Eraser
-        jsr ToggleEraserTool
-        rts 
-
-    @Not_On_Eraser:
-
-    cmp #SELECTION_MENU_3_FILL
-    bne @Not_On_Fill
-        jsr ToggleFillTool
-        rts 
-
-    @Not_On_Fill:
-
-    cmp #SELECTION_MENU_4_CLEAR
-    bne @Not_On_Clear_Canvas
-        ChangeToolAttr #CLEAR_CANVAS_TOOL_ON
-        rts 
-
-    @Not_On_Clear_Canvas:
-
-    rts 
-.endproc
-; Khine / BudgetArms
 
 
 ; BudgetArms / Joren
@@ -572,24 +425,14 @@
 
     cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
     bmi Value_Was_Okay ; branch if not negative
-    lda #00 ; set value back to 0
+        lda #00 ; set value back to 0
 
     Value_Was_Okay:
-    ;sta chrTileIndex
-    sta selected_color_chr_index
-    ;lda four_color_values, selected_color_chr_index
-    
-    ;beq Pencil
-    ;Eraser:
-    ;    lda #ERASER_MODE
-    ;    sta tool_mode
-    ;    RTS
+    ChangeBrushTileIndexFromA
 
-    ;Pencil:
-    ;    LDA #DRAW_MODE
-    ;    sta tool_mode
-    rts
+    rts 
 .endproc
+; Joren
 
 
 .proc DecreaseChrTileIndex
@@ -602,18 +445,7 @@
     lda #03 ; set value back to max index
 
     Value_Was_Okay:
-    ;sta chrTileIndex
-    sta selected_color_chr_index
-
-    ;beq Pencil
-    ;Eraser:
-    ;    lda #ERASER_MODE
-    ;    sta tool_mode
-    ;    RTS
-
-    ;Pencil:
-    ;    LDA #DRAW_MODE
-    ;    sta tool_mode
+    ChangeBrushTileIndexFromA
 
     rts
 .endproc
@@ -647,6 +479,7 @@
 ; Joren
 
 
+; Joren
 .proc IncButtonHeldFrameCount
     lda frame_count
     clc
@@ -664,12 +497,13 @@
 
 .proc IncreaseToolSelection
     lda selected_tool
-    clc
+    clc 
     adc #$01
 
-    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    cmp #TOOLS_TOTAL_AMOUNT
     bmi Value_Was_Okay ; branch if not negative
-    lda #00 ; set value back to 0
+
+        lda #00 ; set value back to 0
 
     Value_Was_Okay:
     sta selected_tool
@@ -681,11 +515,12 @@
 .proc DecreaseToolSelection
     ; Code to slow input registration down
     lda selected_tool
-    sec
+    sec 
     sbc #$01
 
     bpl Value_Was_Okay ; branch if not negative
-    lda #03 ; set value back to max index
+    ; lda #03 ; set value back to max index
+    lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
 
     Value_Was_Okay:
     sta selected_tool
@@ -695,9 +530,9 @@
 
 ; Joren
 .proc InitializeToolSelectionOverlay
-    ; FIRST tile = pencil tool
-    ChangePPUNameTableAddr PENCIL_TOOL_ONSCREEN_ADRESS
-    lda #PENCIL_ICON_TILE_INDEX
+    ; FIRST tile = brush tool
+    ChangePPUNameTableAddr BRUSH_TOOL_ONSCREEN_ADRESS
+    lda #BRUSH_ICON_TILE_INDEX
     sta PPU_DATA
 
     ; SECOND tile = eraser tool
@@ -772,7 +607,7 @@
     ; SELECTED tile
     lda #$20 ; > takes highbyte of 16 bit value
     sta PPU_ADDR
-    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    lda #<BRUSH_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
     clc
     adc selected_tool
     clc
@@ -780,15 +615,18 @@
     sta PPU_ADDR
     lda selected_tool
     clc
-    adc #PENCIL_ICON_TILE_INDEX
+    adc #BRUSH_ICON_TILE_INDEX
     clc
     adc #$10 ; +16 = +1 row on chr file
     sta PPU_DATA
 
     rts
 .endproc
+; Joren
 
 
+
+; ???
 .proc LoadColorValuesIntoPPU
     ldx #$00
     loop:
@@ -806,6 +644,7 @@
 
     rts
 .endproc
+; ???
 
 
 .proc IncreaseColorValueForSelectedTile
@@ -816,6 +655,7 @@
     sta palette, X
     rts
 .endproc
+; Joren
 
 
 .proc DecreaseColorValueForSelectedTile
@@ -826,7 +666,11 @@
     sta palette, X
     rts
 .endproc
+; Joren
 
+
+; TODO: use lowercase for instructions
+; Joren
 .proc LoadSecondColorPalleteIntoPPU
     ldx #$04
     loop:
@@ -846,7 +690,11 @@
 .endproc
 
 
+; TODO: WTF, use constants, not magic numbers, ...
+; TODO: use lowercase for instructions
+; Joren
 .proc SetColorPaletteForUI
+
     ; pick nametable 0 attribute table
     LDA $2002        ; reset latch
     LDA #$23
@@ -854,9 +702,12 @@
     LDA #$C0
     STA $2006        ; low byte (start of attr table)
 
-; write an attribute byte (palettes for 4 quadrants)
+    ; write an attribute byte (palettes for 4 quadrants)
     LDA #%01100011  ; 2 bits per quadrant
     STA $2007
 
+
     rts
+
 .endproc
+; Joren

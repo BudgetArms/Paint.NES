@@ -1,10 +1,10 @@
 .proc nmi
     ; save registers
-    pha
-    txa
-    pha
-    tya
-    pha
+    pha 
+    txa 
+    pha 
+    tya 
+    pha 
 
     lda nmi_ready
     bne :+ ; nmi_ready == 0 not ready to update PPU
@@ -18,7 +18,7 @@
         stx nmi_ready
         jmp ppu_update_end
 
-cont_render:
+    cont_render:
 
     ; transfer sprite OAM data using DMA
     ldx #0
@@ -67,10 +67,12 @@ cont_render:
     jsr famistudio_update
 
     ; restore registers and return
-    pla
-    tay
-    pla
-    tax
-    pla
-    rti
+    pla 
+    tay 
+    pla 
+    tax 
+    pla 
+
+    rti 
+
 .endproc
