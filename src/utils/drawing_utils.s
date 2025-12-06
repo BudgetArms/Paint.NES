@@ -93,7 +93,7 @@
     Loop:
         sta oam + oamOffset, X
         
-        ; Got to next sprite (Y-pos)
+        ; Go to next sprite (Y-pos)
         inx 
         inx 
         inx 
