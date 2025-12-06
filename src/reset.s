@@ -16,9 +16,6 @@
     ldx #$FF
     txs			; initialise stack
 
-    ; wait for first vBlank
-    bit PPU_STATUS
-
 wait_vblank:
     bit PPU_STATUS
     bpl wait_vblank
@@ -53,16 +50,13 @@ clear_oam:
     bne clear_oam
 
     ; Initialize cursor starting position
-    lda #$00
+    lda #$05
     sta tile_cursor_x
     sta tile_cursor_y
     sta cursor_x
     sta cursor_y
 
     ; Initialize brush variables
-    ;lda #$02
-    ;sta drawing_color_tile_index ; Color index
-    ;sta chrTileIndex ; Joren
     lda #$01
     sta brush_size ; Brush size
     lda #$00
@@ -81,11 +75,6 @@ clear_oam:
 
     lda #ALL_TOOLS_OFF
     sta tool_use_attr
-
-    jsr ToggleDrawTool
-    jsr InitializeSelectionStar
-    ;lda #SELECTION_STAR_Y_END_POS
-    ;sta selection_star_y_pos
 
     ;initialise collors
     lda #$02
@@ -136,24 +125,7 @@ wait_vblank2:
     ; NES is initialized and ready to begin
     ; - enable the NMI for graphical updates and jump to our main program
 
-    ; Initialize FamiStudio sound engine
-    ldx #.lobyte(music_data_untitled) ; Sets the address of the background music
-    ldy #.hibyte(music_data_untitled)
-    lda #1  ; 0 = NTSC, 1 = PAL
-    jsr famistudio_init
-
-    ; Initialize SFX
-    ldx #.lobyte(sounds)    ; Sets the address of sound effects
-    ldy #.hibyte(sounds)
-    jsr famistudio_sfx_init
-
-    ; Start playing first song (song index 0)
-    lda #0
-    jsr famistudio_music_play
-
-    ; Initialize music state
-    lda #0
-    sta music_paused
+    jsr InitializeAudio
 
     lda #%10000000
     sta PPU_CONTROL

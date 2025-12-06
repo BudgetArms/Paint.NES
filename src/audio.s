@@ -1,3 +1,25 @@
+.proc InitializeAudio
+    ; Initialize FamiStudio sound engine
+    ldx #.lobyte(music_data_untitled) ; Sets the address of the background music
+    ldy #.hibyte(music_data_untitled)
+    lda #1  ; 0 = NTSC, 1 = PAL
+    jsr famistudio_init
+
+    ; Initialize SFX
+    ldx #.lobyte(sounds)    ; Sets the address of sound effects
+    ldy #.hibyte(sounds)
+    jsr famistudio_sfx_init
+
+    ; Start playing first song (song index 0)
+    lda #0
+    jsr famistudio_music_play
+
+    ; Initialize music state
+    lda #0
+    sta music_paused
+    rts
+.endproc
+
 .proc PlayBrushSoundEffect
 
     ; Play drawing sound effect here based on tool mode
