@@ -54,7 +54,7 @@
 
 ; BudgetArms
 .macro ResetFrameCounterHolder frameCounterHolder
-    ; save register a
+    ; Save register A
     pha 
 
     lda #$00
