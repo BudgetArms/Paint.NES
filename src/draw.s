@@ -429,10 +429,11 @@
 
     lda tool_use_attr
     and #FILL_TOOL_ON
-    bne @Use_Fill
+    bne Use_Fill
         rts 
 
-    @Use_Fill:
+    Use_Fill:
+
     ; Remove FILL_TOOL_ON from the tool_use_attributes
     lda tool_use_attr
     eor #FILL_TOOL_ON
@@ -476,7 +477,6 @@
 
 
     Fill_Loop:
-        
         ; if head == tail -> Finish, else Not_Finish
         lda queue_head
         cmp queue_tail
@@ -494,21 +494,32 @@
         cmp fill_target_color
         bne Fill_Loop
 
-        ; fill the tile in the target color
+        ; Draw current tile
         jsr WriteBrushToCurrentAddr
 
-        ; If tile not on top of screen, check up
-        GetNametableTileY fill_current_addr
-        cmp #$00
-        bne Check_Up
+    Start_Algorithm:
 
-        ; if tile on right side of screen, check down
+
+    Try_Up:
+    
+        ; If tile not on top of screen, Do_Up
+        GetNametableTileY fill_current_addr
+        ; cmp #$00
+        cmp #CURSOR_MIN_Y
+        bne Do_Up
+
+
+        ; else if tile on right side of screen, Try_Down
+        clc 
         GetNametableTileX fill_current_addr
         cmp #DISPLAY_SCREEN_WIDTH
         bcc Try_Down
 
+        ; this should never be reached
+        rts 
 
-    Check_Up:
+
+    Do_Up:
 
         ; Move up, by subtracing (screen_width + 1)
         sec 
@@ -526,7 +537,7 @@
         cmp fill_target_color
         bne Try_Down
 
-        ; Draw tile
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
@@ -534,13 +545,10 @@
 
     Try_Down:
 
-        ; if not last row, do  
+        ; if not last row, Try_Left
         GetNametableTileY fill_current_addr
-        cmp #DISPLAY_SCREEN_HEIGHT - 1
+        cmp #CURSOR_MAX_Y - 1
         beq Try_Left
-
-        ; else do down
-        jmp Do_Down
 
 
     Do_Down:
@@ -562,7 +570,7 @@
         cmp fill_target_color
         bne Try_Left
 
-        ; draw tile
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
@@ -572,7 +580,11 @@
 
         ; if first column, try right
         GetNametableTileX fill_current_addr
+        cmp #CURSOR_MIN_X
         beq Try_Right
+
+
+    Do_Left:
 
         ; set neighbor tile (low) 
         sec 
@@ -591,7 +603,7 @@
         cmp fill_target_color
         bne Try_Right
         
-        ; draw tile
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
@@ -600,10 +612,13 @@
     Try_Right:
 
         ; If last column, LoopEnd
+        clc 
         GetNametableTileX fill_current_addr
-        cmp #DISPLAY_SCREEN_WIDTH - 1 
+        cmp #CURSOR_MAX_X - 1
         beq Loop_End
 
+
+    Do_Right:
 
         ; Set fill_neighbor low byte address to right neighbor
         clc 
@@ -621,7 +636,7 @@
         cmp fill_target_color
         bne Loop_End
 
-        ; Add right tile to queue
+        ; Add tile to queue
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
@@ -639,6 +654,7 @@
 
 .endproc
 ; BudgetArms
+
 
 ; BudgetArms
 .proc DrawShapeRectangle
