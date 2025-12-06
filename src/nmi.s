@@ -18,7 +18,7 @@
         stx nmi_ready
         jmp ppu_update_end
 
-cont_render:
+    cont_render:
 
     ; transfer sprite OAM data using DMA
     ldx #0
@@ -76,6 +76,7 @@ cont_render:
     pla 
     tax 
     pla 
+
     rti 
 
 .endproc

@@ -155,4 +155,5 @@ wait_vblank2:
     sta PPU_CONTROL
 
     jmp main
+
 .endproc
