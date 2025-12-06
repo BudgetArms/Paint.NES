@@ -118,7 +118,6 @@
         cmp #PAD_A_DOWN
         bne Check_PAD_A_UP_LEFT
         jsr UseSelectedTool
-        jsr UseSelectedTool
         jsr MoveCursorDown
         jmp Stop_Checking
 
