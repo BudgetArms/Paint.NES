@@ -208,7 +208,6 @@
         ; Increase cursor_x with oam data's x-pos
         clc 
         lda cursor_x
-        ; adc oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
         sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + 3
 
     rts 
@@ -299,9 +298,25 @@
     First_Position:
         ; First position set
 
+        ; if current pos same as previous shape's tool second pos
+        ; eg. bc called on held, fix it by checking if it's still in the same location
+        lda cursor_x
+        cmp shape_tool_second_pos_x
+        bne @Use_Second_Position
+
+        lda cursor_y
+        cmp shape_tool_second_pos_y
+        bne @Use_Second_Position
+
+        ; if current pos == previous pos
+        jmp Finish
+
+
+        @Use_Second_Position:
+
         lda #$01
         sta shape_tool_has_set_first_pos
-
+    
         ; store x/y
         lda cursor_x
         sta shape_tool_first_pos_x
@@ -311,28 +326,29 @@
         
         rts 
 
+
     Second_Position:
         ; Second position set
 
-        ; if first pos and second pos the same, rts, else Use_Second_Position
+        ; if first pos and second pos the same, rts, else @Use_Second_Position
         lda cursor_x
         cmp shape_tool_first_pos_x
-        bne Use_Second_Position
+        bne @Use_Second_Position
 
         lda cursor_y
         cmp shape_tool_first_pos_y
-        bne Use_Second_Position
+        bne @Use_Second_Position
 
 
         ; if First pos == Second pos, rts
         rts 
 
 
-        Use_Second_Position:
+        @Use_Second_Position:
 
         lda #$00
         sta shape_tool_has_set_first_pos
-        
+
         ; store x/y
         lda cursor_x
         sta shape_tool_second_pos_x
@@ -341,34 +357,34 @@
         sta shape_tool_second_pos_y
         
 
-        ; call the shape type funcction
+        ; Rectangle
         lda shape_tool_type
         and #SHAPE_TOOL_TYPE_RECTANGLE
-        bne Not_Rectangle_Type
+        bne @Not_Rectangle_Type
 
             ; if rectangle mode
-
-
+            jsr DrawShapeRectangle
             rts 
 
-        Not_Rectangle_Type:
+        @Not_Rectangle_Type:
 
-
+        ; Circle
         lda shape_tool_type
         and #SHAPE_TOOL_TYPE_CIRCLE
-        bne Not_Circle_Type
+        bne @Not_Circle_Type
 
             ; if circle mode
-
-
+            jsr DrawShapeCircle
             rts 
 
-        Not_Circle_Type:
+        @Not_Circle_Type:
 
-
-        ; should never be reached !!!
+        ; this should never be reached
         rts 
-    
+
+
+    Finish:
+    rts 
 
 .endproc
 ; BudgetArms
@@ -377,18 +393,17 @@
 ; BudgetArms
 .proc DrawShapeToolCursor
 
-    ; if in shape mode
-    lda tool_mode    
-    and #SHAPE_MODE
-    bne Use_Shape_Mode
+    lda selected_tool 
+    cmp #SHAPE_TOOL_ACTIVATED
+    beq Use_Shape
 
         ; hide shape cursor
         lda #OAM_OFFSCREEN
         sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL
 
         rts 
-
-    Use_Shape_Mode:
+    
+    Use_Shape:
 
     ; hide all cursors
     jsr HideActiveCursor
@@ -716,15 +731,16 @@
     
 
 
-
-
-
 .endproc
 ; BudgetArms
+
 
 ; BudgetArms
 .proc DrawShapeCircle
 
+    
+
+    rts 
 
 .endproc
 ; BudgetArms
