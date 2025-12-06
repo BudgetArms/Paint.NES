@@ -154,7 +154,7 @@
     lda cursor_y
     adc oam + OAM_OFFSET_CURSOR_SMALL
 
-    ; substract A (y pos) by one bc it's draw on the next scanline  
+    ; subtract A (y pos) by one bc it's draw on the next scanline  
     clc 
     sbc #$00
 
@@ -181,7 +181,7 @@
     lda cursor_y
     adc oam + OAM_OFFSET_CURSOR_NORMAL
 
-    ; substract A (y pos) by one bc it's draw on the next scanline  
+    ; subtract A (y pos) by one bc it's draw on the next scanline  
     clc 
     sbc #$00
 
@@ -210,7 +210,7 @@
         lda cursor_y
         adc oam + OAM_OFFSET_CURSOR_MEDIUM, X 
 
-        ; substract A (y pos) by one bc it's draw on the next scanline  
+        ; subtract A (y pos) by one bc it's draw on the next scanline  
         clc 
         sbc #$00
 

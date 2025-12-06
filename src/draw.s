@@ -203,7 +203,7 @@
         lda cursor_y
         ; not addition to OAM Y bc it's set to offscreen        
 
-        ; substract A (y pos) by one bc it's draw on the next scanline  
+        ; subtract A (y pos) by one bc it's draw on the next scanline  
         clc 
         sbc #$00
 
