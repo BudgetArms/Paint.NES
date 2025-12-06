@@ -314,6 +314,22 @@
     Second_Position:
         ; Second position set
 
+        ; if first pos and second pos the same, rts, else Use_Second_Position
+        lda cursor_x
+        cmp shape_tool_first_pos_x
+        bne Use_Second_Position
+
+        lda cursor_y
+        cmp shape_tool_first_pos_y
+        bne Use_Second_Position
+
+
+        ; if First pos == Second pos, rts
+        rts 
+
+
+        Use_Second_Position:
+
         lda #$00
         sta shape_tool_has_set_first_pos
         
