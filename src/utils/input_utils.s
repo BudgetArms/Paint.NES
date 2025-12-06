@@ -294,8 +294,14 @@
 
     Check_Fill_Tool:
     cmp #FILL_TOOL_ACTIVATED
-    bne Check_Clear_Tool
+    bne Check_Shape_Tool
         ChangeToolAttr #FILL_TOOL_ON
+        rts 
+
+    Check_Shape_Tool:
+    cmp #SHAPE_TOOL_ACTIVATED
+    bne Check_Clear_Tool
+        ChangeToolAttr #SHAPE_TOOL_ON
         rts 
 
     Check_Clear_Tool:
