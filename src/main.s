@@ -137,6 +137,7 @@ fill_queue: .res 512
 .include "utils/drawing_utils.s"
 .include "utils/input_utils.s"
 .include "draw.s"
+.include "audio.s"
 
 
 ;***************************************
