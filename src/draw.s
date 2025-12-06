@@ -499,12 +499,16 @@
 
     Start_Algorithm:
 
+    ; Checks if it can fill current tile, then
+    ; tries to check neighbors in order:
+    ; Up, Down, Left, Right
+    ; if tile is good, add tile to queue 
+
 
     Try_Up:
     
         ; If tile not on top of screen, Do_Up
         GetNametableTileY fill_current_addr
-        ; cmp #$00
         cmp #CURSOR_MIN_Y
         bne Do_Up
 
@@ -517,6 +521,50 @@
 
         ; this should never be reached
         rts 
+
+
+    Try_Down:
+
+        ; if not last row, Do_Down
+        GetNametableTileY fill_current_addr
+        cmp #CURSOR_MAX_Y - 1
+        bne Do_Down
+        
+        ; if last row, try_left
+        beq Try_Left
+
+        ; this should never be reached
+        rts 
+
+
+    Try_Left:
+
+        ; if not first column, Do_Left
+        GetNametableTileX fill_current_addr
+        cmp #CURSOR_MIN_X
+        bne Do_Left
+
+        ; if first column, Try_Right 
+        beq Try_Right
+
+        ; this should never be reached
+        rts 
+
+
+    Try_Right:
+
+        ; If not last column, Do_Right
+        clc 
+        GetNametableTileX fill_current_addr
+        cmp #CURSOR_MAX_X - 1
+        bne Do_Right
+
+        ; if last column, Loop_End
+        beq Loop_End
+
+        ; this should never be reached
+        rts 
+
 
 
     Do_Up:
@@ -542,13 +590,8 @@
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
 
-
-    Try_Down:
-
-        ; if not last row, Try_Left
-        GetNametableTileY fill_current_addr
-        cmp #CURSOR_MAX_Y - 1
-        beq Try_Left
+        ; Go Try_Down
+        jmp Try_Down
 
 
     Do_Down:
@@ -575,13 +618,8 @@
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
 
-
-    Try_Left:
-
-        ; if first column, try right
-        GetNametableTileX fill_current_addr
-        cmp #CURSOR_MIN_X
-        beq Try_Right
+        ; Go Try_Left
+        jmp Try_Left
 
 
     Do_Left:
@@ -608,14 +646,8 @@
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
 
-
-    Try_Right:
-
-        ; If last column, LoopEnd
-        clc 
-        GetNametableTileX fill_current_addr
-        cmp #CURSOR_MAX_X - 1
-        beq Loop_End
+        ; Go Try_Right
+        jmp Try_Right
 
 
     Do_Right:
@@ -640,6 +672,10 @@
         lda fill_neighbor_addr
         ldx fill_neighbor_addr + 1
         jsr PushToQueue
+
+        ; Go Loop_End
+        jmp Loop_End
+
 
 
     Loop_End:
