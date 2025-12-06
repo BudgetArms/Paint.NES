@@ -113,7 +113,7 @@ CURSOR_MIN_X = 0
 CURSOR_MAX_X = 32
 
 CURSOR_MIN_Y = 2
-CURSOR_MAX_Y = 30
+CURSOR_MAX_Y = 28
 
 
 ; cursor types
