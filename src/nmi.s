@@ -38,18 +38,12 @@ cont_render:
     ; Khine
     jsr ClearCanvas
     jsr DrawBrush
-
-    jsr UpdateOverlayCursorPosition
-
-    ;Joren
-    jsr UpdateColorSelectionOverlay
-    jsr UpdateToolSelectionOverlay
-
-    jsr UpdateColorValues
-
-    jsr ResetScroll
     jsr UseShapeTool
     jsr UseFillTool
+
+    jsr DrawOverlayCursorPosition
+
+    jsr ResetScroll
 
     ; enable rendering
     lda #%00011110
@@ -70,4 +64,3 @@ cont_render:
     pla
     rti
 .endproc
-

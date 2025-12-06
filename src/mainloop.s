@@ -10,8 +10,9 @@ mainloop:
     jsr HideInactiveCursors
     jsr LoadCursor
     jsr UpdateCursorPosition
+    jsr UpdateOverlayCursorPosition
     jsr ConvertCursorPosToTilePositions
-    jsr HideActiveCursorIfSelectionMenu
+    ;jsr HideActiveCursorIfSelectionMenu
 
     jsr DrawShapeToolCursor
 

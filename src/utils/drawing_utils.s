@@ -15,23 +15,23 @@
     bne @Use_Brush
         rts
     @Use_Brush:
-    jsr ppu_off
-
     lda tool_use_attr
     eor #CLEAR_CANVAS_TOOL_ON
     sta tool_use_attr
 
+    jsr ppu_off
+
     lda PPU_STATUS ; reset address latch
-    lda #>NAME_TABLE_1 ; set PPU address to $2000
+    lda #>CANVAS_START_ADDRESS ; set PPU address to $2000
     sta PPU_ADDR
-    lda #<NAME_TABLE_1
+    lda #<CANVAS_START_ADDRESS
     sta PPU_ADDR
 
     ; empty nametable A
     lda #BACKGROUND_TILE
-    ldy #DISPLAY_SCREEN_HEIGHT ; clear 30 rows
+    ldy #CANVAS_ROWS ; clear 30 rows
     rowloop:
-        ldx #DISPLAY_SCREEN_WIDTH ; 32 columns
+        ldx #CANVAS_COLUMNS ; 32 columns
         columnloop:
             sta PPU_DATA
             dex 
@@ -469,28 +469,53 @@
     jsr DivideByX
     sta cursor_y_digits + 1 ; tens digit (0-9)
     stx cursor_y_digits + 2 ; ones digit (0-9)
-    
+    rts
+.endproc
+
+
+; Jeronimas
+; Simple division: divides A by X, returns quotient in A, remainder in X
+.proc DivideByX
+    ; Input: A = dividend, X = divisor
+    ; Output: A = quotient, X = remainder
+
+    stx divide_by_x_divisor   ; Store divisor in zero page
+    ldy #0                   ; Y will hold quotient
+
+    Divide_Loop:
+        cmp divide_by_x_divisor   ; Compare A with divisor
+        bcc Divide_Done           ; If A < divisor, we're done
+        sbc divide_by_x_divisor   ; Subtract divisor from A
+        iny                      ; Increment quotient
+        jmp Divide_Loop
+
+    Divide_Done:
+        tax                    ; Move remainder (in A) to X
+        tya                    ; Move quotient (in Y) to A
+    rts
+.endproc
+
+
+; Jeronimas
+.proc DrawOverlayCursorPosition
     ; Write overlay to nametable during VBlank
     ; Reset PPU address latch
-    bit PPU_STATUS
-    
     ; Set PPU address to nametable location
-    lda #>OVERLAY_NAMETABLE_ADDR
-    sta PPU_ADDR
-    lda #<OVERLAY_NAMETABLE_ADDR
-    sta PPU_ADDR
+    ChangePPUNameTableAddr OVERLAY_NAMETABLE_ADDR
     
     ; Write "X:"
     lda #OVERLAY_TILE_CURSOR_X_LABEL
     sta PPU_DATA
     lda #OVERLAY_TILE_COLON
     sta PPU_DATA
-    
+
     ; Write X digits as decimal (000-255)
-    lda cursor_x_digits
+    ldx #$00
+    lda cursor_x_digits, x
     clc
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
+
     lda cursor_x_digits + 1
     clc
     adc #OVERLAY_TILE_DIGIT_0
@@ -499,7 +524,7 @@
     clc
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
-    
+
     ; Write " Y:"
     lda #OVERLAY_TILE_SPACE
     sta PPU_DATA
@@ -507,7 +532,7 @@
     sta PPU_DATA
     lda #OVERLAY_TILE_COLON
     sta PPU_DATA
-    
+
     ; Write Y digits as decimal (000-240)
     lda cursor_y_digits
     clc
@@ -521,29 +546,7 @@
     clc
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
-    
-    rts
-.endproc
 
-; Jeronimas
-; Simple division: divides A by X, returns quotient in A, remainder in X
-.proc DivideByX
-    ; Input: A = dividend, X = divisor
-    ; Output: A = quotient, X = remainder
-
-    stx divide_by_x_divisor   ; Store divisor in zero page
-    ldy #0                   ; Y will hold quotient
-
-Divide_Loop:
-    cmp divide_by_x_divisor   ; Compare A with divisor
-    bcc Divide_Done           ; If A < divisor, we're done
-    sbc divide_by_x_divisor   ; Subtract divisor from A
-    iny                      ; Increment quotient
-    jmp Divide_Loop
-
-Divide_Done:
-    tax                    ; Move remainder (in A) to X
-    tya                    ; Move quotient (in Y) to A
     rts
 .endproc
 

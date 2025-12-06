@@ -56,3 +56,40 @@
     
     rts
 .endproc
+
+
+; Jeronimas 
+;*********************************************************
+; PlaySfx: Play a sound effect
+; Input: A = sound effect index to play
+; Uses: sfx_channel variable for the channel to play on
+; Preserves: X, Y registers
+;*********************************************************
+.proc PlaySFX
+    sta sfx_temp + 9
+    tya
+    pha
+    txa
+    pha
+    
+    lda sfx_temp + 9
+    ; Select channel based on sound effect index
+    ; Bird (0) = square (CH0), Splash (1) = noise (CH1)
+    tax  ; Use sound index as channel selector
+    and #$01
+    beq @ch0
+    ldx #FAMISTUDIO_SFX_CH1
+    jmp @play
+@ch0:
+    ldx #FAMISTUDIO_SFX_CH0
+@play:
+    lda sfx_temp + 9
+    jsr famistudio_sfx_play
+    
+    pla
+    tax
+    pla
+    tay
+    rts
+.endproc
+; Jeronimas

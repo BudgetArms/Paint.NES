@@ -80,8 +80,8 @@ clear_oam:
     lda #$02
     sta selected_color_chr_index
 
-; Initialize four color values
-; These colors will be the start colors.
+    ; Initialize four color values
+    ; These colors will be the start colors.
     ldx #$00
     
     lda #OFFWHITE
@@ -97,7 +97,6 @@ clear_oam:
     sta four_color_values, x
 
     jsr LoadColorValuesIntoPPU ; will load the values into the PPU
-    
     jsr SetColorPaletteForUI
 
 

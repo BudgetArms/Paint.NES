@@ -197,17 +197,13 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .segment "CODE"
 .proc main
     ; main application - rendering is currently off
+    
     ; clear 1st name table
     jsr SetupCanvas
-
-    ; initialize palette table
-    ;ldx #0
-    ; paletteloop:
-    ;    lda default_palette, x
-    ;    sta palette, x
-    ;    inx
-    ;    cpx #32
-    ;    bcc paletteloop$
+    ; Overlay Initialization
+    jsr InitializeColorSelectionOverlay
+    jsr InitializeToolSelectionOverlay
+    jsr InitializeColorValues
 
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP
@@ -231,8 +227,6 @@ FAMISTUDIO_DPCM_OFF             = $c000
     Initialize_Shape_Tool_Type:
         lda #SHAPE_TOOL_TYPE_DEFAULT
         sta shape_tool_type
-
-
 
     jsr ppu_update
 
