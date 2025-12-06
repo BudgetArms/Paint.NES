@@ -703,7 +703,7 @@
     lda shape_tool_first_pos_y
     sta shape_tool_staring_pos_y
 
-    ; check where the second pos X is compaared to first    
+    ; check where the second pos X is compared to first    
 
     ; X offset is stored in X
     sec  
@@ -730,6 +730,7 @@
     sbc shape_tool_second_pos_y
     
 
+    rts 
 
 .endproc
 ; BudgetArms
@@ -738,7 +739,7 @@
 ; BudgetArms
 .proc DrawShapeCircle
 
-    
+
 
     rts 
 
