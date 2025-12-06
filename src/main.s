@@ -35,7 +35,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
-input: .res 1
+current_input: .res 1
 frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
                         ;this is to do stuff like "every time an 8th frame passes, do this"
 

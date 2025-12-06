@@ -109,7 +109,7 @@ clear_oam:
 
     jsr LoadColorValuesIntoPPU ; will load the values into the PPU
     
-    jsr SetCollorPaletteForUI
+    jsr SetColorPaletteForUI
 
 
 ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)

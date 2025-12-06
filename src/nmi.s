@@ -91,7 +91,7 @@ cont_render:
 ;
     ;STA PPU_DATA
     ;jsr SetTopAndBottomRowsColorPallete
-    ;jsr SetCollorPaletteForUI
+    ;jsr SetColorPaletteForUI
 
     jsr ResetScroll
     

@@ -25,7 +25,7 @@
         dex
         bne poll_loop
 
-    sta input
+    sta current_input
 
     rts
 
@@ -76,39 +76,48 @@
 ; BudgetArms
 .proc HandleCanvasInput
 
-    lda input
-    bne Check_PAD_A
+    lda current_input
+    bne Input_Detected
 
     lda #$00 ; reset frame count to 0
     sta frame_count
     rts ; if no buttons are pressed, skip all checks.
 
+    Input_Detected:
+    ; Check if the frame count is 0
+    lda frame_count
+    beq Start_Checking_Input
+    jmp Stop_Checking
+
+    Start_Checking_Input:
+    lda current_input
+
     Check_PAD_A:
         cmp #PAD_A
         bne Check_PAD_A_LEFT
         jsr HandleCursorPressedA
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_LEFT:
         cmp #PAD_A_LEFT
         bne Check_PAD_A_RIGHT
         jsr HandleCursorPressedA
         jsr MoveCursorLeft
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_RIGHT:
         cmp #PAD_A_RIGHT
         bne Check_PAD_A_UP
         jsr HandleCursorPressedA
         jsr MoveCursorRight
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_UP:
         cmp #PAD_A_UP
         BNE Check_PAD_A_DOWN
         jsr HandleCursorPressedA
         jsr MoveCursorUp
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_DOWN:
         cmp #PAD_A_DOWN
@@ -116,7 +125,7 @@
         jsr HandleCursorPressedA
         jsr HandleCursorPressedA
         jsr MoveCursorDown
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_UP_LEFT:
         cmp #PAD_A_UP_LEFT
@@ -124,7 +133,7 @@
         jsr HandleCursorPressedA
         jsr MoveCursorUp
         jsr MoveCursorLeft
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_DOWN_LEFT:
         cmp #PAD_A_DOWN_LEFT
@@ -132,7 +141,7 @@
         jsr HandleCursorPressedA
         jsr MoveCursorDown
         jsr MoveCursorLeft
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_UP_RIGHT:
         cmp #PAD_A_UP_RIGHT
@@ -140,7 +149,7 @@
         jsr HandleCursorPressedA
         jsr MoveCursorUp
         jsr MoveCursorRight
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_A_DOWN_RIGHT:
         cmp #PAD_A_DOWN_RIGHT
@@ -148,27 +157,27 @@
         jsr HandleCursorPressedA
         jsr MoveCursorDown
         jsr MoveCursorRight
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_SELECT:
         cmp #PAD_SELECT
         bne Check_PAD_SELECT_LEFT
         ;code for when SELECT is pressed alone
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_SELECT_LEFT:
         cmp #PAD_SELECT_LEFT
         bne Check_PAD_SELECT_RIGHT
         
         jsr DecreaseChrTileIndex
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_SELECT_RIGHT:
         cmp #PAD_SELECT_RIGHT
         bne Check_PAD_SELECT_UP
         
         jsr IncreaseChrTileIndex
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_SELECT_UP:
         cmp #PAD_SELECT_UP
@@ -176,7 +185,7 @@
         
         ;jsr IncreaseColorPalleteIndex
         jsr IncreaseColorValueForSelectedTile
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_SELECT_DOWN:
         cmp #PAD_SELECT_DOWN
@@ -184,50 +193,49 @@
         
         ;jsr DecreaseColorPalleteIndex
         jsr DecreaseColorValueForSelectedTile
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_START:
         cmp #PAD_START
         bne Check_PAD_START_LEFT
         ;code for when START is pressed alone
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_START_LEFT:
         cmp #PAD_START_LEFT
         bne Check_PAD_START_RIGHT
         jsr DecreaseToolSelection
-        jmp StopChecking
+        jmp Stop_Checking
 
-    
     Check_PAD_START_RIGHT:
         cmp #PAD_START_RIGHT
         bne Check_PAD_START_UP
         jsr IncreaseToolSelection
-        jmp StopChecking
+        jmp Stop_Checking
 
 
     Check_PAD_START_UP:
         cmp #PAD_START_UP
         bne Check_PAD_START_DOWN
-        jmp StopChecking
+        jmp Stop_Checking
 
 
     Check_PAD_START_DOWN:
         cmp #PAD_START_DOWN
         bne Check_PAD_LEFT
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_LEFT:
         cmp #PAD_LEFT
         bne Check_PAD_RIGHT
         jsr MoveCursorLeft
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_RIGHT:
         cmp #PAD_RIGHT
         bne Check_PAD_UP
         jsr MoveCursorRight
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_UP:
         cmp #PAD_UP
@@ -237,12 +245,12 @@
         bne MoveUpInMenu
         ;InCanvas:
         jsr MoveCursorUp
-        jmp StopChecking
+        jmp Stop_Checking
 
         MoveUpInMenu:
         jsr MoveSelectionStarUp
         
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_DOWN:
         cmp #PAD_DOWN
@@ -252,52 +260,52 @@
         bne MoveDownInMenu
         ;InCanvas:
         jsr MoveCursorDown
-        jmp StopChecking
+        jmp Stop_Checking
 
         MoveDownInMenu:
         jsr MoveSelectionStarDown
         
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_UP_LEFT:
         cmp #PAD_UP_LEFT
         bne Check_PAD_DOWN_LEFT
         jsr MoveCursorUp
         jsr MoveCursorLeft
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_DOWN_LEFT:
         cmp #PAD_DOWN_LEFT
         bne Check_PAD_UP_RIGHT
         jsr MoveCursorDown
         jsr MoveCursorLeft
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_UP_RIGHT:
         cmp #PAD_UP_RIGHT
         bne Check_PAD_DOWN_RIGHT
         jsr MoveCursorUp
         jsr MoveCursorRight
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_DOWN_RIGHT:
         cmp #PAD_DOWN_RIGHT
         bne Check_PAD_B
         jsr MoveCursorDown
         jsr MoveCursorRight
-        jmp StopChecking
+        jmp Stop_Checking
 
     Check_PAD_B:
         cmp #PAD_B
-        bne StopChecking
+        bne Stop_Checking
         jsr HandleCursorPressedB
-        jmp StopChecking
+        jmp Stop_Checking
 
     ; Check_REST:               ; Might need this later
-        ; jmp StopChecking
+        ; jmp Stop_Checking
 
 
-    StopChecking:
+    Stop_Checking:
         jsr IncButtonHeldFrameCount
         rts
 
@@ -343,7 +351,7 @@
     cmp #SHAPE_MODE
     beq In_Shape_Mode
 
-        rts 
+    rts
 
     In_Fill_Mode:
         ChangeToolAttr #FILL_TOOL_ON
@@ -358,11 +366,6 @@
 
 ; BudgetArms
 .proc HandleCursorPressedB
-
-    ; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
     jsr CycleBrushSize
 
     lda cursor_type     ; load cursor type
@@ -387,8 +390,5 @@
         ; set new cursor_type
         sta cursor_type
 
-    DontRegisterYet:
-        rts 
-
-
+        rts
 .endproc

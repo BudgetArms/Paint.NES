@@ -117,11 +117,6 @@
 
 ; Khine / BudgetArms
 .proc MoveCursorUp
-
-; Code to slow down cursor movement
-    lda frame_count
-    bne DontMoveYet
-
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda tile_cursor_y
 
@@ -145,13 +140,8 @@ DontMoveYet:
 
 ; Khine / BudgetArms
 .proc MoveCursorDown
-
-; Code to slow down cursor movement
-    lda frame_count
-    bne DontMoveYet
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
     clc 
-
     lda tile_cursor_y
     adc brush_size
 
@@ -177,13 +167,8 @@ DontMoveYet:
 
 ; Khine / BudgetArms
 .proc MoveCursorLeft
-
-; Code to slow down cursor movement
-    lda frame_count
-    bne DontMoveYet
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda tile_cursor_x
-
     cmp #CURSOR_MIN_X
     bne @Apply_Move
         rts 
@@ -208,8 +193,6 @@ DontMoveYet:
 .proc MoveCursorRight
 
 ; Code to slow down cursor movement
-    lda frame_count
-    bne DontMoveYet
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
     clc 
 
@@ -292,7 +275,7 @@ DontMoveYet:
     cmp #SHAPE_MODE
     bne @Not_Shape_Mode
         jsr ToggleEraserTool
-        rts 
+        rts
 
     @Not_Shape_Mode:
 
@@ -380,10 +363,6 @@ DontMoveYet:
 
 ; Khine / BudgetArms
 .proc CycleCanvasModes
-; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
     ; Cycle between canvas mode and selection menu mode
     lda scroll_y_position
     cmp #CANVAS_MODE
@@ -443,9 +422,7 @@ DontMoveYet:
     lda #OAM_OFFSCREEN
     sta oam + SELECTION_STAR_OFFSET + OAM_Y
 
-DontRegisterYet:
     rts
-
 .endproc
 ; Khine / BudgetArms
 
@@ -743,10 +720,6 @@ DontRegisterYet:
 ; .endproc
 
 .proc IncreaseChrTileIndex
-; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
     ;lda chrTileIndex
     lda selected_color_chr_index
     clc
@@ -770,16 +743,10 @@ DontRegisterYet:
     ;Pencil:
     ;    LDA #DRAW_MODE
     ;    sta tool_mode
-
-    DontRegisterYet:
     rts
 .endproc
 
 .proc DecreaseChrTileIndex
-    ; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
     ;lda chrTileIndex
     lda selected_color_chr_index
     sec
@@ -802,9 +769,7 @@ DontRegisterYet:
     ;    LDA #DRAW_MODE
     ;    sta tool_mode
 
-    DontRegisterYet:
     rts
-    
 .endproc
 ;Joren
 
@@ -874,10 +839,6 @@ DontRegisterYet:
 .endproc
 
 .proc IncreaseToolSelection
-    ; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
     lda selected_tool
     clc
     adc #$01
@@ -889,16 +850,11 @@ DontRegisterYet:
     Value_Was_Okay:
     sta selected_tool
 
-    DontRegisterYet:
     rts
-
 .endproc
 
 .proc DecreaseToolSelection
     ; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-
     lda selected_tool
     sec
     sbc #$01
@@ -908,10 +864,6 @@ DontRegisterYet:
 
     Value_Was_Okay:
     sta selected_tool
-
-    DontRegisterYet:
-    rts
-
 .endproc
 
 .proc UpdateToolSelectionOverlay
@@ -1005,32 +957,20 @@ DontRegisterYet:
 
 
 .proc IncreaseColorValueForSelectedTile
-    ; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-    
     ldx selected_color_chr_index
     lda four_color_values, X
     clc
     adc #$01
     sta four_color_values, X
-
-    DontRegisterYet:
     rts
 .endproc
 
 .proc DecreaseColorValueForSelectedTile
-    ; Code to slow input registration down
-    lda frame_count
-    bne DontRegisterYet
-    
     ldx selected_color_chr_index
     lda four_color_values, X
     sec
     sbc #$01
     sta four_color_values, X
-
-    DontRegisterYet:
     rts
 .endproc
 
@@ -1054,7 +994,7 @@ DontRegisterYet:
 
 .endproc
 
-.proc SetCollorPaletteForUI
+.proc SetColorPaletteForUI
 
     ; pick nametable 0 attribute table
     LDA $2002        ; reset latch
