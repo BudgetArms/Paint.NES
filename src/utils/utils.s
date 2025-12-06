@@ -519,13 +519,13 @@ DontMoveYet:
     Value_Was_Okay:
     jsr ChangeBrushTileIndexFromA
 
-    ;beq Pencil
+    ;beq BRUSH
     ;Eraser:
     ;    lda #ERASER_MODE
     ;    sta tool_mode
     ;    RTS
 
-    ;Pencil:
+    ;BRUSH:
     ;    LDA #DRAW_MODE
     ;    sta tool_mode
 
@@ -649,12 +649,12 @@ DontMoveYet:
 
 ; Joren
 .proc UpdateToolSelectionOverlay
-    ; FIRST tile = pencil tool
-    lda #>PENCIL_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
+    ; FIRST tile = BRUSH tool
+    lda #>BRUSH_TOOL_ONSCREEN_ADRESS ; > takes highbyte of 16 bit value
     sta PPU_ADDR
-    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    lda #<BRUSH_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
     sta PPU_ADDR
-    lda #PENCIL_ICON_TILE_INDEX
+    lda #BRUSH_ICON_TILE_INDEX
     sta PPU_DATA
 
     ; SECOND tile = eraser tool
@@ -684,7 +684,7 @@ DontMoveYet:
     ; SELECTED tile
     lda #$20 ; > takes highbyte of 16 bit value
     sta PPU_ADDR
-    lda #<PENCIL_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
+    lda #<BRUSH_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
     CLC
     adc selected_tool
     CLC
@@ -692,7 +692,7 @@ DontMoveYet:
     sta PPU_ADDR
     lda selected_tool
     CLC
-    adc #PENCIL_ICON_TILE_INDEX
+    adc #BRUSH_ICON_TILE_INDEX
     clc
     adc #$10 ; +16 = +1 row on chr file
     sta PPU_DATA
