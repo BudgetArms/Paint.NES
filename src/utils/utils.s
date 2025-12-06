@@ -495,10 +495,10 @@
 
 ; BudgetArms / Joren
 .proc IncreaseColorPaletteIndex
-    lda newPaletteColor
+    lda new_palette_color
     clc 
     adc #$01
-    sta newPaletteColor
+    sta new_palette_color
 
     ;ldx selected_color_chr_index
     ;lda newColorValueForSelectedTile

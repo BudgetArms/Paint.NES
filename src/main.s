@@ -91,7 +91,7 @@ tool_use_attr: .res 1
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
 brush_size: .res 1
-newPaletteColor: .res 1
+new_palette_color: .res 1
 
 ; misc
 abs_address_to_access: .res 2
@@ -110,12 +110,9 @@ music_paused: .res 1    ; this is a flag changing this does not actually pause t
 
 ;Joren
 four_color_values: .res 4
-;newColorValueForSelectedTile: .res 1
-;newPalleteColor: .res 1
 selected_color_chr_index: .res 1
 frame_count: .res 1
 selected_tool: .res 1
-;selection_star_y_pos: .res 1
 
 
 .segment "OAM"
@@ -205,6 +202,15 @@ FAMISTUDIO_DPCM_OFF             = $c000
     jsr InitializeToolSelectionOverlay
     jsr InitializeColorValues
 
+    ; initialize palette table
+    ldx #0
+    paletteloop:
+        lda default_palette, x
+        sta palette, x
+        inx
+        cpx #32
+        bcc paletteloop
+
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP
         sta cursor_type
@@ -240,12 +246,16 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ;***************************************
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
-;default_palette:
+default_palette:
 ;bg tiles/ text
-;.byte $00,$01,$05,$09
-;.byte $20,$20,$20,$20
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
+.byte $0f,$0c,$21,$32
+.byte $0f,$00,$10,$30
+.byte $0f,$05,$16,$27
+.byte $0f,$0b,$1a,$29
+.byte $0f,$0c,$21,$32
+.byte $0f,$00,$10,$30
+.byte $0f,$05,$16,$27
+.byte $0f,$0b,$1a,$29
 
 
 ;sprites

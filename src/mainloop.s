@@ -16,8 +16,6 @@ mainloop:
 
     jsr DrawShapeToolCursor
 
-
-
     ; ensure our changes are rendered
     lda #1
     sta nmi_ready

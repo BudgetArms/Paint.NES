@@ -599,9 +599,6 @@ rts
 
 
     Finish:
-        ; update to fix white flash & update screen
-        jsr ppu_update
-
         rts 
 
 .endproc

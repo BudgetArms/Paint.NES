@@ -35,6 +35,13 @@ cont_render:
     stx PPU_ADDR
     ldx #0 ; transfer the 32 bytes to VRAM
 
+    loop:
+        lda palette, x
+        sta PPU_DATA
+        inx
+        cpx #32
+        bcc loop
+
     ; Khine
     jsr ClearCanvas
     jsr DrawBrush

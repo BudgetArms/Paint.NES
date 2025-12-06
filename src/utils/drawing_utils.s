@@ -39,11 +39,7 @@
         dey 
         bne rowloop
 
-    ; Update PPU to prevent screen flicker (due to scroll)
-    jsr ppu_update
-
-    rts 
-
+    rts
 .endproc
 
 
@@ -501,6 +497,7 @@
     ; Write overlay to nametable during VBlank
     ; Reset PPU address latch
     ; Set PPU address to nametable location
+
     ChangePPUNameTableAddr OVERLAY_NAMETABLE_ADDR
     
     ; Write "X:"
@@ -510,12 +507,10 @@
     sta PPU_DATA
 
     ; Write X digits as decimal (000-255)
-    ldx #$00
-    lda cursor_x_digits, x
+    lda cursor_x_digits
     clc
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
-
     lda cursor_x_digits + 1
     clc
     adc #OVERLAY_TILE_DIGIT_0
