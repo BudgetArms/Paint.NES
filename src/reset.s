@@ -54,12 +54,8 @@
         inx 
         bne Clear_Oam
 
-    ; Initialize cursor starting position
-    lda #$05
-    sta tile_cursor_x
-    sta tile_cursor_y
-    sta cursor_x
-    sta cursor_y
+    jsr InitializeCursor
+    jsr InitializeOverlayIndicators
 
     ; Initialize brush variables
     lda #$01
@@ -78,14 +74,13 @@
     sta current_program_mode
 
     lda #ALL_TOOLS_OFF
-    sta tool_use_attr
+    sta tool_use_flag
 
-    ;initialise collors
-    ChangeBrushTileIndex #$02
+    lda #UPDATE_ALL_OFF
+    sta update_flag
 
-    ; Initialize four color values
-    ; These colors will be the start colors.
-    ldx #$00
+    ; Initialize Color
+    ChangeBrushTileIndex #$00
 
 
     ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
