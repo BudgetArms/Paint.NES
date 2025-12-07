@@ -54,9 +54,6 @@
         inx 
         bne Clear_Oam
 
-    jsr InitializeCursor
-    jsr InitializeOverlayIndicators
-
     ; Initialize brush variables
     lda #$01
     sta brush_size ; Brush size
@@ -79,9 +76,17 @@
     lda #UPDATE_ALL_OFF
     sta update_flag
 
-    ; Initialize Color
-    ChangeBrushTileIndex #$00
+    ; Initialize color for both players
+    lda #$00
+    sta current_player
+    ChangeBrushTileIndex #$01
 
+    lda #$01
+    sta current_player
+    ChangeBrushTileIndex #$02
+
+    jsr InitializeCursor
+    jsr InitializeOverlayIndicators
 
     ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
     ; 	lda cursor_y
