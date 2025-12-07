@@ -27,7 +27,7 @@
 
 
 ; Jeronimas
-.proc PlayBrushSoundEffect
+.proc PlayToolSoundEffect
     ; Play drawing sound effect based on tool mode
     lda selected_tool
     cmp #BRUSH_TOOL_ACTIVATED

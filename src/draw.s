@@ -237,7 +237,7 @@
     eor #BRUSH_TOOL_ON
     sta tool_use_attr
 
-    jsr PlayBrushSoundEffect
+    jsr PlayToolSoundEffect
 
     ; Store the tile position in a different var
     ; This is done so that the cursor position can stay on the original spot
@@ -296,7 +296,7 @@
     eor #SHAPE_TOOL_ON
     sta tool_use_attr
 
-    jsr PlayBrushSoundEffect
+    jsr PlayToolSoundEffect
 
     ; Change things
     lda shape_tool_has_set_first_pos
@@ -447,7 +447,7 @@
     eor #FILL_TOOL_ON
     sta tool_use_attr
 
-    jsr PlayBrushSoundEffect
+    jsr PlayToolSoundEffect
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
