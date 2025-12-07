@@ -49,9 +49,8 @@
     jsr UseShapeTool
     jsr UseFillTool
 
-    jsr DrawOverlayCursorPosition
-    ;jsr UpdateToolSelectionOverlay
-    ;jsr UpdateColorSelectionOverlay
+    jsr DrawCursorPositionOverlay
+    jsr RefreshToolTextOverlay
 
     jsr ResetScroll
 
