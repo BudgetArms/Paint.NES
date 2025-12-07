@@ -15,10 +15,6 @@ mainloop:
     jsr ConvertCursorPosToTilePositions
     jsr DrawShapeToolCursor
 
-    @Overlay:
-    jsr UpdateCursorPositionOverlay
-    jsr UpdateOverlayIndicatorPositions
-
     jsr OverwriteAllBackgroundColorIndex
 
     ; ensure our changes are rendered
