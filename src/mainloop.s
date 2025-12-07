@@ -8,13 +8,17 @@ mainloop:
     jsr PollGamepad
     jsr HandleInput
 
+    @Cursor:
     jsr HideInactiveCursors
     jsr LoadCursor
     jsr UpdateCursorPosition
-    jsr UpdateOverlayCursorPosition
     jsr ConvertCursorPosToTilePositions
-
     jsr DrawShapeToolCursor
+
+    @Overlay:
+    jsr UpdateCursorPositionOverlay
+    jsr UpdateOverlayIndicatorPositions
+
     jsr OverwriteAllBackgroundColorIndex
 
     ; ensure our changes are rendered
