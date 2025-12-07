@@ -12,14 +12,14 @@
 
 ; Khine
 .proc UseClearCanvasTool
-    lda tool_use_attr
+    lda tool_use_flag
     and #CLEAR_TOOL_ON
     bne @Use_Brush
         rts 
     @Use_Brush:
-    lda tool_use_attr
+    lda tool_use_flag
     eor #CLEAR_TOOL_ON
-    sta tool_use_attr
+    sta tool_use_flag
 
     jsr PPUOff
 
@@ -30,7 +30,7 @@
     sta PPU_ADDR
 
     ; empty nametable A
-    lda #BACKGROUND_TILE
+    lda #BACKGROUND_TILE_INDEX
     ldy #CANVAS_ROWS ; clear 30 rows
     rowloop:
         ldx #CANVAS_COLUMNS ; 32 columns
@@ -347,6 +347,90 @@
 
 
 ; BudgetArms
+.proc InitializeCursor
+        lda #TYPE_CURSOR_STARTUP
+        sta cursor_type
+
+        ; set cursor_x/y
+        lda #CURSOR_MIN_X * 8
+        sta cursor_x
+
+        lda #CURSOR_MIN_Y * 8
+        sta cursor_y
+
+        ; set cursor tile x/y
+        lda #CURSOR_MIN_X
+        sta tile_cursor_x
+
+        lda #CURSOR_MIN_Y
+        sta tile_cursor_y
+    rts
+.endproc
+; BudgetArms
+
+
+; Khine
+.proc InitializeOverlayIndicators
+    Player_1:
+        Color_Indicator_1:
+        lda #OVERLAY_COLOR_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_Y
+        lda #DIGIT_OFFSET + 1
+        sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_TILE
+        lda #$00
+        sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_ATTR
+        lda #OVERLAY_COLOR_OFFSET_X
+        sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_X
+
+        @Tool_Indicator_1:
+        lda #OVERLAY_TOOL_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_Y
+        lda #DIGIT_OFFSET + 1
+        sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_TILE
+        lda #$00
+        sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_ATTR
+        lda #OVERLAY_TOOL_OFFSET_X
+        sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc UpdateOverlayIndicatorPositions
+    @Color_Indicator_1:
+        lda #OVERLAY_COLOR_OFFSET_X
+        ldx selected_color_chr_index
+        beq @Skip_Color_Loop
+
+        clc
+        @Color_Loop:
+        adc #OVERLAY_COLOR_MULTIPLIER
+        dex
+        bne @Color_Loop
+
+        @Skip_Color_Loop:
+        sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_X
+
+    @Tool_Indicator_1:
+        lda #OVERLAY_TOOL_OFFSET_X
+        ldx selected_tool
+        beq @Skip_Tool_Loop
+
+        clc
+        @Tool_Loop:
+        adc #OVERLAY_TOOL_MULTIPLIER
+        dex
+        bne @Tool_Loop
+
+        @Skip_Tool_Loop:
+        sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
+        rts
+.endproc
+; Khine
+
+
+; BudgetArms
 .proc HideActiveCursor
 
     lda cursor_type
@@ -391,7 +475,7 @@
 
 
 ; Jeronimas
-.proc UpdateOverlayCursorPosition
+.proc UpdateCursorPositionOverlay
 
     ; Convert cursor_x to three decimal digits
     lda cursor_x
@@ -406,6 +490,8 @@
     
     ; Convert cursor_y to three decimal digits
     lda cursor_y
+    sec
+    sbc #OVERLAY_YPOS_OFFSET_FROM_CANVAS
     ldx #100
     jsr DivideByX
     sta cursor_y_digits     ; hundreds digit (0-2)
@@ -447,18 +533,12 @@
 
 
 ; Jeronimas
-.proc DrawOverlayCursorPosition
+.proc DrawCursorPositionOverlay
     ; Write overlay to nametable during VBlank
     ; Reset PPU address latch
     ; Set PPU address to nametable location
 
-    ChangePPUNameTableAddr OVERLAY_NAMETABLE_ADDR
-    
-    ; Write "X:"
-    lda #OVERLAY_TILE_CURSOR_X_LABEL
-    sta PPU_DATA
-    lda #OVERLAY_TILE_COLON
-    sta PPU_DATA
+    ChangePPUNameTableAddr OVERLAY_XPOS_OFFSET
 
     ; Write X digits as decimal (000-255)
     lda cursor_x_digits
@@ -474,13 +554,7 @@
     adc #OVERLAY_TILE_DIGIT_0
     sta PPU_DATA
 
-    ; Write " Y:"
-    lda #OVERLAY_TILE_SPACE
-    sta PPU_DATA
-    lda #OVERLAY_TILE_CURSOR_Y_LABEL
-    sta PPU_DATA
-    lda #OVERLAY_TILE_COLON
-    sta PPU_DATA
+    ChangePPUNameTableAddr OVERLAY_YPOS_OFFSET
 
     ; Write Y digits as decimal (000-240)
     lda cursor_y_digits
