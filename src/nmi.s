@@ -46,6 +46,7 @@
     ; Khine
     jsr UseClearCanvasTool
     jsr UseBrushTool
+    jsr UseEraserTool
     jsr UseShapeTool
     jsr UseFillTool
 

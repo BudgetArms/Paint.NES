@@ -257,7 +257,6 @@
         sta PPU_ADDR
 
         ldx #$00
-        ;lda brush_tile_index ; Color index of the tile
         lda selected_color_chr_index
         @row_loop:
             sta PPU_DATA
@@ -280,6 +279,70 @@
 
 .endproc
 ; Khine / BudgetArms
+
+
+; BudgetArms
+.proc UseEraserTool
+
+    lda tool_use_attr
+    and #ERASER_TOOL_ON
+    bne Use_Eraser
+        rts 
+
+    Use_Eraser:
+
+    lda tool_use_attr
+    eor #ERASER_TOOL_ON
+    sta tool_use_attr
+
+    ; TODO: call eraser tool sound effect here
+    ; example:
+    ; jsr PlayEraserSoundEffect 
+
+    ; Store the tile position in a different var
+    ; This is done so that the cursor position can stay on the original spot
+    ; after drawing has completed.
+    lda cursor_tile_position
+    sta drawing_tile_position
+    lda cursor_tile_position + 1
+    sta drawing_tile_position + 1
+
+    ; square brush
+    ldy #$00
+    @Column_Loop:
+        lda PPU_STATUS ; reset address latch
+        lda drawing_tile_position + 1 ; High bit of the location
+        sta PPU_ADDR
+        lda drawing_tile_position ; Low bit of the location
+        sta PPU_ADDR
+
+        ldx #$00
+        ; loads background tile index, instead of select color index
+        lda #BACKGROUND_TILE 
+        @Row_Loop:
+            sta PPU_DATA
+            inx 
+            cpx brush_size
+            bne @Row_Loop
+
+        clc 
+        lda drawing_tile_position
+        adc #32
+        sta drawing_tile_position
+
+        lda drawing_tile_position + 1
+        adc #$00
+        sta drawing_tile_position + 1
+
+        iny 
+        cpy brush_size
+        bne @Column_Loop
+
+    rts 
+
+.endproc
+; BudgetArms
+
 
 ; BudgetArms
 .proc UseShapeTool
