@@ -12,14 +12,22 @@
 
 ; Khine
 .proc UseClearCanvasTool
-    lda tool_use_flag
+    ldx #$00
+    Check_Loop:
+    stx current_player
+    cpx #JOYPAD_COUNT
+    bne :+
+        rts
+    :
+    lda tool_use_flag, x
     and #CLEAR_TOOL_ON
-    bne @Use_Brush
-        rts 
-    @Use_Brush:
-    lda tool_use_flag
+    bne @Use_Fill
+        inx
+        jmp Check_Loop
+    @Use_Fill:
+    lda tool_use_flag, x
     eor #CLEAR_TOOL_ON
-    sta tool_use_flag
+    sta tool_use_flag, x
 
     jsr PPUOff
 
@@ -373,59 +381,114 @@
 .proc InitializeOverlayIndicators
     Player_1:
         Color_Indicator_1:
-        lda #OVERLAY_COLOR_OFFSET_Y
+        lda #OVERLAY_P1_COLOR_OFFSET_Y
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_Y
         lda #DIGIT_OFFSET + 1
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_TILE
-        lda #$00
+        lda #PLAYER_1_OVERLAY_ATTR
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_ATTR
-        lda #OVERLAY_COLOR_OFFSET_X
+        lda #OVERLAY_P1_COLOR_OFFSET_X
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_X
 
-        @Tool_Indicator_1:
-        lda #OVERLAY_TOOL_OFFSET_Y
+        Tool_Indicator_1:
+        lda #OVERLAY_P1_TOOL_OFFSET_Y
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_Y
         lda #DIGIT_OFFSET + 1
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_TILE
-        lda #$00
+        lda #PLAYER_1_OVERLAY_ATTR
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_ATTR
-        lda #OVERLAY_TOOL_OFFSET_X
+        lda #OVERLAY_P1_TOOL_OFFSET_X
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
+
+    Player_2:
+        Color_Indicator_2:
+        lda #OVERLAY_P2_COLOR_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_Y
+        lda #DIGIT_OFFSET + 2
+        sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_TILE
+        lda #PLAYER_2_OVERLAY_ATTR
+        sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_ATTR
+        lda #OVERLAY_P2_COLOR_OFFSET_X
+        sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_X
+
+        @Tool_Indicator_2:
+        lda #OVERLAY_P2_TOOL_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_Y
+        lda #DIGIT_OFFSET + 2
+        sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_TILE
+        lda #PLAYER_2_OVERLAY_ATTR
+        sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_ATTR
+        lda #OVERLAY_P2_TOOL_OFFSET_X
+        sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_X
+
+    jsr UpdateColorSelectionOverlayPosition
+    jsr UpdateToolSelectionOverlayPosition
     rts
 .endproc
 ; Khine
 
 
 ; Khine
-.proc UpdateOverlayIndicatorPositions
-    @Color_Indicator_1:
-        lda #OVERLAY_COLOR_OFFSET_X
+.proc UpdateColorSelectionOverlayPosition
+    Color_Indicator_P1:
+        lda #OVERLAY_P1_COLOR_OFFSET_X
         ldx selected_color_chr_index
-        beq @Skip_Color_Loop
+        beq Skip_Color_Loop_P1
 
         clc
-        @Color_Loop:
+        Color_Loop_P1:
         adc #OVERLAY_COLOR_MULTIPLIER
         dex
-        bne @Color_Loop
+        bne Color_Loop_P1
 
-        @Skip_Color_Loop:
+        Skip_Color_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_X
 
-    @Tool_Indicator_1:
-        lda #OVERLAY_TOOL_OFFSET_X
-        ldx selected_tool
-        beq @Skip_Tool_Loop
+    Color_Indicator_P2:
+        lda #OVERLAY_P2_COLOR_OFFSET_X
+        ldx selected_color_chr_index + 1
+        beq Skip_Color_Loop_P2
 
         clc
-        @Tool_Loop:
+        Color_Loop_P2:
+        adc #OVERLAY_COLOR_MULTIPLIER
+        dex
+        bne Color_Loop_P2
+
+        Skip_Color_Loop_P2:
+        sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_X
+    rts
+.endproc
+
+.proc UpdateToolSelectionOverlayPosition
+    Tool_Indicator_P1:
+        lda #OVERLAY_P1_TOOL_OFFSET_X
+        ldx selected_tool
+        beq Skip_Tool_Loop_P1
+
+        clc
+        Tool_Loop_P1:
         adc #OVERLAY_TOOL_MULTIPLIER
         dex
-        bne @Tool_Loop
+        bne Tool_Loop_P1
 
-        @Skip_Tool_Loop:
+        Skip_Tool_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
-        rts
+
+    Tool_Indicator_P2:
+        lda #OVERLAY_P2_TOOL_OFFSET_X
+        ldx selected_tool + 1
+        beq Skip_Tool_Loop_P2
+
+        clc
+        Tool_Loop_P2:
+        adc #OVERLAY_TOOL_MULTIPLIER
+        dex
+        bne Tool_Loop_P2
+
+        Skip_Tool_Loop_P2:
+        sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_X
+    rts
 .endproc
 ; Khine
 
@@ -621,7 +684,8 @@
     sta PPU_ADDR
 
     ; write brush color (at current address) to vram 
-    lda selected_color_chr_index ;brush_tile_index
+    ldx current_player
+    lda selected_color_chr_index, x ;brush_tile_index
     sta PPU_DATA
 
     rts 
