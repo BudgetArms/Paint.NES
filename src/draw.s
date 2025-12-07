@@ -535,7 +535,7 @@
 
     Start_Fill:
         ; initialize/Reset ring queue
-        lda #$0
+        lda #$00
         sta queue_head
         sta queue_tail
 
