@@ -228,14 +228,22 @@
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
-    lda tool_use_flag
+    ldx #$00
+    Check_Loop:
+    stx current_player
+    cpx #JOYPAD_COUNT
+    bne :+
+        rts
+    :
+    lda tool_use_flag, x
     and #BRUSH_TOOL_ON
     bne @Use_Brush
-        rts
+        inx
+        jmp Check_Loop
     @Use_Brush:
-    lda tool_use_flag
+    lda tool_use_flag, x
     eor #BRUSH_TOOL_ON
-    sta tool_use_flag
+    sta tool_use_flag, x
 
     jsr PlayBrushSoundEffect
 
@@ -256,9 +264,16 @@
         lda drawing_tile_position ; Low bit of the location
         sta PPU_ADDR
 
+        ldx current_player
+        lda selected_tool, x
+        cmp #ERASER_TOOL_SELECTED
+        bne :+
+            lda #BACKGROUND_TILE_INDEX
+            jmp :++
+        :
+            lda selected_color_chr_index, x
+        :
         ldx #$00
-        ;lda brush_tile_index ; Color index of the tile
-        lda selected_color_chr_index
         @row_loop:
             sta PPU_DATA
             inx
@@ -401,7 +416,7 @@
 .proc DrawShapeToolCursor
 
     lda selected_tool 
-    cmp #SHAPE_TOOL_ACTIVATED
+    cmp #SHAPE_TOOL_SELECTED
     beq Use_Shape
 
         ; hide shape cursor
@@ -434,23 +449,27 @@
     ;    HIGH       LOW
     ; 7654 3210   7654 3210
     ; ---- --YY   YYYX XXXX
-
-    lda tool_use_flag
+    ldx #$00
+    Check_Loop:
+    stx current_player
+    cpx #JOYPAD_COUNT
+    bne :+
+        rts
+    :
+    lda tool_use_flag, x
     and #FILL_TOOL_ON
-    bne Use_Fill
-        rts 
-
-    Use_Fill:
-
-    ; Remove FILL_TOOL_ON from the tool_use_flagibutes
-    lda tool_use_flag
+    bne @Use_Fill
+        inx
+        jmp Check_Loop
+    @Use_Fill:
+    lda tool_use_flag, x
     eor #FILL_TOOL_ON
-    sta tool_use_flag
+    sta tool_use_flag, x
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
     jsr ResetScroll
-    
+
     ; turn ppu off
     jsr PPUOff
 
@@ -465,8 +484,9 @@
     sta fill_target_color
 
     ; if the brush tile index is not transparent, Start_Fill
+    ldx current_player
     lda fill_target_color
-    cmp selected_color_chr_index     ; brush_tile_index
+    cmp selected_color_chr_index, x     ; brush_tile_index
     bne Start_Fill
         ; if transparent, Finish
         jmp Finish
