@@ -105,6 +105,32 @@
 .endmacro
 ; BudgetArms
 
+; BudgetArms
+.macro ConvertPositionsToTilePositions positionX, positionY
+    
+    ; Outputs: x/y
+
+    ; divide X by 8
+    lsr 
+    lsr 
+    lsr 
+
+    ; store X
+    tax 
+
+    
+    ; divide Y by 8
+    lda positionY
+    lsr 
+    lsr 
+    lsr 
+
+    ; store y
+    tay 
+
+.endmacro
+; BudgetArms
+
 
 ;*****************************************************************
 ; PPUUpdate: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
