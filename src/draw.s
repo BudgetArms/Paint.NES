@@ -5,9 +5,6 @@
 
     lda cursor_type
 
-    cmp #TYPE_CURSOR_SMALL
-    beq Small_Cursor
-
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
@@ -19,10 +16,6 @@
 
     ;this should never be reached
     rts 
-
-    Small_Cursor:
-        jsr LoadSmallCursor
-        rts 
 
     Normal_Cursor:
         jsr LoadNormalCursor
@@ -38,65 +31,6 @@
 
     ; this should never be reached
     rts 
-
-.endproc
-; BudgetArms
-
-
-; BudgetArms
-.proc LoadSmallCursor
-
-    lda cursor_small_direction
-
-    cmp #DIR_CURSOR_SMALL_TOP_LEFT
-    beq DrawTopLeft
-
-    cmp #DIR_CURSOR_SMALL_TOP_RIGHT
-    beq DrawTopRight
-
-    cmp #DIR_CURSOR_SMALL_BOTTOM_LEFT
-    beq DrawBottomLeft
-
-    cmp #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-    beq DrawBottomRight
-
-    ; this should never be reached
-    rts 
-
-    ; set x, it's the offset from CURSOR_SMALL_CURSOR to it's current sprite
-
-    DrawTopLeft:
-        ldx #DIR_CURSOR_SMALL_TOP_LEFT
-        jmp DoneSettingStartAddress
-
-    DrawTopRight:
-        ldx #DIR_CURSOR_SMALL_TOP_RIGHT
-        jmp DoneSettingStartAddress
-
-    DrawBottomLeft:
-        ldx #DIR_CURSOR_SMALL_BOTTOM_LEFT
-        jmp DoneSettingStartAddress
-
-    DrawBottomRight:
-        ldx #DIR_CURSOR_SMALL_BOTTOM_RIGHT
-        jmp DoneSettingStartAddress
-
-
-    DoneSettingStartAddress:
-
-        ldy #$00
-
-        @Loop: 
-            lda CURSOR_SMALL_DATA, X
-            sta oam + OAM_OFFSET_CURSOR_SMALL, Y
-
-            inx     ; so the next sprite get read/written
-            iny     ; to keep track of the Nth byte we are reading
-
-            cpy #OAM_SIZE_CURSOR_SMALL
-            bne @Loop   ; loop until the whole sprite is loaded in
-
-        rts 
 
 .endproc
 ; BudgetArms

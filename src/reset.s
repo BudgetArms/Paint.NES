@@ -58,10 +58,6 @@
     lda #$01
     sta brush_size ; Brush size
 
-    ; Initialize cursor small direction
-    lda #$00
-    sta cursor_small_direction
-
     ; Initialize scroll positions
     lda #$00
     sta scroll_x_position

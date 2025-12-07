@@ -98,10 +98,6 @@ DISPLAY_SCREEN_WIDTH    = 32
 DISPLAY_SCREEN_HEIGHT   = 30
 TILE_PIXEL_SIZE         = $08
 
-; oam offsets
-CURSOR_OFFSET_SMALL     = $00       ; 4 sprites, -> 4 (sprites) * 4 bytes (per sprite) = 16 bytes
-CURSOR_OFFSET_NORMAL    = $10       ; 1 sprites, -> 4 bytes
-CURSOR_OFFSET_BIG       = $14       ; 4 sprites, -> 16 bytes
 
 ; Hold Times (in frames)
 BUTTON_HOLD_TIME_SLOW       = DISPLAY_REFRESH_RATE_HZ
@@ -124,7 +120,6 @@ CURSOR_MAX_Y = 28
 
 
 ; cursor types
-TYPE_CURSOR_SMALL   = $00
 TYPE_CURSOR_NORMAL  = $01
 TYPE_CURSOR_MEDIUM  = $02
 TYPE_CURSOR_BIG     = $03
@@ -135,12 +130,6 @@ TYPE_CURSOR_STARTUP = TYPE_CURSOR_NORMAL
 ; cursor types min/max
 TYPE_CURSOR_MINIMUM = TYPE_CURSOR_NORMAL
 TYPE_CURSOR_MAXIMUM = TYPE_CURSOR_BIG
-
-; cursor small directions
-DIR_CURSOR_SMALL_TOP_LEFT       = $00
-DIR_CURSOR_SMALL_TOP_RIGHT      = $04
-DIR_CURSOR_SMALL_BOTTOM_LEFT    = $08
-DIR_CURSOR_SMALL_BOTTOM_RIGHT   = $0C
 
 ; tile indexes
 TILEINDEX_CURSOR_SMALL_TOP_LEFT = $10
@@ -162,7 +151,6 @@ OAM_OFFSCREEN   = $FF
 
 
 ; oam data sizes
-OAM_SIZE_CURSOR_SMALL   = $04       ; 4 bytes
 OAM_SIZE_CURSOR_NORMAL  = $04       ; 4 bytes
 OAM_SIZE_CURSOR_MEDIUM  = $10       ; 16 bytes
 OAM_SIZE_CURSOR_BIG     = $20       ; 32 bytes
@@ -170,7 +158,6 @@ OAM_SIZE_CURSOR_SHAPE   = $04       ; 4 bytes
 
 
 ; oam offsets are not same as tile indexes
-OAM_OFFSET_CURSOR_SMALL     = $00   ; 1 sprite (4 bytes)
 OAM_OFFSET_CURSOR_NORMAL    = $04   ; 1 sprite (4 bytes)
 OAM_OFFSET_CURSOR_MEDIUM    = $08   ; 4 sprite (16 bytes), different location to avoid overwriting star
 OAM_OFFSET_CURSOR_BIG       = $18   ; 8 sprites (32 bytes)

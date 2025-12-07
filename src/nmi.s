@@ -43,12 +43,13 @@
         cpx #PALETTE_SIZE
         bcc loop
 
-    ; Khine
+    Tools:
     jsr UseClearCanvasTool
     jsr UseBrushTool
     jsr UseShapeTool
     jsr UseFillTool
 
+    Overlay:
     jsr DrawCursorPositionOverlay
     jsr RefreshToolTextOverlay
 

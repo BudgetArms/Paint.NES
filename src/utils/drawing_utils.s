@@ -120,9 +120,6 @@
 
     lda cursor_type
 
-    cmp #TYPE_CURSOR_SMALL
-    beq Small_Cursor
-
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
@@ -135,10 +132,6 @@
     ; this should never be reached
     rts 
 
-    Small_Cursor:
-        jsr UpdateSmallCursorPosition
-        rts 
-
     Normal_Cursor:
         jsr UpdateNormalCursorPosition
         rts 
@@ -150,33 +143,6 @@
     Big_Cursor:
         jsr UpdateBigCursorPosition
         rts 
-
-.endproc
-; BudgetArms
-
-
-; BudgetArms
-.proc UpdateSmallCursorPosition
-
-    ; Increase cursor_y with oam data's y-pos
-    clc 
-    lda cursor_y
-    adc oam + OAM_OFFSET_CURSOR_SMALL
-
-    ; subtract A (y pos) by one bc it's draw on the next scanline  
-    clc 
-    sbc #$00
-
-    ; Store data to OAM
-    sta oam + OAM_OFFSET_CURSOR_SMALL
-
-    ; Increase cursor_x with oam data's x-pos
-    clc 
-    lda cursor_x
-    adc oam + OAM_OFFSET_CURSOR_SMALL + OAM_X
-    sta oam + OAM_OFFSET_CURSOR_SMALL + OAM_X
-
-    rts 
 
 .endproc
 ; BudgetArms
@@ -290,9 +256,6 @@
 
     lda cursor_type
 
-    cmp #TYPE_CURSOR_SMALL
-    beq Small_Cursor
-
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
@@ -307,18 +270,8 @@
     rts 
 
 
-    Small_Cursor:
-        ; Hide normal, medium and big cursor
-        HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
-        HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
-        HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
-
-        rts 
-
-
     Normal_Cursor:
         ; Hide small, medium and big cursor
-        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
         HideCursor OAM_OFFSET_CURSOR_MEDIUM,    OAM_SIZE_CURSOR_MEDIUM
         HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
 
@@ -331,7 +284,6 @@
 
     Medium_Cursor:
         ; Hide small, normal and big cursor
-        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
         HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL
         HideCursor OAM_OFFSET_CURSOR_BIG,       OAM_SIZE_CURSOR_BIG
 
@@ -340,7 +292,6 @@
 
     Big_Cursor:
         ; Hide small, normal and medium cursor
-        HideCursor OAM_OFFSET_CURSOR_SMALL, OAM_SIZE_CURSOR_SMALL
         HideCursor OAM_OFFSET_CURSOR_NORMAL, OAM_SIZE_CURSOR_NORMAL
         HideCursor OAM_OFFSET_CURSOR_MEDIUM, OAM_SIZE_CURSOR_MEDIUM
 
@@ -498,9 +449,6 @@
 
     lda cursor_type
 
-    cmp #TYPE_CURSOR_SMALL
-    beq Small_Cursor
-
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
 
@@ -513,10 +461,6 @@
 
     ;this should never be reached
     rts 
-
-    Small_Cursor:
-        HideCursor OAM_OFFSET_CURSOR_SMALL,     OAM_SIZE_CURSOR_SMALL
-        rts 
 
     Normal_Cursor:
         HideCursor OAM_OFFSET_CURSOR_NORMAL,    OAM_SIZE_CURSOR_NORMAL

@@ -365,11 +365,6 @@
         lda #TYPE_CURSOR_MINIMUM
         sta cursor_type
 
-        ; reset small cursor_small_direction always even
-        ; if the minimum cursor type isn't small_cursor
-        lda DIR_CURSOR_SMALL_TOP_LEFT
-        sta cursor_small_direction
-
         Not_Maximum_Size:
 
         ; increment accumulator
