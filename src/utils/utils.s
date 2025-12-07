@@ -44,10 +44,10 @@
 
 
 ; Khine
-.macro ChangeToolAttr   tool_to_turn_on
-    lda tool_use_attr
+.macro ChangeToolFlag   tool_to_turn_on
+    lda tool_use_flag
     ora tool_to_turn_on
-    sta tool_use_attr
+    sta tool_use_flag
 .endmacro
 ; Khine
 
@@ -144,7 +144,6 @@
     ; Convert the X and Y coordinates of the cursor to
     ; the tile index storied in 'cursor_tile_position' variable
     ; 2 bytes -> LO + HI bytes
-    ; parameters: 0 -> Cursor X, 1 -> Cursor Y
 
     ; Reset the tile index
     lda #$00
@@ -178,7 +177,7 @@
     ; Increment the high bit position if there is a remaining carry flag set
     bcc @SkipHighBitIncrement
         inc cursor_tile_position + 1 ; High bit of the location
-        clc 
+        clc
     @SkipHighBitIncrement:
 
     ; Add the offset of nametable 1 to the tile index
@@ -399,66 +398,6 @@
 ;Joren
 
 
-; Joren
-.proc InitializeColorSelectionOverlay
-
-    ; FIRST tile = background tile
-    ChangePPUNameTableAddr FIRST_COLOR_ONSCREEN_ADRESS
-    lda #FIRST_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    ; SECOND tile
-    ChangePPUNameTableAddr SECOND_COLOR_ONSCREEN_ADRESS
-    lda #SECOND_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    ; THIRD tile
-    ChangePPUNameTableAddr THIRD_COLOR_ONSCREEN_ADRESS
-    lda #THIRD_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    ; FOURTH tile
-    ChangePPUNameTableAddr FOURTH_COLOR_ONSCREEN_ADRESS
-    lda #FOURTH_COLOR_TILE_INDEX
-    sta PPU_DATA
-
-    rts 
-
-.endproc
-; Joren
-
-
-; Joren
-.proc InitializeToolSelectionOverlay
-
-    ; FIRST tile = brush tool
-    ChangePPUNameTableAddr BRUSH_TOOL_ONSCREEN_ADRESS
-    lda #BRUSH_ICON_TILE_INDEX
-    sta PPU_DATA
-
-    ; SECOND tile = eraser tool
-    ChangePPUNameTableAddr ERASER_TOOL_ONSCREEN_ADRESS
-    lda #ERASER_ICON_TILE_INDEX
-    sta PPU_DATA
-
-    ; THIRD tile = fill tool
-    ChangePPUNameTableAddr FILL_TOOL_ONSCREEN_ADRESS
-    lda #FILL_ICON_TILE_INDEX
-    sta PPU_DATA
-
-    ; TODO: Add shape tool
-
-    ; FOURTH tile = clear tool
-    ChangePPUNameTableAddr CLEAR_TOOL_ONSCREEN_ADRESS
-    lda #CLEAR_ICON_TILE_INDEX
-    sta PPU_DATA
-
-    rts 
-
-.endproc
-;Joren
-
-
 ; Khine
 .proc OverwriteAllBackgroundColorIndex
 
@@ -478,51 +417,6 @@
 
 .endproc
 ; Khine
-
-
-.proc UpdateColorSelectionOverlay
-    ; SELECTED tile
-    lda #$20 ; same as all previous ones
-    sta PPU_ADDR
-    
-    lda selected_color_chr_index
-    clc 
-    adc #<FIRST_COLOR_ONSCREEN_ADRESS
-    sta PPU_ADDR
-
-    lda selected_color_chr_index
-    sta PPU_DATA
-
-    rts 
-
-.endproc
-
-
-; Joren
-.proc UpdateToolSelectionOverlay
-
-    ; SELECTED tile
-    lda #$20 ; > takes highbyte of 16 bit value
-    sta PPU_ADDR
-
-    lda #<BRUSH_TOOL_ONSCREEN_ADRESS ; < takes lowbyte of 16 bit value
-    clc 
-    adc selected_tool
-    clc 
-    adc selected_tool
-    sta PPU_ADDR
-
-    lda selected_tool
-    clc 
-    adc #BRUSH_ICON_TILE_INDEX
-    clc 
-    adc #$10 ; +16 = +1 row on chr file
-    sta PPU_DATA
-
-    rts 
-
-.endproc
-; Joren
 
 
 ; Joren
@@ -575,7 +469,7 @@
 ; Joren
 
 
-; Joren
+; Joren / Khine
 .proc IncreaseToolSelection
 
     lda selected_tool
@@ -590,13 +484,16 @@
     Value_Was_Okay:
     sta selected_tool
 
+    lda update_flag
+    ora #UPDATE_TOOL_TEXT_OVERLAY
+    sta update_flag
     rts 
 
 .endproc
-; Joren
+; Joren / Khine
 
 
-; Joren
+; Joren / Khine
 .proc DecreaseToolSelection
 
     ; Code to slow input registration down
@@ -610,7 +507,97 @@
     Value_Was_Okay:
     sta selected_tool
 
-    rts 
+    lda update_flag
+    ora #UPDATE_TOOL_TEXT_OVERLAY
+    sta update_flag
+    rts
 
 .endproc
-; Joren
+; Joren / Khine
+
+
+; Khine
+.proc RefreshToolTextOverlay
+    lda update_flag
+    and #UPDATE_TOOL_TEXT_OVERLAY
+    bne @Update_Text
+        rts
+    @Update_Text:
+    lda update_flag
+    eor #UPDATE_TOOL_TEXT_OVERLAY
+    sta update_flag
+
+    ; Clear the tiles before drawing again
+    ChangePPUNameTableAddr OVERLAY_TOOL_TEXT_OFFSET
+    ldx #$06
+    lda #COLOR_1_TILE_INDEX
+    @Clear_Loop:
+        sta PPU_DATA
+        dex
+        bne @Clear_Loop
+
+    ; Reset the PPU location after the clear
+    ChangePPUNameTableAddr OVERLAY_TOOL_TEXT_OFFSET
+
+    lda selected_tool
+
+    cmp #BRUSH_TOOL_ACTIVATED
+    bne :+
+        lda #<Brush_Text
+        sta abs_address_to_access
+        lda #>Brush_Text
+        sta abs_address_to_access + 1
+        jmp @Change_Text
+    :
+
+    cmp #ERASER_TOOL_ACTIVATED
+    bne :+
+        lda #<Eraser_Text
+        sta abs_address_to_access
+        lda #>Eraser_Text
+        sta abs_address_to_access + 1
+        jmp @Change_Text
+    :
+
+    cmp #FILL_TOOL_ACTIVATED
+    bne :+
+        lda #<Fill_Text
+        sta abs_address_to_access
+        lda #>Fill_Text
+        sta abs_address_to_access + 1
+        jmp @Change_Text
+    :
+    
+    cmp #SHAPE_TOOL_ACTIVATED
+    bne :+
+        lda #<Shape_Text
+        sta abs_address_to_access
+        lda #>Shape_Text
+        sta abs_address_to_access + 1
+        jmp @Change_Text
+    :
+
+    cmp #CLEAR_TOOL_ACTIVATED
+    bne :+
+        lda #<Clear_Text
+        sta abs_address_to_access
+        lda #>Clear_Text
+        sta abs_address_to_access + 1
+        jmp @Change_Text
+    :
+
+    @Change_Text:
+    ldy #$00
+        @Write_Loop:
+        lda (abs_address_to_access), y
+        cmp #$00
+        bne :+
+            rts
+        :
+        sta PPU_DATA
+        iny
+        jmp @Write_Loop
+
+    rts
+.endproc
+; Khine
