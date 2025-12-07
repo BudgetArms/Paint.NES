@@ -28,7 +28,6 @@
 
 ; Jeronimas
 .proc PlayBrushSoundEffect
-
     ; Play drawing sound effect based on tool mode
     lda selected_tool
     cmp #BRUSH_TOOL_ACTIVATED
@@ -44,18 +43,15 @@
     rts
     
     @Play_Shape:
-        ; Shape tool - play shape sound (index 0)
-        ; Uses both square 2 and noise channels
+        ; Shape tool - play shape sound (index 0) on both Square and Noise channels
         lda #$00
-        ldx #FAMISTUDIO_SFX_CH0  ; Play on Square 
-        jsr famistudio_sfx_play
-    
+        ldx #FAMISTUDIO_SFX_CH0  ; Square channel
+        jsr famistudio_sfx_play  ; this is here so we can play on multiple sound channels
+        
         lda #$00
-        ldx #FAMISTUDIO_SFX_CH1  ; Also play on Noise
-        jsr famistudio_sfx_play
-    
-        ; Calling famistudio_sfx_play directly here so that it can play both sound channels
-    rts
+        ldx #FAMISTUDIO_SFX_CH1  ; Noise channel
+        ; Fall through to @Play_SFX
+        jmp @Play_SFX
     
     @Play_Eraser:
         ; Eraser tool - play eraser sound (index 1)
@@ -76,21 +72,8 @@
         
     @Play_SFX:
         jsr famistudio_sfx_play
-    
-    rts 
-     
-    ; @Play_Dual_SFX:   ; does not seem to work yet
-    ;     ; Play same SFX on two channels
-    ;     ; A = SFX index, X = first channel, Y = second channel
-    ;     pha
-    ;     jsr famistudio_sfx_play
-        
-    ;     pla
-    ;     tya
-    ;     tax
-    ;     jsr famistudio_sfx_play
-    ; rts
 
+    rts
 .endproc
 ; Jeronimas
 
