@@ -428,7 +428,7 @@
         ; Rectangle
         lda shape_tool_type
         and #SHAPE_TOOL_TYPE_RECTANGLE
-        bne @Not_Rectangle_Type
+        beq @Not_Rectangle_Type
 
             ; if rectangle mode
             jsr DrawShapeRectangle
@@ -439,7 +439,7 @@
         ; Circle
         lda shape_tool_type
         and #SHAPE_TOOL_TYPE_CIRCLE
-        bne @Not_Circle_Type
+        beq @Not_Circle_Type
 
             ; if circle mode
             jsr DrawShapeCircle
@@ -760,12 +760,31 @@
 ; BudgetArms
 .proc DrawShapeRectangle
 
+    ; convert first pos x/y to tile pos x/y, store in x/y
+    ConvertPositionsToTilePositions shape_tool_first_pos_x, shape_tool_first_pos_y
+
+    ; Overwrite positions with tile positions
+    stx shape_tool_first_pos_x
+    sty shape_tool_first_pos_y
+
+
+    ; convert second pos x/y to tile pos x/y, store in x/y
+    ConvertPositionsToTilePositions shape_tool_second_pos_x, shape_tool_second_pos_y
+
+    ; Overwrite positions with tile positions
+    stx shape_tool_second_pos_x
+    sty shape_tool_second_pos_y
+
+    
+    lda #$00
+
     ; Set staring pos to first pos
     lda shape_tool_first_pos_x
     sta shape_tool_staring_pos_x
 
     lda shape_tool_first_pos_y
     sta shape_tool_staring_pos_y
+
 
     ; check where the second pos X is compared to first    
 
@@ -784,17 +803,108 @@
         lda shape_tool_second_pos_x
         sta shape_tool_staring_pos_x
 
+        ; set offset again (but no negative)
+        sec 
+        lda shape_tool_first_pos_x
+        sbc shape_tool_second_pos_x
+        tax 
+
 
     First_Pos_Is_Left_Of_Second_Pos:
 
 
-    ; Y offset is stored in Y
-    sec 
-    sta shape_tool_first_pos_y
-    sbc shape_tool_second_pos_y
-    
+    ; check where the second pos Y is compared to first    
 
+    ; Y offset is stored in Y
+    sec  
+    lda shape_tool_second_pos_y
+    sbc shape_tool_first_pos_y
+
+    tay 
+
+    ; higher as in the value is higher
+    ; but the position is lower vertically on screen than second pos
+    bpl First_Pos_Is_Higher_Than_Second_Pos
+
+        ; first pos is lower than second pos
+
+        ; change staring pos Y 
+        lda shape_tool_second_pos_y
+        sta shape_tool_staring_pos_y
+
+        ; set offset again (but no negative)
+        sec 
+        lda shape_tool_first_pos_x
+        sbc shape_tool_second_pos_x
+        tay  
+
+
+    First_Pos_Is_Higher_Than_Second_Pos:
+
+
+    ; At this point:
+    ; - shape_tool_staring_pos_x, shape_tool_staring_pos_y = top-left corner
+    ; - X register = width (number of tiles)
+    ; - Y register = height (number of tiles)
+
+    ; Turn PPU off for safe VRAM writing
+    jsr PPUOff
+
+    ; Drawing loop - iterate rows (Y)
+    ldy #$00                        ; Y counter for rows
+    sty drawing_y_counter
+
+    @row_loop:
+        ldy drawing_y_counter
+        cpy shape_tool_height_temp ; Y offset (height)
+        bcs @done_drawing            ; if Y >= height, done (FIXED: bge -> bcs)
+        
+        ; Set PPU address for this row
+        lda PPU_STATUS              ; reset address latch
+        
+        ; Calculate nametable address = (y * 32) + x + NAME_TABLE_1
+        tya                         ; A = current row counter
+        asl a 
+        asl a 
+        asl a 
+        asl a 
+        asl a                       ; A = Y * 32
+        
+        clc
+        adc shape_tool_staring_pos_x ; add starting X position
+        sta temp_addr_low
+        
+        lda #>NAME_TABLE_1
+        adc #$00                    ; add carry from low byte
+        sta temp_addr_high
+        
+        lda PPU_STATUS
+        lda temp_addr_high
+        sta PPU_ADDR
+        lda temp_addr_low
+        sta PPU_ADDR
+        
+        ; Draw row (X loop)
+        ldx #$00                    ; X counter for columns
+        stx drawing_x_counter
+        lda selected_color_chr_index ; load tile color
+        
+        @col_loop:
+            ldx drawing_x_counter
+            cpx shape_tool_width_temp ; compare X with width
+            bcs @next_row               ; if X >= width, next row (FIXED: bge -> bcs)
+            
+            sta PPU_DATA                ; write tile to PPU
+            inc drawing_x_counter
+            jmp @col_loop
+        
+        @next_row:
+        inc drawing_y_counter
+        jmp @row_loop
+    
+    @done_drawing:
     rts 
+
 
 .endproc
 ; BudgetArms
