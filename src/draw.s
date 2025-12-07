@@ -228,14 +228,14 @@
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
-    lda tool_use_attr
+    lda tool_use_flag
     and #BRUSH_TOOL_ON
     bne @Use_Brush
         rts
     @Use_Brush:
-    lda tool_use_attr
+    lda tool_use_flag
     eor #BRUSH_TOOL_ON
-    sta tool_use_attr
+    sta tool_use_flag
 
     jsr PlayBrushSoundEffect
 
@@ -284,17 +284,17 @@
 ; BudgetArms
 .proc UseShapeTool
 
-    lda tool_use_attr
+    lda tool_use_flag
     and #SHAPE_TOOL_ON
     bne Use_Shape
         rts 
     
     Use_Shape:
 
-    ; Remove SHAPE_TOOL_ON from the tool_use_attributes
-    lda tool_use_attr
+    ; Remove SHAPE_TOOL_ON from the tool_use_flagibutes
+    lda tool_use_flag
     eor #SHAPE_TOOL_ON
-    sta tool_use_attr
+    sta tool_use_flag
 
     ; Change things
     lda shape_tool_has_set_first_pos
@@ -395,6 +395,8 @@
 ; BudgetArms
 
 
+; 
+
 ; BudgetArms
 .proc DrawShapeToolCursor
 
@@ -433,17 +435,17 @@
     ; 7654 3210   7654 3210
     ; ---- --YY   YYYX XXXX
 
-    lda tool_use_attr
+    lda tool_use_flag
     and #FILL_TOOL_ON
     bne Use_Fill
         rts 
 
     Use_Fill:
 
-    ; Remove FILL_TOOL_ON from the tool_use_attributes
-    lda tool_use_attr
+    ; Remove FILL_TOOL_ON from the tool_use_flagibutes
+    lda tool_use_flag
     eor #FILL_TOOL_ON
-    sta tool_use_attr
+    sta tool_use_flag
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
@@ -747,3 +749,36 @@
 .endproc
 ; BudgetArms
 
+
+; Khine
+.proc LoadTilemap
+    lda PPU_STATUS ; reset address latch
+    lda #>NAME_TABLE_1 ; High bit of the location
+    sta PPU_ADDR
+    lda #<NAME_TABLE_1 ; Low bit of the location
+    sta PPU_ADDR
+
+    ldx #$00
+    lda #<Canvas_UI_Tilemap
+    sta abs_address_to_access
+    lda #>Canvas_UI_Tilemap
+    sta abs_address_to_access + 1
+    @outer_loop:
+    ldy #$00
+        @inner_loop:
+        lda (abs_address_to_access), y
+        sta PPU_DATA
+        iny
+        bne @inner_loop
+    lda abs_address_to_access + 1
+    clc
+    adc #$01
+    sta abs_address_to_access + 1
+    inx
+    cpx #$04
+    bne @outer_loop
+
+    rts
+
+.endproc
+; Khine
