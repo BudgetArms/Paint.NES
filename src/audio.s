@@ -47,8 +47,15 @@
         ; Shape tool - play shape sound (index 0)
         ; Uses both square 2 and noise channels
         lda #$00
-        ldx #FAMISTUDIO_SFX_CH2  ; Square 2 + Noise
-        jmp @Play_SFX
+        ldx #FAMISTUDIO_SFX_CH0  ; Play on Square 
+        jsr famistudio_sfx_play
+    
+        lda #$00
+        ldx #FAMISTUDIO_SFX_CH1  ; Also play on Noise
+        jsr famistudio_sfx_play
+    
+        ; Calling famistudio_sfx_play directly here so that it can play both sound channels
+    rts
     
     @Play_Eraser:
         ; Eraser tool - play eraser sound (index 1)
@@ -71,6 +78,18 @@
         jsr famistudio_sfx_play
     
     rts 
+     
+    ; @Play_Dual_SFX:   ; does not seem to work yet
+    ;     ; Play same SFX on two channels
+    ;     ; A = SFX index, X = first channel, Y = second channel
+    ;     pha
+    ;     jsr famistudio_sfx_play
+        
+    ;     pla
+    ;     tya
+    ;     tax
+    ;     jsr famistudio_sfx_play
+    ; rts
 
 .endproc
 ; Jeronimas
