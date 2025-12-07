@@ -36,13 +36,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
 current_input: .res 1
-frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 256
-                        ;this is to do stuff like "every time an 8th frame passes, do this"
-
-; buttons hold-delays
-; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
-; then it executes the button press again
-
+frame_count: .res 1
 
 ; Shape Tool
 shape_tool_type: .res 1
@@ -58,10 +52,8 @@ shape_tool_staring_pos_x: .res 1
 shape_tool_staring_pos_y: .res 1
 
 
-
 ; Fill tool (ring queue)
 fill_temp: .res 1
-
 fill_target_color: .res 1
 queue_head: .res 1
 queue_tail: .res 1
@@ -75,25 +67,29 @@ cursor_y: .res 1
 tile_cursor_x: .res 1
 tile_cursor_y: .res 1
 
-; store zero page for digit conversion (might not need this)
-cursor_x_digits: .res 3
-cursor_y_digits: .res 3
-
-divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
-
 cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
 cursor_small_direction: .res 1 ; 0: top-left, 1: top-right, 2: bottom-left, 3: bottom-right 
 cursor_tile_position: .res 2
 
+
+; store zero page for digit conversion (might not need this)
+cursor_x_digits: .res 3
+cursor_y_digits: .res 3
+divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
+
+
 ; drawing-related vars
+selected_tool: .res 1
+selected_color_chr_index: .res 1
 tool_mode: .res 1
-tool_use_attr: .res 1
+tool_use_flag: .res 1
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
 brush_size: .res 1
-new_palette_color: .res 1
+
 
 ; misc
+update_flag: .res 1
 abs_address_to_access: .res 2
 current_program_mode: .res 1
 scroll_x_position: .res 1
@@ -107,14 +103,6 @@ music_paused: .res 1    ; this is a flag changing this does not actually pause t
 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
-
-;Joren
-four_color_values: .res 4
-selected_color_chr_index: .res 1
-frame_count: .res 1
-selected_tool: .res 1
-
-
 .segment "OAM"
 oam: .res 256	; sprite OAM data
 
@@ -197,11 +185,7 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; main application - rendering is currently off
     
     ; clear 1st name table
-    jsr SetupCanvas
-    ; Overlay Initialization
-    jsr InitializeColorSelectionOverlay
-    jsr InitializeToolSelectionOverlay
-    ;jsr InitializeColorValues
+    jsr LoadTilemap
 
     ; initialize palette table
     ldx #$00
@@ -211,25 +195,6 @@ FAMISTUDIO_DPCM_OFF             = $c000
         inx
         cpx #PALETTE_SIZE
         bcc paletteloop
-
-    initialize_cursor:
-        lda #TYPE_CURSOR_STARTUP
-        sta cursor_type
-
-        ; set cursor_x/y
-        lda #CURSOR_MIN_X * 8
-        sta cursor_x
-
-        lda #CURSOR_MIN_Y * 8
-        sta cursor_y
-
-        ; set cursor tile x/y
-        lda #CURSOR_MIN_X
-        sta tile_cursor_x
-
-        lda #CURSOR_MIN_Y
-        sta tile_cursor_y
-
 
     Initialize_Shape_Tool_Type:
         lda #SHAPE_TOOL_TYPE_DEFAULT
@@ -249,11 +214,11 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
-.byte OFFWHITE, RED, GREEN, BLUE
+.byte WHITE, RED, GREEN, LIGHT_BLUE
 .byte $0f,$00,$10,$30
-.byte $0f,$05,$16,$27
+.byte $0f,BLUE,$16,$27
 .byte $0f,$0b,$1a,$29
-.byte OFFWHITE, RED, GREEN, BLUE
+.byte GRAY, BLACK, BLUE, RED
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
@@ -305,7 +270,22 @@ CURSOR_SHAPE_TOOL_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
+Canvas_UI_Tilemap:
+    .incbin "./tilemaps/canvas.nam"
 
-Start_Menu_Tilemap:
-    .incbin "./tilemaps/start_menu_tilemap.nam"
 
+Overlay_Tool_Text:
+    Brush_Text:
+    .byte 'b' + LETTER_OFFSET, 'r' + LETTER_OFFSET, 'u' + LETTER_OFFSET, 's' + LETTER_OFFSET, 'h' + LETTER_OFFSET, $00
+
+    Eraser_Text:
+    .byte 'e' + LETTER_OFFSET, 'r' + LETTER_OFFSET, 'a' + LETTER_OFFSET, 's' + LETTER_OFFSET, 'e' + LETTER_OFFSET, 'r' + LETTER_OFFSET, $00
+
+    Fill_Text:
+    .byte 'f' + LETTER_OFFSET, 'i' + LETTER_OFFSET, 'l' + LETTER_OFFSET, 'l' + LETTER_OFFSET, $00
+
+    Shape_Text:
+    .byte 's' + LETTER_OFFSET, 'h' + LETTER_OFFSET, 'a' + LETTER_OFFSET, 'p' + LETTER_OFFSET, 'e' + LETTER_OFFSET, $00
+
+    Clear_Text:
+    .byte 'c' + LETTER_OFFSET, 'l' + LETTER_OFFSET, 'e' + LETTER_OFFSET, 'a' + LETTER_OFFSET, 'r' + LETTER_OFFSET, $00
