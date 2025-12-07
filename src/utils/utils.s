@@ -1,16 +1,10 @@
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
     lda source_tile
-    sta selected_color_chr_index
+    ldx current_player
+    sta selected_color_chr_index, x
 .endmacro
 ; Khine
-
-
-; BudgetArms
-.macro ChangeBrushTileIndexFromA
-    sta selected_color_chr_index
-.endmacro
-; BudgetArms
 
 
 ; Khine
@@ -36,18 +30,11 @@
 
 
 ; Khine
-.macro ChangeToolMode    new_mode
-    lda new_mode
-    sta tool_mode
-.endmacro
-; Khine
-
-
-; Khine
 .macro ChangeToolFlag   tool_to_turn_on
-    lda tool_use_flag
+    ldx current_player
+    lda tool_use_flag, x
     ora tool_to_turn_on
-    sta tool_use_flag
+    sta tool_use_flag, x
 .endmacro
 ; Khine
 
@@ -359,19 +346,20 @@
 
 ; Joren
 .proc IncreaseChrTileIndex
-
-    lda selected_color_chr_index
+    ldx current_player
+    lda selected_color_chr_index, x
     clc 
     adc #$01
 
     ; TODO: use constant
     cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
     bmi Value_Was_Okay ; branch if not negative
-        lda #00 ; set value back to 0
+        lda #BACKGROUND_TILE_INDEX ; set value back to 0
 
     Value_Was_Okay:
-    ChangeBrushTileIndexFromA
+        sta selected_color_chr_index, x
 
+    jsr UpdateColorSelectionOverlayPosition
     rts 
 
 .endproc
@@ -380,18 +368,19 @@
 
 ;Joren
 .proc DecreaseChrTileIndex
-
-    lda selected_color_chr_index
+    ldx current_player
+    lda selected_color_chr_index, x
     sec 
     sbc #$01
 
     bpl Value_Was_Okay ; branch if not negative
-    lda #03 ; set value back to max index
+    lda #COLOR_3_TILE_INDEX ; set value back to max index
     ; TODO: USE CONSTANT
 
     Value_Was_Okay:
-    ChangeBrushTileIndexFromA
+        sta selected_color_chr_index, x
 
+    jsr UpdateColorSelectionOverlayPosition
     rts 
 
 .endproc
@@ -452,8 +441,8 @@
 
 ; Joren
 .proc IncreaseButtonHeldFrameCount
-
-    lda frame_count
+    ldx current_player
+    lda frame_count, x
     clc 
     adc #$01
     cmp #FRAMES_BETWEEN_MOVEMENT
@@ -461,7 +450,7 @@
         lda #$00
 
     Value_Is_Okay:
-    sta frame_count
+    sta frame_count, x
 
     rts 
 
@@ -471,8 +460,8 @@
 
 ; Joren / Khine
 .proc IncreaseToolSelection
-
-    lda selected_tool
+    ldx current_player
+    lda selected_tool, x
     clc 
     adc #$01
 
@@ -482,11 +471,13 @@
         lda #00 ; set value back to 0
 
     Value_Was_Okay:
-    sta selected_tool
+    sta selected_tool, x
 
     lda update_flag
     ora #UPDATE_TOOL_TEXT_OVERLAY
     sta update_flag
+
+    jsr UpdateToolSelectionOverlayPosition
     rts 
 
 .endproc
@@ -495,9 +486,8 @@
 
 ; Joren / Khine
 .proc DecreaseToolSelection
-
-    ; Code to slow input registration down
-    lda selected_tool
+    ldx current_player
+    lda selected_tool, x
     sec 
     sbc #$01
 
@@ -505,11 +495,13 @@
     lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
 
     Value_Was_Okay:
-    sta selected_tool
+    sta selected_tool, x
 
     lda update_flag
     ora #UPDATE_TOOL_TEXT_OVERLAY
     sta update_flag
+
+    jsr UpdateToolSelectionOverlayPosition
     rts
 
 .endproc
@@ -541,7 +533,7 @@
 
     lda selected_tool
 
-    cmp #BRUSH_TOOL_ACTIVATED
+    cmp #BRUSH_TOOL_SELECTED
     bne :+
         lda #<Brush_Text
         sta abs_address_to_access
@@ -550,7 +542,7 @@
         jmp @Change_Text
     :
 
-    cmp #ERASER_TOOL_ACTIVATED
+    cmp #ERASER_TOOL_SELECTED
     bne :+
         lda #<Eraser_Text
         sta abs_address_to_access
@@ -559,7 +551,7 @@
         jmp @Change_Text
     :
 
-    cmp #FILL_TOOL_ACTIVATED
+    cmp #FILL_TOOL_SELECTED
     bne :+
         lda #<Fill_Text
         sta abs_address_to_access
@@ -568,7 +560,7 @@
         jmp @Change_Text
     :
     
-    cmp #SHAPE_TOOL_ACTIVATED
+    cmp #SHAPE_TOOL_SELECTED
     bne :+
         lda #<Shape_Text
         sta abs_address_to_access
@@ -577,7 +569,7 @@
         jmp @Change_Text
     :
 
-    cmp #CLEAR_TOOL_ACTIVATED
+    cmp #CLEAR_TOOL_SELECTED
     bne :+
         lda #<Clear_Text
         sta abs_address_to_access
