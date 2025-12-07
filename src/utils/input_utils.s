@@ -293,31 +293,31 @@
     Check_Brush_Tool:
     cmp #BRUSH_TOOL_ACTIVATED
     bne Check_Eraser_Tool
-        ChangeToolAttr #BRUSH_TOOL_ON
+        ChangeToolFlag #BRUSH_TOOL_ON
         rts 
 
     Check_Eraser_Tool:
     cmp #ERASER_TOOL_ACTIVATED
     bne Check_Fill_Tool
-        ChangeToolAttr #ERASER_TOOL_ON
+        ChangeToolFlag #ERASER_TOOL_ON
         rts 
 
     Check_Fill_Tool:
     cmp #FILL_TOOL_ACTIVATED
     bne Check_Shape_Tool
-        ChangeToolAttr #FILL_TOOL_ON
+        ChangeToolFlag #FILL_TOOL_ON
         rts 
 
     Check_Shape_Tool:
     cmp #SHAPE_TOOL_ACTIVATED
     bne Check_Clear_Tool
-        ChangeToolAttr #SHAPE_TOOL_ON
+        ChangeToolFlag #SHAPE_TOOL_ON
         rts 
 
     Check_Clear_Tool:
     cmp #CLEAR_TOOL_ACTIVATED
     bne @End
-        ChangeToolAttr #CLEAR_TOOL_ON
+        ChangeToolFlag #CLEAR_TOOL_ON
         rts 
 
     @End:
