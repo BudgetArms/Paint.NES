@@ -35,8 +35,9 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
-current_input: .res 1
-frame_count: .res 1
+current_input: .res 2
+last_frame_input: .res 2
+frame_count: .res 2
 
 ; Shape Tool
 shape_tool_type: .res 1
@@ -79,10 +80,9 @@ divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
 
 
 ; drawing-related vars
-selected_tool: .res 1
-selected_color_chr_index: .res 1
-tool_mode: .res 1
-tool_use_flag: .res 1
+selected_tool: .res 2
+selected_color_chr_index: .res 2
+tool_use_flag: .res 2
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
 brush_size: .res 1
@@ -94,7 +94,7 @@ abs_address_to_access: .res 2
 current_program_mode: .res 1
 scroll_x_position: .res 1
 scroll_y_position: .res 1
-
+current_player: .res 1
 
 ; Sound engine variables
 sfx_temp: .res 1        ; Temporary storage for SFX operations
