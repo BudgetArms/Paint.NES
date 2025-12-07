@@ -296,6 +296,8 @@
     eor #SHAPE_TOOL_ON
     sta tool_use_attr
 
+    jsr PlayBrushSoundEffect
+
     ; Change things
     lda shape_tool_has_set_first_pos
     bne Second_Position
@@ -444,6 +446,8 @@
     lda tool_use_attr
     eor #FILL_TOOL_ON
     sta tool_use_attr
+
+    jsr PlayBrushSoundEffect
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 

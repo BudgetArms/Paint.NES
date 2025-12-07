@@ -29,36 +29,46 @@
 ; Jeronimas
 .proc PlayBrushSoundEffect
 
-    ; Play drawing sound effect here based on tool mode
+    ; Play drawing sound effect based on tool mode
     lda selected_tool
     cmp #BRUSH_TOOL_ACTIVATED
-    beq @Play_Splash
+    beq @Play_Draw
+    cmp #ERASER_TOOL_ACTIVATED
+    beq @Play_Eraser
+    cmp #FILL_TOOL_ACTIVATED
+    beq @Play_Fill
+    cmp #SHAPE_TOOL_ACTIVATED
+    beq @Play_Shape
     
-    ; Eraser mode - play bird sound (index 0)
-    lda #$00
-    jmp @Play_Sound
+    ; Default - no sound
+    rts
     
-    @Play_Splash:
-        ; Draw mode - play splash sound (index 1)
+    @Play_Shape:
+        ; Shape tool - play shape sound (index 0)
+        ; Uses both square 2 and noise channels
+        lda #$00
+        ldx #FAMISTUDIO_SFX_CH2  ; Square 2 + Noise
+        jmp @Play_SFX
+    
+    @Play_Eraser:
+        ; Eraser tool - play eraser sound (index 1)
         lda #$01
+        ldx #FAMISTUDIO_SFX_CH0  ; Square channel
+        jmp @Play_SFX
     
-    @Play_Sound:
-        ; Set the appropriate SFX channel based on which sound we're playing
-        ; Bird (0) uses square channel, Splash (1) uses noise channel
-        cmp #$00
-        beq @Use_Square_Channel
+    @Play_Fill:
+        ; Fill tool - play fill sound (index 2)
+        lda #$02
+        ldx #FAMISTUDIO_SFX_CH1  ; Noise channel
+        jmp @Play_SFX
         
-        ; Splash sound - use noise channel (SFX_CH1)
-        ldx #FAMISTUDIO_SFX_CH1
-        jmp @Play_It
+    @Play_Draw:
+        ; Draw/Brush tool - play draw sound (index 3)
+        lda #$03
+        ldx #FAMISTUDIO_SFX_CH1  ; Noise channel
         
-    @Use_Square_Channel:
-        ; Bird sound - use square channel (SFX_CH0)
-        ldx #FAMISTUDIO_SFX_CH0
-        
-    @Play_It:
-        jsr famistudio_sfx_play  ; Call FamiStudio directly with correct channel
-        lda #0
+    @Play_SFX:
+        jsr famistudio_sfx_play
     
     rts 
 
