@@ -5,29 +5,46 @@
 ;*****************************************************************
 .proc PollGamepad
 
-    ; strobe the gamepad to latch current button state
-    lda #1
-    sta JOYPAD1
-    lda #0
-    sta JOYPAD1
-    ; read 8 bytes from the interface at $4016
-    ldx #8
+        lda current_input
+        sta last_frame_input
+        ; strobe the gamepad to latch current button state
+        lda #$01
+        sta JOYPAD_STROBING
+        lda #$00
+        sta JOYPAD_STROBING    ; read 8 bytes from the interface at $4016
 
-    poll_loop:
-        pha 
-        lda JOYPAD1
-        ; combine low two bits and store in carry bit
-        and #%00000011
-        cmp #%00000001
-        pla 
-        ; rotate carry into gamepad variable
-        ror 
-        dex 
-        bne poll_loop
+        ldx #$00
+        Get_2_Joypad_Inputs:
+            lda #$01
+            sta current_input, x
+            lsr a
+            Get_Input_Loop:
+                lda JOYPAD1, x
+                and #%00000011
+                cmp #$01
+                rol current_input, x
+                bcc Get_Input_Loop
 
-    sta current_input
+            ;lda last_frame_input, x
+            ;eor #%11111111
+            ;and current_input, x
+            ;sta input_pressed_this_frame, x
 
-    rts 
+            ;lda current_input, x
+            ;eor #%11111111
+            ;and last_frame_input, x
+            ;sta input_released_this_frame, x
+
+            ;lda last_frame_input, x
+            ;and current_input, x
+            ;eor input_released_this_frame, x
+            ;sta input_holding_this_frame, x
+
+            inx
+            cpx #JOYPAD_COUNT
+            bne Get_2_Joypad_Inputs
+
+    rts
 
 .endproc
 
@@ -70,23 +87,30 @@
 ; BudgetArms
 
 
-; Joren
+; Joren / Khine
 .proc HandleCanvasInput
 
-    lda current_input
+    ldx #$00
+    Loop_Controllers:
+    stx current_player
+    cpx #JOYPAD_COUNT
+    bne :+
+        rts
+    :
+    lda current_input, x
     bne Input_Detected
         lda #$00 ; reset frame count to 0
-        sta frame_count
-        rts ; if no buttons are pressed, skip all checks.
+        sta frame_count, x
+        jmp Stop_Checking2
 
     Input_Detected:
     ; Check if the frame count is 0
-    lda frame_count
+    lda frame_count, x
     beq Start_Checking_Input
         jmp Stop_Checking
 
     Start_Checking_Input:
-    lda current_input
+    lda current_input, x
 
     Check_PAD_A:
         cmp #PAD_A
@@ -206,7 +230,6 @@
         jsr IncreaseToolSelection
         jmp Stop_Checking
 
-
     Check_PAD_START_UP:
         cmp #PAD_START_UP
         bne Check_PAD_START_DOWN
@@ -279,43 +302,45 @@
 
     Stop_Checking:
         jsr IncreaseButtonHeldFrameCount
-        rts 
-
+    Stop_Checking2:
+        ldx current_player
+        inx
+        jmp Loop_Controllers
 .endproc
-; Joren
+; Joren / Khine
 
 
 ; BudgetArms
 .proc UseSelectedTool
-
-    lda selected_tool
+    ldx current_player
+    lda selected_tool, x
 
     Check_Brush_Tool:
-    cmp #BRUSH_TOOL_ACTIVATED
+    cmp #BRUSH_TOOL_SELECTED
     bne Check_Eraser_Tool
         ChangeToolFlag #BRUSH_TOOL_ON
         rts 
 
     Check_Eraser_Tool:
-    cmp #ERASER_TOOL_ACTIVATED
+    cmp #ERASER_TOOL_SELECTED
     bne Check_Fill_Tool
         ChangeToolFlag #ERASER_TOOL_ON
         rts 
 
     Check_Fill_Tool:
-    cmp #FILL_TOOL_ACTIVATED
+    cmp #FILL_TOOL_SELECTED
     bne Check_Shape_Tool
         ChangeToolFlag #FILL_TOOL_ON
         rts 
 
     Check_Shape_Tool:
-    cmp #SHAPE_TOOL_ACTIVATED
+    cmp #SHAPE_TOOL_SELECTED
     bne Check_Clear_Tool
         ChangeToolFlag #SHAPE_TOOL_ON
         rts 
 
     Check_Clear_Tool:
-    cmp #CLEAR_TOOL_ACTIVATED
+    cmp #CLEAR_TOOL_SELECTED
     bne @End
         ChangeToolFlag #CLEAR_TOOL_ON
         rts 
