@@ -12,14 +12,18 @@
 
 ; Khine
 .proc UseClearCanvasTool
+
     lda tool_use_attr
     and #CLEAR_TOOL_ON
     bne @Use_Brush
         rts 
+
     @Use_Brush:
+
     lda tool_use_attr
     eor #CLEAR_TOOL_ON
     sta tool_use_attr
+
 
     jsr PPUOff
 
