@@ -209,7 +209,7 @@
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
     clc 
     lda tile_cursor_y
-    adc brush_size
+    adc cursor_size
 
     cmp #CURSOR_MAX_Y
     bmi @Apply_Move
@@ -259,7 +259,7 @@
     clc 
 
     lda tile_cursor_x
-    adc brush_size
+    adc cursor_size
 
     cmp #CURSOR_MAX_X
     bmi @Apply_Move
@@ -281,23 +281,23 @@
 
 
 ; Khine
-.proc CycleBrushSize
+.proc CycleCursorSize
     ; Load the brush size and checks if it's already the maximum size
     ; If MAX -> return back to the minimum size
     ; If not -> increment the brush size
-    lda brush_size
-    cmp #MAXIMUM_BRUSH_SIZE
+    lda cursor_size
+    cmp #MAXIMUM_CURSOR_SIZE
     bne @Not_Max
-        lda #MINIMUM_BRUSH_SIZE
-        sta brush_size
+        lda #MINIMUM_CURSOR_SIZE
+        sta cursor_size
         rts 
 
     @Not_Max:
-    inc brush_size
+    inc cursor_size
 
     clc 
     lda tile_cursor_x
-    adc brush_size
+    adc cursor_size
     cmp #DISPLAY_SCREEN_WIDTH
     bcc @No_X_Move_Needed
         dec tile_cursor_x
@@ -309,7 +309,7 @@
 
     clc 
     lda tile_cursor_y
-    adc brush_size
+    adc cursor_size
     cmp #DISPLAY_SCREEN_HEIGHT
     bcc @No_Y_Move_Needed
         dec tile_cursor_y

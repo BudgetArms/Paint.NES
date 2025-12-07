@@ -56,7 +56,7 @@
 
     ; Initialize brush variables
     lda #$01
-    sta brush_size ; Brush size
+    sta cursor_size ; Brush size
 
     ; Initialize scroll positions
     lda #$00

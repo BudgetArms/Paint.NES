@@ -297,7 +297,7 @@
     Check_PAD_B:
         cmp #PAD_B
         bne Stop_Checking
-        jsr ChangeBrushSize
+        jsr CycleCursorSize
         jmp Stop_Checking
 
     Stop_Checking:
@@ -350,32 +350,3 @@
 
 .endproc
 ; BudgetArms
-
-
-; BudgetArms
-.proc ChangeBrushSize
-
-    jsr CycleBrushSize
-
-    lda cursor_type     ; load cursor type
-    cmp #TYPE_CURSOR_MAXIMUM
-    bne Not_Maximum_Size
-
-        ; Maximum size
-        lda #TYPE_CURSOR_MINIMUM
-        sta cursor_type
-
-        Not_Maximum_Size:
-
-        ; increment accumulator
-        sec 
-        adc #$00
-
-        ; set new cursor_type
-        sta cursor_type
-
-        rts 
-
-.endproc
-; BudgetArms
-

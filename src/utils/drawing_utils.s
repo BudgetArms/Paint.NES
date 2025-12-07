@@ -118,7 +118,7 @@
 ; BudgetArms
 .proc UpdateCursorPosition
 
-    lda cursor_type
+    lda cursor_size
 
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
@@ -254,7 +254,7 @@
 ; BudgetArms
 .proc HideInactiveCursors
 
-    lda cursor_type
+    lda cursor_size
 
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
@@ -307,8 +307,8 @@
 
 ; BudgetArms
 .proc InitializeCursor
-        lda #TYPE_CURSOR_STARTUP
-        sta cursor_type
+        lda #CURSOR_STARTUP_SIZE
+        sta cursor_size
 
         ; set cursor_x/y
         lda #CURSOR_MIN_X * 8
@@ -447,7 +447,7 @@
 ; BudgetArms
 .proc HideActiveCursor
 
-    lda cursor_type
+    lda cursor_size
 
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor

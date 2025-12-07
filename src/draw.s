@@ -3,7 +3,7 @@
 ; BudgetArms
 .proc LoadCursor
 
-    lda cursor_type
+    lda cursor_size
 
     cmp #TYPE_CURSOR_NORMAL
     beq Normal_Cursor
@@ -211,7 +211,7 @@
         @row_loop:
             sta PPU_DATA
             inx
-            cpx brush_size
+            cpx cursor_size
             bne @row_loop
 
         clc 
@@ -222,7 +222,7 @@
         adc #$00
         sta drawing_tile_position + 1
         iny 
-        cpy brush_size
+        cpy cursor_size
         bne @column_loop
 
     rts

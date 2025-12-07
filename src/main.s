@@ -68,7 +68,7 @@ cursor_y: .res 1
 tile_cursor_x: .res 1
 tile_cursor_y: .res 1
 
-cursor_type: .res 1 ; 0: small, 1: normal, 2: big 
+cursor_size: .res 1 ; 0: small, 1: normal, 2: big 
 cursor_tile_position: .res 2
 
 
@@ -84,7 +84,6 @@ selected_color_chr_index: .res 2
 tool_use_flag: .res 2
 drawing_tile_position: .res 2
 drawing_color_tile_index: .res 1
-brush_size: .res 1
 
 
 ; misc
