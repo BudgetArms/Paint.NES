@@ -53,6 +53,51 @@
     ;jsr UpdateToolSelectionOverlay
     ;jsr UpdateColorSelectionOverlay
 
+
+
+
+
+
+LoadNametable:
+    ; turn off rendering
+    lda #%00000000
+    sta $2001   ; PPU_MASK
+
+    ; set PPU address to $2000 (nametable 0)
+    lda #$20
+    sta $2006
+    lda #$00
+    sta $2006
+
+    ; write all 960 bytes
+    ldx #$00
+    ldy #$00
+
+LoadLoop:
+    lda Help_Menu_Tilemap, y
+    sta $2007
+    iny
+    cpy #240
+    bne LoadLoop
+
+    ;inx
+    ;ldy #0
+    ;cpx #$04      ; 256*4 = 1024 bytes, stops us early
+    ;bne LoadLoop
+
+    ; turn render back on
+    lda #%00011110
+    sta $2001
+
+    rts
+
+
+
+
+
+
+
+
     jsr ResetScroll
 
     ; enable rendering
