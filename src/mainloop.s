@@ -11,6 +11,7 @@ mainloop:
     @Cursor:
     jsr UpdateCursorSpritePosition
     jsr ConvertCursorPosToTilePositions
+    jsr UpdateCursorPositionOverlay
     jsr DrawShapeToolCursor
 
     jsr OverwriteAllBackgroundColorIndex
