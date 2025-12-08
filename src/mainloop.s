@@ -9,9 +9,7 @@ mainloop:
     jsr HandleInput
 
     @Cursor:
-    jsr HideInactiveCursors
-    jsr LoadCursor
-    jsr UpdateCursorPosition
+    jsr UpdateCursorSpritePosition
     jsr ConvertCursorPosToTilePositions
     jsr DrawShapeToolCursor
 

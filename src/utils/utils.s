@@ -290,7 +290,7 @@
     bne @Not_Max
         lda #MINIMUM_CURSOR_SIZE
         sta cursor_size
-        rts 
+        jmp Change_Cursor_Sprite 
 
     @Not_Max:
     inc cursor_size
@@ -319,6 +319,9 @@
         sta cursor_y
 
     @No_Y_Move_Needed:
+
+    Change_Cursor_Sprite:
+    jsr LoadCursorSprite
     rts 
 
 .endproc

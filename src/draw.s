@@ -1,96 +1,53 @@
 ;file for all drawing functions
 
-; BudgetArms
-.proc LoadCursor
+; BudgetArms / Khine
+.proc LoadCursorSprite
 
+    jsr HideCursorSprite
     lda cursor_size
 
     cmp #TYPE_CURSOR_NORMAL
-    beq Normal_Cursor
+    bne :+
+        lda #<CURSOR_NORMAL_DATA
+        sta abs_address_to_access
+        lda #>CURSOR_NORMAL_DATA
+        sta abs_address_to_access + 1
+        ldx #OAM_BYTE_SIZE_CURSOR_NORMAL
+        jmp Start_Load
+    :
 
     cmp #TYPE_CURSOR_MEDIUM
-    beq Medium_Cursor
+    bne :+
+        lda #<CURSOR_MEDIUM_DATA
+        sta abs_address_to_access
+        lda #>CURSOR_MEDIUM_DATA
+        sta abs_address_to_access + 1
+        ldx #OAM_BYTE_SIZE_CURSOR_MEDIUM
+        jmp Start_Load
+    :
 
     cmp #TYPE_CURSOR_BIG
-    beq Big_Cursor
+    bne :+
+        lda #<CURSOR_BIG_DATA
+        sta abs_address_to_access
+        lda #>CURSOR_BIG_DATA
+        sta abs_address_to_access + 1
+        ldx #OAM_BYTE_SIZE_CURSOR_BIG
+        jmp Start_Load
+    :
 
-    ;this should never be reached
-    rts 
-
-    Normal_Cursor:
-        jsr LoadNormalCursor
-        rts 
-
-    Medium_Cursor:
-        jsr LoadMediumCursor
-        rts 
-
-    Big_Cursor:
-        jsr LoadBigCursor
-        rts 
-
-    ; this should never be reached
-    rts 
-
-.endproc
-; BudgetArms
-
-
-; BudgetArms
-.proc LoadNormalCursor
-
-    ldx #$00
-
+    Start_Load:
+    ldy #$00
     @Loop:
-        lda CURSOR_NORMAL_DATA, X
-        sta oam + OAM_OFFSET_CURSOR_NORMAL, X
-        inx 
-
-        cpx #OAM_SIZE_CURSOR_NORMAL
+        lda (abs_address_to_access), Y
+        sta oam + OAM_OFFSET_P1_CURSOR, Y
+        iny
+        dex
         bne @Loop  ; loop until all bytes are loaded
-
-    rts 
+    rts
 
 .endproc
-; BudgetArms
-
-
-; BudgetArms
-.proc LoadMediumCursor
-
-    ldx #$00
-
-    @Loop:
-        lda CURSOR_MEDIUM_DATA, X
-        sta oam + OAM_OFFSET_CURSOR_MEDIUM, X
-        inx 
-
-        cpx #OAM_SIZE_CURSOR_MEDIUM
-        bne @Loop  ; loop until all bytes are loaded
-
-    rts 
-
-.endproc
-; BudgetArms
-
-
-; BudgetArms
-.proc LoadBigCursor
-
-    ldx #$00
-
-    @Loop:
-        lda CURSOR_BIG_DATA, X
-        sta oam + OAM_OFFSET_CURSOR_BIG, X
-        inx 
-
-        cpx #OAM_SIZE_CURSOR_BIG
-        bne @Loop  ; loop until all bytes are loaded
-
-    rts 
-
-.endproc
-; BudgetArms
+; BudgetArms / Khine
 
 
 ; BudgetArms
@@ -108,7 +65,7 @@
         sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
         inx 
 
-        cpx #OAM_SIZE_CURSOR_SHAPE
+        cpx #OAM_BYTE_SIZE_CURSOR_SHAPE
         bne @Loop
 
     jmp Update_Cursor_Shape_Position
@@ -124,7 +81,7 @@
 
         inx 
 
-        cpx #OAM_SIZE_CURSOR_SHAPE
+        cpx #OAM_BYTE_SIZE_CURSOR_SHAPE
         bne @Loop
 
     jmp Update_Cursor_Shape_Position
@@ -360,10 +317,6 @@
         rts 
     
     Use_Shape:
-
-    ; hide all cursors
-    jsr HideActiveCursor
-    jsr HideInactiveCursors
 
     ; Draw Shape Cursor
     jsr LoadCursorShapeTool

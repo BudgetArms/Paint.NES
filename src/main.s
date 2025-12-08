@@ -235,13 +235,6 @@ default_palette:
         ;+-------- Flip sprite vertically
 
 
-CURSOR_SMALL_DATA:
-    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %00000000, $00      ; top-left
-    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %01000000, $00      ; top-right
-    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %10000000, $00      ; bottom-left
-    .byte $00, TILEINDEX_CURSOR_SMALL_TOP_LEFT, %11000000, $00      ; bottom-right
-
-
 CURSOR_NORMAL_DATA:
     .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
 

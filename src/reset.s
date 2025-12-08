@@ -55,7 +55,7 @@
         bne Clear_Oam
 
     ; Initialize brush variables
-    lda #$01
+    lda #CURSOR_STARTUP_SIZE
     sta cursor_size ; Brush size
 
     ; Initialize scroll positions
@@ -81,8 +81,9 @@
     sta current_player
     ChangeBrushTileIndex #$02
 
-    jsr InitializeCursor
+    jsr InitializeCursorPosition
     jsr InitializeOverlayIndicators
+    jsr LoadCursorSprite
 
     ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
     ; 	lda cursor_y
