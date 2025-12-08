@@ -71,6 +71,8 @@ PAD_SELECT_DOWN     = $24
 PAD_SELECT_LEFT     = $44
 PAD_SELECT_RIGHT    = $84
 
+PAD_START_SELECT    = $0C ; 12 = 08 + 04
+
 ; name tables
 NAME_TABLE_1 = $2000
 ATTR_TABLE_1 = $23C0
@@ -111,6 +113,7 @@ FRAMES_BETWEEN_MOVEMENT     = 8
 ; program modes
 MAIN_MENU = 0
 CANVAS = 1
+HELP_MENU = 2
 
 
 ; Cursor locks (can't go lower/higher)
@@ -272,6 +275,7 @@ CLEAR_TOOL_ACTIVATED    = $04
 WHITE       = $30
 OFFWHITE    = $10
 GRAY        = $00
+BLACK       = $0D
 RED         = $05
 GREEN       = $0a
 BLUE        = $01

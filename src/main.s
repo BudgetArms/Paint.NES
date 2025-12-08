@@ -109,10 +109,11 @@ music_paused: .res 1    ; this is a flag changing this does not actually pause t
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 
 ;Joren
-four_color_values: .res 4
+;four_color_values: .res 4
 selected_color_chr_index: .res 1
 frame_count: .res 1
 selected_tool: .res 1
+;selected_menu : res 1
 
 
 .segment "OAM"
@@ -253,7 +254,7 @@ default_palette:
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
-.byte OFFWHITE, RED, GREEN, BLUE
+.byte BLACK, WHITE , OFFWHITE, GRAY
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
@@ -308,4 +309,7 @@ CURSOR_SHAPE_TOOL_DATA:
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/start_menu_tilemap.nam"
+
+Help_Menu_Tilemap:
+    .incbin "./tilemaps/HelpMenu_Finished.nam"
 

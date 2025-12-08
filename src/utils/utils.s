@@ -614,3 +614,37 @@
 
 .endproc
 ; Joren
+
+.proc TogleHelpMenuDisplayOn
+    lda #HELP_MENU
+    sta current_program_mode
+
+    lda #$05
+    ldx #$00
+    sta palette, x
+    inx
+    sta palette, x
+    inx
+    sta palette, x
+    inx
+    sta palette, x
+
+    rts
+    ; Load the help menu tilemap into the nametable
+    ;ChangePPUNameTableAddr2 NAME_TABLE_1, $00
+;
+    ;lda #$00
+    ;sta PPU_DATA ; reset PPU_DATA address
+;
+    ;ldx #$00
+;
+    ; HelpMenu_Loop:
+        ;lda Help_Menu_Tilemap, x
+        ;sta PPU_DATA
+        ;inx 
+        ;cpx #255
+        ;bcc HelpMenu_Loop
+;
+    ;rts
+.endproc
+; Joren

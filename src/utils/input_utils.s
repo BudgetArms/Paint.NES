@@ -44,12 +44,24 @@
     ; check if input last frame = same as input current frame
 
     ; if in menu
-    lda #01
-    cmp #MAIN_MENU
-    bne Not_In_Menu
-
+    lda #current_program_mode
+    ; Check_StartMenu_Mode:
+        cmp #MAIN_MENU
+        bne Check_Canvas_Mode
         jsr HandleMenuInput
         rts 
+
+    Check_Canvas_Mode:
+        cmp #CANVAS
+        bne Check_Help_Menu_Mode
+        jsr HandleCanvasInput
+        rts
+
+    Check_Help_Menu_Mode:
+        cmp #HELP_MENU
+        bne Not_In_Menu
+        ;jsr HandleHelpMenuInput
+        rts
 
     Not_In_Menu:
 
@@ -273,8 +285,14 @@
 
     Check_PAD_B:
         cmp #PAD_B
-        bne Stop_Checking
+        bne Check_PAD_START_SELECT
         jsr ChangeBrushSize
+        jmp Stop_Checking
+
+    Check_PAD_START_SELECT:
+        cmp #PAD_START_SELECT
+        bne Stop_Checking
+        jsr TogleHelpMenuDisplayOn
         jmp Stop_Checking
 
     Stop_Checking:
