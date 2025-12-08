@@ -4,7 +4,7 @@
 .export _music_data_untitled:=music_data_untitled
 
 music_data_untitled:
-	.byte 1
+	.byte 2
 	.word @instruments
 	.word @samples-4
 ; 00 : Gymnopedie
@@ -13,6 +13,13 @@ music_data_untitled:
 	.word @song0ch2
 	.word @song0ch3
 	.word @song0ch4
+	.byte .lobyte(@tempo_env_1_mid), .hibyte(@tempo_env_1_mid), 0, 0
+; 01 : CocoMelon
+	.word @song1ch0
+	.word @song1ch1
+	.word @song1ch2
+	.word @song1ch3
+	.word @song1ch4
 	.byte .lobyte(@tempo_env_1_mid), .hibyte(@tempo_env_1_mid), 0, 0
 
 .export music_data_untitled
@@ -163,3 +170,21 @@ music_data_untitled:
 	.word @song0ref449
 	.byte $ff, $ef, $ff, $ef, $ff, $ef, $42
 	.word @song0ch3loop
+@song1ch0:
+	.byte $f7, $80, $20, $81, $25, $83, $29, $83, $00, $ff, $b5, $48, $25, $87, $29, $87, $2c, $87, $00, $b9, $29, $81, $2c, $83
+	.byte $31, $87, $00, $ff, $3d, $91, $38, $91, $35, $91, $31, $91, $48, $2c, $91, $29, $91, $25, $91, $20, $91, $1d, $91, $19
+	.byte $91, $14, $91, $11, $91, $0d, $91, $08, $a5, $00, $e1, $48, $20, $b7, $00, $20, $91, $22, $a5, $24, $a5, $25, $cd, $19
+	.byte $cd, $44, $00
+@song1ch1:
+@song1ref77:
+	.byte $ff, $ff, $bf, $ff, $ff, $bf, $ff, $ff, $bf, $80, $14, $b7, $00, $14, $91, $16, $a5, $18, $a5, $19, $cd, $0d, $cd, $44
+	.byte $00
+@song1ch2:
+	.byte $41, $09
+	.word @song1ref77
+	.byte $80, $2c, $b7, $00, $2c, $91, $2e, $a5, $30, $a5, $31, $cd, $25, $cd, $44, $00
+@song1ch4:
+@song1ch3:
+	.byte $41, $09
+	.word @song1ref77
+	.byte $ff, $ff, $bf, $44, $00
