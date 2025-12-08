@@ -133,9 +133,16 @@
     ; 2 bytes -> LO + HI bytes
 
     ; Reset the tile index
+    ldx #$00
+    Loop_Controllers:
+    cpx #JOYPAD_COUNT
+    bne :+
+        rts
+    :
+
     lda #$00
-    sta cursor_tile_position
-    sta cursor_tile_position + 1
+    sta temp_tile_position
+    sta temp_tile_position + 1
 
     ; A loop that multiplies the Y coordinate
     ; with 32 since each namespace is 32 tiles wide
@@ -144,38 +151,55 @@
     ; For example, X: 2, Y: 6 would convert to (6 * 32) + 2 = 194
     clc 
     lda #$00
-    ldx tile_cursor_y
+    ldy tile_cursor_y, x
     beq SkipLoop
 
     RowLoop:
     adc #DISPLAY_SCREEN_WIDTH
     ; Check for carry bit and then increment the high bit when carry is set
     bcc @SkipHighBitIncrement
-        inc cursor_tile_position + 1
+        inc temp_tile_position + 1
         clc 
     @SkipHighBitIncrement:
-    dex 
+    dey
     bne RowLoop
 
     SkipLoop:
-    adc tile_cursor_x
-    sta cursor_tile_position ; Low bit of the location
+    adc tile_cursor_x, x
+    sta temp_tile_position ; Low bit of the location
 
     ; Increment the high bit position if there is a remaining carry flag set
     bcc @SkipHighBitIncrement
-        inc cursor_tile_position + 1 ; High bit of the location
+        inc temp_tile_position + 1 ; High bit of the location
         clc
     @SkipHighBitIncrement:
 
     ; Add the offset of nametable 1 to the tile index
     lda #<NAME_TABLE_1
-    adc	cursor_tile_position
-    sta cursor_tile_position
+    adc	temp_tile_position
+    sta temp_tile_position
     lda #>NAME_TABLE_1
     adc #$00
-    adc cursor_tile_position + 1
-    sta cursor_tile_position + 1
-    rts 
+    adc temp_tile_position + 1
+    sta temp_tile_position + 1
+
+    cpx #$00
+    beq P1
+    P2:
+        lda temp_tile_position
+        sta p2_cursor_tile_position
+        lda temp_tile_position + 1
+        sta p2_cursor_tile_position + 1
+        jmp End_Loop
+    P1:
+        lda temp_tile_position
+        sta p1_cursor_tile_position
+        lda temp_tile_position + 1
+        sta p1_cursor_tile_position + 1
+
+    End_Loop:
+        inx
+        jmp Loop_Controllers
 
 .endproc
 ; Khine
@@ -184,7 +208,8 @@
 ; Khine / BudgetArms
 .proc MoveCursorUp
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
-    lda tile_cursor_y
+    ldx current_player
+    lda tile_cursor_y, x
 
     cmp #CURSOR_MIN_Y
     bne @Apply_Move
@@ -192,11 +217,11 @@
 
     @Apply_Move:
     sec 
-    lda cursor_y
+    lda cursor_y, x
     sbc #TILE_PIXEL_SIZE
-    sta cursor_y
+    sta cursor_y, x
 
-    dec tile_cursor_y
+    dec tile_cursor_y, x
 
     rts 
 
@@ -207,9 +232,10 @@
 ; Khine / BudgetArms
 .proc MoveCursorDown
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
-    clc 
-    lda tile_cursor_y
-    adc cursor_size
+    ldx current_player
+    lda tile_cursor_y, x
+    clc
+    adc cursor_size, x
 
     cmp #CURSOR_MAX_Y
     bmi @Apply_Move
@@ -217,12 +243,12 @@
 
     @Apply_Move:
 
-    clc 
-    lda cursor_y
+    lda cursor_y, x
+    clc
     adc #TILE_PIXEL_SIZE
-    sta cursor_y
+    sta cursor_y, x
 
-    inc tile_cursor_y
+    inc tile_cursor_y, x
 
     rts 
 
@@ -233,19 +259,20 @@
 ; Khine / BudgetArms
 .proc MoveCursorLeft
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
-    lda tile_cursor_x
+    ldx current_player
+    lda tile_cursor_x, x
     cmp #CURSOR_MIN_X
     bne @Apply_Move
         rts 
 
     @Apply_Move:
 
-    sec 
-    lda cursor_x
+    lda cursor_x, x
+    sec
     sbc #TILE_PIXEL_SIZE
-    sta cursor_x
+    sta cursor_x, x
 
-    dec tile_cursor_x
+    dec tile_cursor_x, x
 
     rts 
 
@@ -256,10 +283,10 @@
 ; Khine / BudgetArms
 .proc MoveCursorRight
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
-    clc 
-
-    lda tile_cursor_x
-    adc cursor_size
+    ldx current_player
+    lda tile_cursor_x, x
+    clc
+    adc cursor_size, x
 
     cmp #CURSOR_MAX_X
     bmi @Apply_Move
@@ -268,11 +295,11 @@
     @Apply_Move:
 
     clc 
-    lda cursor_x
+    lda cursor_x, x
     adc #TILE_PIXEL_SIZE
-    sta cursor_x
+    sta cursor_x, x
 
-    inc tile_cursor_x
+    inc tile_cursor_x, x
 
     rts 
 
@@ -285,38 +312,39 @@
     ; Load the brush size and checks if it's already the maximum size
     ; If MAX -> return back to the minimum size
     ; If not -> increment the brush size
-    lda cursor_size
+    ldx current_player
+    lda cursor_size, x
     cmp #MAXIMUM_CURSOR_SIZE
     bne @Not_Max
         lda #MINIMUM_CURSOR_SIZE
-        sta cursor_size
+        sta cursor_size, x
         jmp Change_Cursor_Sprite 
 
     @Not_Max:
-    inc cursor_size
+    inc cursor_size, x
 
     clc 
-    lda tile_cursor_x
-    adc cursor_size
+    lda tile_cursor_x, x
+    adc cursor_size, x
     cmp #DISPLAY_SCREEN_WIDTH
     bcc @No_X_Move_Needed
-        dec tile_cursor_x
+        dec tile_cursor_x, x
         sec 
-        lda cursor_x
+        lda cursor_x, x
         sbc #TILE_PIXEL_SIZE
-        sta cursor_x
+        sta cursor_x, x
     @No_X_Move_Needed:
 
-    clc 
-    lda tile_cursor_y
-    adc cursor_size
+    clc
+    lda tile_cursor_y, x
+    adc cursor_size, x
     cmp #DISPLAY_SCREEN_HEIGHT
     bcc @No_Y_Move_Needed
-        dec tile_cursor_y
-        sec 
-        lda cursor_y
+        dec tile_cursor_y, x
+        sec
+        lda cursor_y, x
         sbc #TILE_PIXEL_SIZE
-        sta cursor_y
+        sta cursor_y, x
 
     @No_Y_Move_Needed:
 
@@ -388,27 +416,6 @@
 
 .endproc
 ;Joren
-
-
-; Khine
-.proc OverwriteAllBackgroundColorIndex
-
-    ldx #$00
-    lda palette
-
-    @Loop:
-        sta palette, x
-        inx 
-        inx 
-        inx 
-        inx 
-        cpx #PALETTE_SIZE
-        bcc @Loop
-
-    rts 
-
-.endproc
-; Khine
 
 
 ; Joren
@@ -594,5 +601,26 @@
         jmp @Write_Loop
 
     rts
+.endproc
+; Khine
+
+
+; Khine
+.proc OverwriteAllBackgroundColorIndex
+
+    ldx #$00
+    lda palette
+
+    @Loop:
+        sta palette, x
+        inx 
+        inx 
+        inx 
+        inx 
+        cpx #PALETTE_SIZE
+        bcc @Loop
+
+    rts 
+
 .endproc
 ; Khine

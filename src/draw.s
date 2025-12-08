@@ -4,7 +4,15 @@
 .proc LoadCursorSprite
 
     jsr HideCursorSprite
-    lda cursor_size
+
+    ldy #$00
+    Loop_Controllers:
+    sty player_controller_loop
+    cpy #JOYPAD_COUNT
+    bne :+
+        rts
+    :
+    lda cursor_size, y
 
     cmp #TYPE_CURSOR_NORMAL
     bne :+
@@ -37,13 +45,31 @@
     :
 
     Start_Load:
-    ldy #$00
-    @Loop:
-        lda (abs_address_to_access), Y
-        sta oam + OAM_OFFSET_P1_CURSOR, Y
-        iny
-        dex
-        bne @Loop  ; loop until all bytes are loaded
+    cpy #$00
+    beq P1
+    P2:
+        ldy #$00
+        P2_Loop:
+            lda (abs_address_to_access), Y
+            sta oam + OAM_OFFSET_P2_CURSOR, Y
+            iny
+            dex
+            bne P2_Loop  ; loop until all bytes are loaded
+            jmp End_Loop
+    P1:
+        ldy #$00
+        P1_Loop:
+            lda (abs_address_to_access), Y
+            sta oam + OAM_OFFSET_P1_CURSOR, Y
+            iny
+            dex
+            bne P1_Loop  ; loop until all bytes are loaded
+
+    End_Loop:
+    ldy player_controller_loop
+    iny
+    jmp Loop_Controllers
+
     rts
 
 .endproc
@@ -136,15 +162,37 @@
     eor #BRUSH_TOOL_ON
     sta tool_use_flag, x
 
+    cpx #$00
+    beq P1
+    P2:
+        lda p2_cursor_tile_position
+        sta drawing_tile_position
+        lda p2_cursor_tile_position + 1
+        sta drawing_tile_position + 1
+        jmp End_Assignment
+    P1:
+        lda p1_cursor_tile_position
+        sta drawing_tile_position
+        lda p1_cursor_tile_position + 1
+        sta drawing_tile_position + 1
+    End_Assignment:
+
+    lda selected_tool, x
+    cmp #ERASER_TOOL_SELECTED
+    bne :+
+        lda #BACKGROUND_TILE_INDEX
+        sta drawing_color_tile_index
+        jmp :++
+    :
+        lda selected_color_chr_index, x
+        sta drawing_color_tile_index
+    :
+
     jsr PlayBrushSoundEffect
 
     ; Store the tile position in a different var
     ; This is done so that the cursor position can stay on the original spot
     ; after drawing has completed.
-    lda cursor_tile_position
-    sta drawing_tile_position
-    lda cursor_tile_position + 1
-    sta drawing_tile_position + 1
 
     ; square brush
     ldy #$00
@@ -155,15 +203,7 @@
         lda drawing_tile_position ; Low bit of the location
         sta PPU_ADDR
 
-        ldx current_player
-        lda selected_tool, x
-        cmp #ERASER_TOOL_SELECTED
-        bne :+
-            lda #BACKGROUND_TILE_INDEX
-            jmp :++
-        :
-            lda selected_color_chr_index, x
-        :
+        lda drawing_color_tile_index
         ldx #$00
         @row_loop:
             sta PPU_DATA
@@ -301,8 +341,6 @@
 ; BudgetArms
 
 
-; 
-
 ; BudgetArms
 .proc DrawShapeToolCursor
 
@@ -353,18 +391,28 @@
     eor #FILL_TOOL_ON
     sta tool_use_flag, x
 
+    ; Store the current tile position to the cursor_pos
+    cpx #$00
+    beq P1
+    P2:
+        lda p2_cursor_tile_position + 1
+        sta fill_current_addr + 1
+        lda p2_cursor_tile_position
+        sta fill_current_addr
+        jmp End_Assignment
+    P1:
+        lda p1_cursor_tile_position + 1
+        sta fill_current_addr + 1
+        lda p1_cursor_tile_position
+        sta fill_current_addr
+    End_Assignment:
+
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
     jsr ResetScroll
 
     ; turn ppu off
     jsr PPUOff
-
-    ; Store the current tile position to the cursor_pos 
-    lda cursor_tile_position + 1
-    sta fill_current_addr + 1
-    lda cursor_tile_position
-    sta fill_current_addr
 
     ; Set target color 
     jsr ReadPPUAtCurrentAddr

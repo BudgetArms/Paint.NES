@@ -94,20 +94,25 @@
 .proc InitializeCursorPosition
         lda #CURSOR_STARTUP_SIZE
         sta cursor_size
+        sta cursor_size + 1
 
         ; set cursor_x/y
         lda #CURSOR_MIN_X * 8
         sta cursor_x
+        sta cursor_x + 1
 
         lda #CURSOR_MIN_Y * 8
         sta cursor_y
+        sta cursor_y + 1
 
         ; set cursor tile x/y
         lda #CURSOR_MIN_X
         sta tile_cursor_x
+        sta tile_cursor_x + 1
 
         lda #CURSOR_MIN_Y
         sta tile_cursor_y
+        sta tile_cursor_y + 1
     rts
 .endproc
 ; BudgetArms
@@ -116,7 +121,14 @@
 ; BudgetArms
 .proc UpdateCursorSpritePosition
 
-    lda cursor_size
+    ldy #$00
+    Loop_Controllers:
+    sty player_controller_loop
+    cpy #JOYPAD_COUNT
+    bne :+
+        rts
+    :
+    lda cursor_size, y
 
     cmp #TYPE_CURSOR_NORMAL
     bne :+
@@ -149,29 +161,63 @@
     :
 
     Start_Update:
-    ldy #$00
-    Loop:
-        lda cursor_y
-        clc
-        adc (abs_address_to_access), y
 
-        sec
-        sbc #$01
-        sta oam + OAM_OFFSET_P1_CURSOR, y
+    Start_Loop:
+    cpy #$00
+    bne P2
 
-        iny
-        iny
-        iny
+    P1:
+        ldy #$00
+        P1_Loop:
+            lda cursor_y
+            clc
+            adc (abs_address_to_access), y
 
-        lda cursor_x
-        clc
-        adc (abs_address_to_access), y
-        sta oam + OAM_OFFSET_P1_CURSOR, y
-        
-        iny
-        dex
-        bne Loop
+            sec
+            sbc #$01
+            sta oam + OAM_OFFSET_P1_CURSOR, y
 
+            iny
+            iny
+            iny
+
+            lda cursor_x
+            clc
+            adc (abs_address_to_access), y
+            sta oam + OAM_OFFSET_P1_CURSOR, y
+            
+            iny
+            dex
+            bne P1_Loop
+            jmp End_Loop
+
+    P2:
+        ldy #$00
+        P2_Loop:
+            lda cursor_y + 1
+            clc
+            adc (abs_address_to_access), y
+
+            sec
+            sbc #$01
+            sta oam + OAM_OFFSET_P2_CURSOR, y
+
+            iny
+            iny
+            iny
+
+            lda cursor_x + 1
+            clc
+            adc (abs_address_to_access), y
+            sta oam + OAM_OFFSET_P2_CURSOR, y
+            
+            iny
+            dex
+            bne P2_Loop
+    End_Loop:
+    ldy player_controller_loop
+    iny
+    jmp Loop_Controllers
     rts
 .endproc
 ; BudgetArms
@@ -182,9 +228,9 @@
 
     lda #OAM_OFFSCREEN
     ldx #$00
-    ldy #OAM_SPRITE_SIZE_CURSOR_ALL
+    ldy #OAM_SPRITE_SIZE_CURSOR_ALL * 2 ; For both players
     Hide_Loop:
-        sta oam + OAM_OFFSET_P1_CURSOR + OAM_Y, x
+        sta oam + OAM_OFFSET_P1_CURSOR + OAM_Y, X
 
         inx
         inx

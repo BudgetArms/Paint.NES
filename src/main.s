@@ -63,14 +63,16 @@ fill_neighbor_addr: .res 2
 
 
 ; Cursor position (single 8x8 sprite)
-cursor_x: .res 1
-cursor_y: .res 1
-tile_cursor_x: .res 1
-tile_cursor_y: .res 1
+cursor_x: .res 2
+cursor_y: .res 2
+tile_cursor_x: .res 2
+tile_cursor_y: .res 2
 
-cursor_size: .res 1 ; 0: small, 1: normal, 2: big 
-cursor_tile_position: .res 2
-
+cursor_size: .res 2 ; 0: small, 1: normal, 2: big
+temp_tile_position: .res 2
+p1_cursor_tile_position: .res 2
+p2_cursor_tile_position: .res 2
+player_controller_loop: .res 1
 
 ; store zero page for digit conversion (might not need this)
 cursor_x_digits: .res 3
