@@ -16,7 +16,7 @@ mainloop:
 
     jsr DrawShapeToolCursor
     jsr OverwriteAllBackgroundColorIndex
-
+    
     ; ensure our changes are rendered
     lda #1
     sta nmi_ready

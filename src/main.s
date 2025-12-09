@@ -114,6 +114,8 @@ selected_color_chr_index: .res 1
 frame_count: .res 1
 selected_tool: .res 1
 ;selected_menu : res 1
+;color_palette_help_menu: .res 16
+;color_palette_startup_menu: .res 16
 
 
 .segment "OAM"
@@ -249,15 +251,28 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
 default_palette:
-;bg tiles/ text
+; background:
 .byte OFFWHITE, RED, GREEN, BLUE
-.byte $0f,$00,$10,$30
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+.byte OFFWHITE,OFFWHITE,RED,BLACK
+.byte OFFWHITE,BLACK,$24,$2c ; pink and blue
+.byte OFFWHITE,GREEN,BLUE,BLACK
+; sprites:
 .byte BLACK, WHITE , OFFWHITE, GRAY
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27
 .byte $0f,$0b,$1a,$29
+
+color_palette_help_menu:
+.byte $00, $3c, $2c, $01
+.byte $00, $3d, $05, $0f
+.byte $00, $0d, $24, $31
+.byte $00, $1c, $3c, $0f
+
+color_palette_startup_menu:
+.byte $00, $3c, $2c, $01 ; will probably have to be changed later
+.byte $00, $3d, $05, $0f ; will probably have to be changed later
+.byte $00, $0d, $24, $31 ; will probably have to be changed later
+.byte $00, $1c, $3c, $0f ; will probably have to be changed later
 
 
 ; EXAMPLE_DATA:
