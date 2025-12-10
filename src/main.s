@@ -43,20 +43,23 @@ frame_counter: .res 1   ;doesn't really count frames but it keeps looping over 2
 ; when the button is held, it starts counting until, it's reached the BUTTON_HOLD_TIME (0.5s)
 ; then it executes the button press again
 
+; tile position output
+tile_position_output: .res 2
 
 ; Shape Tool
 shape_tool_type: .res 1
 shape_tool_has_set_first_pos: .res 1
+shape_tool_radius: .res 1
 
-shape_tool_first_pos_x: .res 1
-shape_tool_first_pos_y: .res 1
+shape_tool_first_pos: .res 2
+shape_tool_second_pos: .res 2
 
-shape_tool_second_pos_x: .res 1
-shape_tool_second_pos_y: .res 1
+shape_tool_starting_pos: .res 2
 
-shape_tool_staring_pos_x: .res 1
-shape_tool_staring_pos_y: .res 1
+shape_tool_rectangle_width: .res 1
+shape_tool_rectangle_height: .res 1
 
+shape_tool_temp_pos: .res 2
 
 
 ; Fill tool (ring queue)

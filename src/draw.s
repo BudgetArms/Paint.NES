@@ -250,28 +250,72 @@
     ; square brush
     ldy #$00
     @column_loop:
+        ; lda PPU_STATUS ; reset address latch
+        ; lda drawing_tile_position + 1 ; High bit of the location
+        ; sta PPU_ADDR
+        ; lda drawing_tile_position ; Low bit of the location
+        ; sta PPU_ADDR
+
+        ldx #$00
+        lda selected_color_chr_index
+        @row_loop:
+
         lda PPU_STATUS ; reset address latch
         lda drawing_tile_position + 1 ; High bit of the location
         sta PPU_ADDR
         lda drawing_tile_position ; Low bit of the location
         sta PPU_ADDR
 
-        ldx #$00
-        lda selected_color_chr_index
-        @row_loop:
-            sta PPU_DATA
-            inx
-            cpx brush_size
-            bne @row_loop
+        lda #$03
+        sta PPU_DATA
 
         clc 
         lda drawing_tile_position
-        adc #32
+        adc #$01
         sta drawing_tile_position
+
         lda drawing_tile_position + 1
         adc #$00
         sta drawing_tile_position + 1
-        iny 
+
+        inx 
+
+            cpx brush_size
+            bne @row_loop
+
+
+    ; reset pos
+    lda cursor_tile_position
+    sta drawing_tile_position
+    lda cursor_tile_position + 1
+    sta drawing_tile_position + 1
+
+    iny 
+    tya 
+    
+    ; * 32
+    asl 
+    asl  
+    asl  
+    asl  
+    asl  
+
+    clc 
+    adc drawing_tile_position
+    sta drawing_tile_position
+
+    lda drawing_tile_position + 1
+    adc #$00
+    sta drawing_tile_position + 1
+
+        ; clc 
+        ; lda drawing_tile_position
+        ; adc #32
+        ; sta drawing_tile_position
+        ; lda drawing_tile_position + 1
+        ; adc #$00
+        ; sta drawing_tile_position + 1
+        ; iny 
         cpy brush_size
         bne @column_loop
 
@@ -369,28 +413,28 @@
         ; if current pos same as previous shape's tool second pos
         ; eg. bc called on held, fix it by checking if it's still in the same location
         lda cursor_x
-        cmp shape_tool_second_pos_x
-        bne @Use_Second_Position
+        cmp shape_tool_second_pos
+        bne @Use_First_Position
 
         lda cursor_y
-        cmp shape_tool_second_pos_y
-        bne @Use_Second_Position
+        cmp shape_tool_second_pos + 1
+        bne @Use_First_Position
 
         ; if current pos == previous pos
         jmp Finish
 
 
-        @Use_Second_Position:
+        @Use_First_Position:
 
         lda #$01
         sta shape_tool_has_set_first_pos
     
         ; store x/y
         lda cursor_x
-        sta shape_tool_first_pos_x
+        sta shape_tool_first_pos
 
         lda cursor_y
-        sta shape_tool_first_pos_y
+        sta shape_tool_first_pos + 1
         
         rts 
 
@@ -400,11 +444,11 @@
 
         ; if first pos and second pos the same, rts, else @Use_Second_Position
         lda cursor_x
-        cmp shape_tool_first_pos_x
+        cmp shape_tool_first_pos 
         bne @Use_Second_Position
 
         lda cursor_y
-        cmp shape_tool_first_pos_y
+        cmp shape_tool_first_pos + 1
         bne @Use_Second_Position
 
 
@@ -419,10 +463,10 @@
 
         ; store x/y
         lda cursor_x
-        sta shape_tool_second_pos_x
+        sta shape_tool_second_pos
 
         lda cursor_y
-        sta shape_tool_second_pos_y
+        sta shape_tool_second_pos + 1
         
 
         ; Rectangle
@@ -539,7 +583,7 @@
         sta queue_head
         sta queue_tail
 
-        ; draw tile
+        ; Push current tile to queue
         lda fill_current_addr
         ldx fill_current_addr + 1
         jsr PushToQueue
@@ -760,151 +804,148 @@
 ; BudgetArms
 .proc DrawShapeRectangle
 
-    ; convert first pos x/y to tile pos x/y, store in x/y
-    ConvertPositionsToTilePositions shape_tool_first_pos_x, shape_tool_first_pos_y
-
-    ; Overwrite positions with tile positions
-    stx shape_tool_first_pos_x
-    sty shape_tool_first_pos_y
-
-
-    ; convert second pos x/y to tile pos x/y, store in x/y
-    ConvertPositionsToTilePositions shape_tool_second_pos_x, shape_tool_second_pos_y
-
-    ; Overwrite positions with tile positions
-    stx shape_tool_second_pos_x
-    sty shape_tool_second_pos_y
-
-    
-    lda #$00
+    jsr PPUOff
+    jsr ResetScroll
 
     ; Set staring pos to first pos
-    lda shape_tool_first_pos_x
-    sta shape_tool_staring_pos_x
+    lda shape_tool_first_pos
+    sta shape_tool_starting_pos
 
-    lda shape_tool_first_pos_y
-    sta shape_tool_staring_pos_y
+    lda shape_tool_first_pos + 1
+    sta shape_tool_starting_pos + 1
 
 
     ; check where the second pos X is compared to first    
 
-    ; X offset is stored in X
+    ; store rectangle width
     sec  
-    lda shape_tool_second_pos_x
-    sbc shape_tool_first_pos_x
+    lda shape_tool_second_pos
+    sbc shape_tool_first_pos
+    sta shape_tool_rectangle_width
 
-    tax 
-
-    bpl First_Pos_Is_Left_Of_Second_Pos
+    ; if first position was left of second pos, ignore
+    bpl Done_Setting_X
 
         ; first pos is right of second pos
 
         ; change staring pos X 
-        lda shape_tool_second_pos_x
-        sta shape_tool_staring_pos_x
+        lda shape_tool_second_pos
+        sta shape_tool_starting_pos
 
         ; set offset again (but no negative)
+        ; store rectangle width
         sec 
-        lda shape_tool_first_pos_x
-        sbc shape_tool_second_pos_x
-        tax 
+        lda shape_tool_first_pos
+        sbc shape_tool_second_pos
+        sta shape_tool_rectangle_width
 
 
-    First_Pos_Is_Left_Of_Second_Pos:
+    Done_Setting_X:
 
 
     ; check where the second pos Y is compared to first    
 
-    ; Y offset is stored in Y
+    ; store rectangle height
     sec  
-    lda shape_tool_second_pos_y
-    sbc shape_tool_first_pos_y
-
-    tay 
+    lda shape_tool_second_pos + 1
+    sbc shape_tool_first_pos + 1
+    sta shape_tool_rectangle_height
 
     ; higher as in the value is higher
     ; but the position is lower vertically on screen than second pos
-    bpl First_Pos_Is_Higher_Than_Second_Pos
+    bpl Done_Setting_Y
 
         ; first pos is lower than second pos
 
         ; change staring pos Y 
-        lda shape_tool_second_pos_y
-        sta shape_tool_staring_pos_y
+        lda shape_tool_second_pos + 1
+        sta shape_tool_starting_pos + 1
 
-        ; set offset again (but no negative)
+        ; store rectangle height
         sec 
-        lda shape_tool_first_pos_x
-        sbc shape_tool_second_pos_x
-        tay  
+        lda shape_tool_first_pos + 1
+        sbc shape_tool_second_pos + 1
+        sta shape_tool_rectangle_height
 
 
-    First_Pos_Is_Higher_Than_Second_Pos:
+    Done_Setting_Y:
 
 
-    ; At this point:
-    ; - shape_tool_staring_pos_x, shape_tool_staring_pos_y = top-left corner
-    ; - X register = width (number of tiles)
-    ; - Y register = height (number of tiles)
+    Done_Setting:
 
-    ; Turn PPU off for safe VRAM writing
-    jsr PPUOff
+    ; convert rectangle width/height from pos to tile size (eg. 16 -> 2)
+    lda shape_tool_rectangle_width 
+    lsr 
+    lsr 
+    lsr 
+    sta shape_tool_rectangle_width
 
-    ; Drawing loop - iterate rows (Y)
-    ldy #$00                        ; Y counter for rows
-    sty drawing_y_counter
+    lda shape_tool_rectangle_height 
+    lsr 
+    lsr 
+    lsr 
+    sta shape_tool_rectangle_height
 
-    @row_loop:
-        ldy drawing_y_counter
-        cpy shape_tool_height_temp ; Y offset (height)
-        bcs @done_drawing            ; if Y >= height, done (FIXED: bge -> bcs)
-        
-        ; Set PPU address for this row
-        lda PPU_STATUS              ; reset address latch
-        
-        ; Calculate nametable address = (y * 32) + x + NAME_TABLE_1
-        tya                         ; A = current row counter
-        asl a 
-        asl a 
-        asl a 
-        asl a 
-        asl a                       ; A = Y * 32
-        
-        clc
-        adc shape_tool_staring_pos_x ; add starting X position
-        sta temp_addr_low
-        
-        lda #>NAME_TABLE_1
-        adc #$00                    ; add carry from low byte
-        sta temp_addr_high
-        
-        lda PPU_STATUS
-        lda temp_addr_high
-        sta PPU_ADDR
-        lda temp_addr_low
-        sta PPU_ADDR
-        
-        ; Draw row (X loop)
-        ldx #$00                    ; X counter for columns
-        stx drawing_x_counter
-        lda selected_color_chr_index ; load tile color
-        
-        @col_loop:
-            ldx drawing_x_counter
-            cpx shape_tool_width_temp ; compare X with width
-            bcs @next_row               ; if X >= width, next row (FIXED: bge -> bcs)
-            
-            sta PPU_DATA                ; write tile to PPU
-            inc drawing_x_counter
-            jmp @col_loop
-        
-        @next_row:
-        inc drawing_y_counter
-        jmp @row_loop
+    ; the width does not include the current column/row
+    ; so add + 1 to width/height
+    inc shape_tool_rectangle_width
+    inc shape_tool_rectangle_height
+
+
+    ; set temp pos to starting pos
+    lda shape_tool_starting_pos
+    sta shape_tool_temp_pos
+
+    lda shape_tool_starting_pos + 1
+    sta shape_tool_temp_pos + 1
     
-    @done_drawing:
-    rts 
+    ; Draw loop
+    ldy #$00
+    Row_Loop:
+        ldx #$00
+        @Column_Loop:
 
+            DrawTile selected_color_chr_index, shape_tool_temp_pos
+
+            clc 
+            lda shape_tool_temp_pos
+            adc #$08
+            sta shape_tool_temp_pos
+
+            inx 
+            
+            cpx shape_tool_rectangle_width
+            bne @Column_Loop
+
+
+        ; reset temp position to starting position
+        lda shape_tool_starting_pos
+        sta shape_tool_temp_pos
+        lda shape_tool_starting_pos + 1
+        sta shape_tool_temp_pos + 1
+
+        ; increase row
+        iny 
+        tya 
+
+        ; * 8
+        asl 
+        asl 
+        asl 
+
+        ; add row to temp pos
+        clc 
+        adc shape_tool_temp_pos + 1
+        sta shape_tool_temp_pos + 1
+
+        cpy shape_tool_rectangle_height
+        beq Done_Drawing
+            jmp Row_Loop    ; needs to be a jump bc range
+
+
+    Done_Drawing:
+
+    rts 
 
 .endproc
 ; BudgetArms

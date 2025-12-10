@@ -112,6 +112,30 @@
 
 
 ; BudgetArms
+.macro DrawTile colorIndex, position
+
+    ; position is 2 bytes
+    
+    ConvertPositionToTilePosition position
+
+    ; reset ppu lash
+    lda PPU_STATUS
+    
+    ; ConvertPositionToTilePosition position
+
+    lda tile_position_output + 1
+    sta PPU_ADDR
+    lda tile_position_output
+    sta PPU_ADDR
+
+    lda colorIndex     
+    sta PPU_DATA 
+
+.endmacro
+; BudgetArms
+
+
+; BudgetArms
 .proc UpdateCursorPosition
 
     lda cursor_type
@@ -535,7 +559,6 @@
 
 ; BudgetArms
 .proc WriteBrushToCurrentAddr
-    ; write brush_tile_index to current tile
 
     ; Reset PPU latch
     lda PPU_STATUS
@@ -550,8 +573,7 @@
     lda fill_current_addr
     sta PPU_ADDR
 
-    ; write brush color (at current address) to vram 
-    lda selected_color_chr_index ;brush_tile_index
+    lda selected_color_chr_index
     sta PPU_DATA
 
     rts 
