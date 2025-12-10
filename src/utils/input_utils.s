@@ -69,7 +69,7 @@
     beq @NotStart
 
         ; Switch to canvas mode
-        lda #CANVAS_MODE
+        lda #CANVAS
         sta current_program_mode
         
         ; Set scroll to show canvas (nametable 0)

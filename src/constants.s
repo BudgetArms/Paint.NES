@@ -213,8 +213,8 @@ ERASER_MODE = %00000010
 FILL_MODE   = %00000100
 
 ; Canvas mode
-CANVAS_MODE = $00
-SELECTION_MENU_MODE = $40
+; CANVAS_MODE = $00           ; We are not using this can we delete???
+; SELECTION_MENU_MODE = $40   ; Same here
 
 ; Tiles
 BACKGROUND_TILE = $00
