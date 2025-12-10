@@ -634,11 +634,26 @@
     lda #%00000000
     sta PPU_MASK
     
-    lda #%10000000 ; set horizontal nametable increment
+    lda #%10000000
     sta PPU_CONTROL
 
-    ; Load nametable data
-    lda PPU_STATUS ; reset address latch
+    ; Load palette data first
+    lda PPU_STATUS
+    lda #>PPU_PALETTE_START
+    sta PPU_ADDR
+    lda #<PPU_PALETTE_START
+    sta PPU_ADDR
+
+    ldx #$00
+LoadPaletteLoop:
+        lda palette, x
+        sta PPU_DATA
+        inx
+        cpx #PALETTE_SIZE
+        bcc LoadPaletteLoop
+
+    ; Load nametable data (960 bytes of tiles)
+    lda PPU_STATUS
     lda #>PPU_NAMETABLE_2
     sta PPU_ADDR
     lda #<PPU_NAMETABLE_2
@@ -646,40 +661,60 @@
 
     ; Use 16-bit pointer for data source
     lda #<MainMenu_Tilemap
-    sta $00  ; Use zero page addresses $00-$01 as pointer
+    sta $00
     lda #>MainMenu_Tilemap
     sta $01
 
+    ; Load tiles - 960 bytes (30 rows * 32 columns)
     ldx #$00
     ldy #$00
     
-LoadMainMenuLoop:
-    lda ($00), y    ; Load from pointer + Y
+LoadTilesLoop:
+    lda ($00), y
     sta PPU_DATA
     iny
-    bne LoadMainMenuLoop    ; Loop until Y wraps to 0
+    bne LoadTilesLoop
     
-    inc $01         ; Increment high byte of pointer
+    inc $01
     inx
-    cpx #$04        ; Load 4 * 256 = 1024 bytes
-    bne LoadMainMenuLoop
+    cpx #$03        ; 3 * 256 = 768 bytes
+    bne LoadTilesLoop
 
-    ; Load attribute table - fill with palette 2 for all tiles
+    ; Load remaining 192 bytes (960 - 768 = 192)
+    ldy #$00
+LoadRemainingTiles:
+    lda ($00), y
+    sta PPU_DATA
+    iny
+    cpy #192
+    bne LoadRemainingTiles
+
+    ; Now load attributes from the .nam file (64 bytes)
     lda PPU_STATUS
-    lda #$2B        ; Nametable 2 attribute table starts at $2BC0
+    lda #>PPU_ATTRIBUTE_TABLLE_2
     sta PPU_ADDR
-    lda #$C0
+    lda #<PPU_ATTRIBUTE_TABLLE_2
     sta PPU_ADDR
 
-    lda #%10101010  ; Binary 10 in each 2-bit field = palette 2
+    ; Attributes start at byte 960 in the .nam file
+    lda #<(MainMenu_Tilemap + 960)
+    sta $00
+    lda #>(MainMenu_Tilemap + 960)
+    sta $01
+
     ldy #$00
 LoadAttributeLoop:
-    sta PPU_DATA    ; Write palette 2 to all attribute bytes
+    lda ($00), y
+    sta PPU_DATA
     iny
-    cpy #$40        ; Load 64 attribute bytes
+    cpy #$40        ; 64 attribute bytes
     bne LoadAttributeLoop
 
 LoadMainMenuDone:
+    ; Set PPU_CONTROL to display nametable 2
+    lda #%10001000  ; Enable NMI, use nametable 2
+    sta PPU_CONTROL
+    
     rts
 .endproc
 ; Jeronimas

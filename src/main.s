@@ -199,17 +199,7 @@ MainMenu_Tilemap:
 .proc main
     ; main application - rendering is currently off
     
-    ; Load MainMenu tilemap to nametable
-    jsr LoadMainMenuTilemap
-    
-    ; clear 1st name table
-    jsr SetupCanvas
-    ; Overlay Initialization
-    jsr InitializeColorSelectionOverlay
-    jsr InitializeToolSelectionOverlay
-    ;jsr InitializeColorValues
-
-    ; initialize palette table
+    ; initialize palette table FIRST (before loading any graphics)
     ldx #$00
     paletteloop:
         lda default_palette, x
@@ -217,6 +207,14 @@ MainMenu_Tilemap:
         inx
         cpx #PALETTE_SIZE
         bcc paletteloop
+
+    ; Load MainMenu tilemap to nametable 2
+    jsr LoadMainMenuTilemap
+    
+    ; Comment these out for now:
+    jsr SetupCanvas
+    jsr InitializeColorSelectionOverlay
+    jsr InitializeToolSelectionOverlay
 
     initialize_cursor:
         lda #TYPE_CURSOR_STARTUP
@@ -236,7 +234,6 @@ MainMenu_Tilemap:
         lda #CURSOR_MIN_Y
         sta tile_cursor_y
 
-
     Initialize_Shape_Tool_Type:
         lda #SHAPE_TOOL_TYPE_DEFAULT
         sta shape_tool_type
@@ -255,9 +252,9 @@ MainMenu_Tilemap:
 .segment "RODATA"
 default_palette:
 ;bg tiles/ text
-.byte OFFWHITE, RED, GREEN, BLUE
+.byte OFFWHITE, RED, BLUE, BLUE    ; Changed GREEN to BLUE
 .byte $0f,$00,$10,$30
-.byte $0f,$05,$16,$27
+.byte $0f,$3C,$1C,$31
 .byte $0f,$0b,$1a,$29
 .byte OFFWHITE, RED, GREEN, BLUE
 .byte $0f,$00,$10,$30
