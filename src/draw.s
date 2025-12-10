@@ -5,14 +5,7 @@
 
     jsr HideCursorSprite
 
-    ldy #$00
-    Loop_Controllers:
-    sty player_controller_loop
-    cpy #JOYPAD_COUNT
-    bne :+
-        rts
-    :
-    lda cursor_size, y
+    lda current_player_properties + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
     bne :+
@@ -45,17 +38,10 @@
     :
 
     Start_Load:
-    cpy #$00
-    beq P1
-    P2:
-        ldy #$00
-        P2_Loop:
-            lda (abs_address_to_access), Y
-            sta oam + OAM_OFFSET_P2_CURSOR, Y
-            iny
-            dex
-            bne P2_Loop  ; loop until all bytes are loaded
-            jmp End_Loop
+    ldy current_player_properties + P_INDEX
+    cpy #PLAYER_1
+    bne P2
+
     P1:
         ldy #$00
         P1_Loop:
@@ -64,13 +50,16 @@
             iny
             dex
             bne P1_Loop  ; loop until all bytes are loaded
-
-    End_Loop:
-    ldy player_controller_loop
-    iny
-    jmp Loop_Controllers
-
-    rts
+        rts
+    P2:
+        ldy #$00
+        P2_Loop:
+            lda (abs_address_to_access), Y
+            sta oam + OAM_OFFSET_P2_CURSOR, Y
+            iny
+            dex
+            bne P2_Loop  ; loop until all bytes are loaded
+        rts
 
 .endproc
 ; BudgetArms / Khine
@@ -145,46 +134,34 @@
     ; This is not checked in the `input_utils.s` because this can run into issues with
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
-    ldx #$00
-    Check_Loop:
-    stx current_player
-    cpx #JOYPAD_COUNT
-    bne :+
-        rts
-    :
-    lda tool_use_flag, x
+    ;lda tool_use_flag, x
+    lda current_player_properties + P_TOOL_USE_FLAG
     and #BRUSH_TOOL_ON
     bne @Use_Brush
-        inx
-        jmp Check_Loop
+        rts
+
     @Use_Brush:
-    lda tool_use_flag, x
+    ;lda tool_use_flag, x
+    lda current_player_properties + P_TOOL_USE_FLAG
     eor #BRUSH_TOOL_ON
-    sta tool_use_flag, x
+    ;sta tool_use_flag, x
+    sta current_player_properties + P_TOOL_USE_FLAG
 
-    cpx #$00
-    beq P1
-    P2:
-        lda p2_cursor_tile_position
-        sta drawing_tile_position
-        lda p2_cursor_tile_position + 1
-        sta drawing_tile_position + 1
-        jmp End_Assignment
-    P1:
-        lda p1_cursor_tile_position
-        sta drawing_tile_position
-        lda p1_cursor_tile_position + 1
-        sta drawing_tile_position + 1
-    End_Assignment:
+    lda current_player_properties + P_TILE_ADDR
+    sta drawing_tile_position
+    lda current_player_properties + P_TILE_ADDR + 1
+    sta drawing_tile_position + 1
 
-    lda selected_tool, x
+    ;lda selected_tool, x
+    lda current_player_properties + P_SELECTED_TOOL
     cmp #ERASER_TOOL_SELECTED
     bne :+
         lda #BACKGROUND_TILE_INDEX
         sta drawing_color_tile_index
         jmp :++
     :
-        lda selected_color_chr_index, x
+        ;lda selected_color_chr_index, x
+        lda current_player_properties + P_SELECTED_COLOR_INDEX
         sta drawing_color_tile_index
     :
 
@@ -208,18 +185,20 @@
         @row_loop:
             sta PPU_DATA
             inx
-            cpx cursor_size
+            ;cpx cursor_size
+            cpx current_player_properties + P_CURSOR_SIZE
             bne @row_loop
 
-        clc 
+        clc
         lda drawing_tile_position
         adc #32
         sta drawing_tile_position
         lda drawing_tile_position + 1
         adc #$00
         sta drawing_tile_position + 1
-        iny 
-        cpy cursor_size
+        iny
+        ;cpy cursor_size
+        cpy current_player_properties + P_CURSOR_SIZE
         bne @column_loop
 
     rts
@@ -344,7 +323,7 @@
 ; BudgetArms
 .proc DrawShapeToolCursor
 
-    lda selected_tool 
+    lda selected_tool
     cmp #SHAPE_TOOL_SELECTED
     beq Use_Shape
 
@@ -374,38 +353,39 @@
     ;    HIGH       LOW
     ; 7654 3210   7654 3210
     ; ---- --YY   YYYX XXXX
-    ldx #$00
-    Check_Loop:
-    stx current_player
-    cpx #JOYPAD_COUNT
-    bne :+
-        rts
-    :
-    lda tool_use_flag, x
+    ;lda tool_use_flag, x
+    lda current_player_properties + P_TOOL_USE_FLAG
     and #FILL_TOOL_ON
     bne @Use_Fill
-        inx
-        jmp Check_Loop
+        rts
+
     @Use_Fill:
-    lda tool_use_flag, x
+    ;lda tool_use_flag, x
+    lda current_player_properties + P_TOOL_USE_FLAG
     eor #FILL_TOOL_ON
-    sta tool_use_flag, x
+    ;sta tool_use_flag, x
+    sta current_player_properties + P_TOOL_USE_FLAG
 
     ; Store the current tile position to the cursor_pos
-    cpx #$00
-    beq P1
-    P2:
-        lda p2_cursor_tile_position + 1
-        sta fill_current_addr + 1
-        lda p2_cursor_tile_position
-        sta fill_current_addr
-        jmp End_Assignment
-    P1:
-        lda p1_cursor_tile_position + 1
-        sta fill_current_addr + 1
-        lda p1_cursor_tile_position
-        sta fill_current_addr
-    End_Assignment:
+    lda current_player_properties + P_TILE_ADDR + 1
+    sta fill_current_addr + 1
+    lda current_player_properties + P_TILE_ADDR
+    sta fill_current_addr
+
+    ;cpx #$00
+    ;beq P1
+    ;P2:
+    ;    lda p2_cursor_tile_position + 1
+    ;    sta fill_current_addr + 1
+    ;    lda p2_cursor_tile_position
+    ;    sta fill_current_addr
+    ;    jmp End_Assignment
+    ;P1:
+    ;    lda p1_cursor_tile_position + 1
+    ;    sta fill_current_addr + 1
+    ;    lda p1_cursor_tile_position
+    ;    sta fill_current_addr
+    ;End_Assignment:
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
@@ -419,9 +399,10 @@
     sta fill_target_color
 
     ; if the brush tile index is not transparent, Start_Fill
-    ldx current_player
+    ;ldx current_player
     lda fill_target_color
-    cmp selected_color_chr_index, x     ; brush_tile_index
+    ;cmp selected_color_chr_index, x     ; brush_tile_index
+    cmp current_player_properties + P_SELECTED_COLOR_INDEX
     bne Start_Fill
         ; if transparent, Finish
         jmp Finish

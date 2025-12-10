@@ -1,8 +1,7 @@
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
     lda source_tile
-    ldx current_player
-    sta selected_color_chr_index, x
+    sta current_player_properties + P_SELECTED_TOOL
 .endmacro
 ; Khine
 
@@ -31,10 +30,9 @@
 
 ; Khine
 .macro ChangeToolFlag   tool_to_turn_on
-    ldx current_player
-    lda tool_use_flag, x
+    lda current_player_properties + P_TOOL_USE_FLAG
     ora tool_to_turn_on
-    sta tool_use_flag, x
+    sta current_player_properties + P_TOOL_USE_FLAG
 .endmacro
 ; Khine
 
@@ -127,22 +125,132 @@
 
 
 ; Khine
+.proc InitializeEachPlayer
+    lda #PLAYER_1
+    sta player_1_properties + P_INDEX
+
+    lda #PLAYER_2
+    sta player_2_properties + P_INDEX
+
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc InitializeAllPlayers
+        lda #$01
+        sta current_player_properties + P_SELECTED_COLOR_INDEX
+
+        lda #UPDATE_ALL_OFF
+        sta current_player_properties + P_TOOL_USE_FLAG
+
+        lda #BRUSH_TOOL_SELECTED
+        sta current_player_properties + P_SELECTED_TOOL
+
+        lda #CURSOR_STARTUP_SIZE
+        sta current_player_properties + P_CURSOR_SIZE
+
+        ; set cursor_x/y
+        lda #CURSOR_MIN_X * 8
+        ;sta cursor_x
+        sta current_player_properties + P_X_POS
+
+        lda #CURSOR_MIN_Y * 8
+        ;sta cursor_y
+        sta current_player_properties + P_Y_POS
+
+        ; set cursor tile x/y
+        lda #CURSOR_MIN_X
+        ;sta tile_cursor_x
+        sta current_player_properties + P_TILE_X_POS
+
+        lda #CURSOR_MIN_Y
+        ;sta tile_cursor_y
+        sta current_player_properties + P_TILE_Y_POS
+
+    rts
+
+.endproc
+; Khine
+
+
+; Khine
+.proc LoadPlayerProperties
+
+    lda current_player_index
+
+    cmp #PLAYER_1
+    bne :+
+        ldx #$00
+        P1_Loop:
+            lda player_1_properties, x
+            sta current_player_properties, x
+            inx
+            cpx #P_PROPERTY_SIZE
+            bne P1_Loop
+        rts
+    :
+
+    cmp #PLAYER_2
+    bne :+
+        ldx #$00
+        P2_Loop:
+            lda player_2_properties, x
+            sta current_player_properties, x
+            inx
+            cpx #P_PROPERTY_SIZE
+            bne P2_Loop
+        rts
+    :
+
+.endproc
+; Khine
+
+
+; Khine
+.proc SavePlayerProperties
+
+    lda current_player_index
+
+    cmp #PLAYER_1
+    bne :+
+        ldx #$00
+        P1_Loop:
+            lda current_player_properties, x
+            sta player_1_properties, x
+            inx
+            cpx #P_PROPERTY_SIZE
+            bne P1_Loop
+        rts
+    :
+
+    cmp #PLAYER_2
+    bne :+
+        ldx #$00
+        P2_Loop:
+            lda current_player_properties, x
+            sta player_2_properties, x
+            inx
+            cpx #P_PROPERTY_SIZE
+            bne P2_Loop
+        rts
+    :
+
+.endproc
+; Khine
+
+
+; Khine
 .proc ConvertCursorPosToTilePositions
     ; Convert the X and Y coordinates of the cursor to
     ; the tile index storied in 'cursor_tile_position' variable
     ; 2 bytes -> LO + HI bytes
 
     ; Reset the tile index
-    ldx #$00
-    Loop_Controllers:
-    cpx #JOYPAD_COUNT
-    bne :+
-        rts
-    :
-
     lda #$00
-    sta temp_tile_position
-    sta temp_tile_position + 1
+    sta current_player_properties + P_TILE_ADDR
+    sta current_player_properties + P_TILE_ADDR + 1
 
     ; A loop that multiplies the Y coordinate
     ; with 32 since each namespace is 32 tiles wide
@@ -151,55 +259,40 @@
     ; For example, X: 2, Y: 6 would convert to (6 * 32) + 2 = 194
     clc 
     lda #$00
-    ldy tile_cursor_y, x
+    ldy current_player_properties + P_TILE_Y_POS
     beq SkipLoop
 
     RowLoop:
     adc #DISPLAY_SCREEN_WIDTH
     ; Check for carry bit and then increment the high bit when carry is set
     bcc @SkipHighBitIncrement
-        inc temp_tile_position + 1
+        inc current_player_properties + P_TILE_ADDR + 1
         clc 
     @SkipHighBitIncrement:
     dey
     bne RowLoop
 
     SkipLoop:
-    adc tile_cursor_x, x
-    sta temp_tile_position ; Low bit of the location
+    adc current_player_properties + P_TILE_X_POS
+    ;sta temp_tile_position ; Low bit of the location
+    sta current_player_properties + P_TILE_ADDR
 
     ; Increment the high bit position if there is a remaining carry flag set
     bcc @SkipHighBitIncrement
-        inc temp_tile_position + 1 ; High bit of the location
+        inc current_player_properties + P_TILE_ADDR + 1 ; High bit of the location
         clc
     @SkipHighBitIncrement:
 
     ; Add the offset of nametable 1 to the tile index
     lda #<NAME_TABLE_1
-    adc	temp_tile_position
-    sta temp_tile_position
+    adc	current_player_properties + P_TILE_ADDR
+    sta current_player_properties + P_TILE_ADDR
     lda #>NAME_TABLE_1
     adc #$00
-    adc temp_tile_position + 1
-    sta temp_tile_position + 1
+    adc current_player_properties + P_TILE_ADDR + 1
+    sta current_player_properties + P_TILE_ADDR + 1
 
-    cpx #$00
-    beq P1
-    P2:
-        lda temp_tile_position
-        sta p2_cursor_tile_position
-        lda temp_tile_position + 1
-        sta p2_cursor_tile_position + 1
-        jmp End_Loop
-    P1:
-        lda temp_tile_position
-        sta p1_cursor_tile_position
-        lda temp_tile_position + 1
-        sta p1_cursor_tile_position + 1
-
-    End_Loop:
-        inx
-        jmp Loop_Controllers
+    rts
 
 .endproc
 ; Khine
@@ -208,8 +301,7 @@
 ; Khine / BudgetArms
 .proc MoveCursorUp
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
-    ldx current_player
-    lda tile_cursor_y, x
+    lda current_player_properties + P_TILE_Y_POS
 
     cmp #CURSOR_MIN_Y
     bne @Apply_Move
@@ -217,11 +309,14 @@
 
     @Apply_Move:
     sec 
-    lda cursor_y, x
+    ;lda cursor_y, x
+    lda current_player_properties + P_Y_POS
     sbc #TILE_PIXEL_SIZE
-    sta cursor_y, x
+    ;sta cursor_y, x
+    sta current_player_properties + P_Y_POS
 
-    dec tile_cursor_y, x
+    ;dec tile_cursor_y, x
+    dec current_player_properties + P_TILE_Y_POS
 
     rts 
 
@@ -232,10 +327,11 @@
 ; Khine / BudgetArms
 .proc MoveCursorDown
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
-    ldx current_player
-    lda tile_cursor_y, x
+    ;lda tile_cursor_y, x
+    lda current_player_properties + P_TILE_Y_POS
     clc
-    adc cursor_size, x
+    ;adc cursor_size, x
+    adc current_player_properties + P_CURSOR_SIZE
 
     cmp #CURSOR_MAX_Y
     bmi @Apply_Move
@@ -243,14 +339,17 @@
 
     @Apply_Move:
 
-    lda cursor_y, x
+    ;lda cursor_y, x
+    lda current_player_properties + P_Y_POS
     clc
     adc #TILE_PIXEL_SIZE
-    sta cursor_y, x
+    ;sta cursor_y, x
+    sta current_player_properties + P_Y_POS
 
-    inc tile_cursor_y, x
+    ;inc tile_cursor_y, x
+    inc current_player_properties + P_TILE_Y_POS
 
-    rts 
+    rts
 
 .endproc
 ; Khine / BudgetArms
@@ -259,20 +358,23 @@
 ; Khine / BudgetArms
 .proc MoveCursorLeft
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
-    ldx current_player
-    lda tile_cursor_x, x
+    ;lda tile_cursor_x, x
+    lda current_player_properties + P_TILE_X_POS
     cmp #CURSOR_MIN_X
     bne @Apply_Move
         rts 
 
     @Apply_Move:
 
-    lda cursor_x, x
+    ;lda cursor_x, x
+    lda current_player_properties + P_X_POS
     sec
     sbc #TILE_PIXEL_SIZE
-    sta cursor_x, x
+    ;sta cursor_x, x
+    sta current_player_properties + P_X_POS
 
-    dec tile_cursor_x, x
+    ;dec tile_cursor_x, x
+    dec current_player_properties + P_TILE_X_POS
 
     rts 
 
@@ -283,10 +385,9 @@
 ; Khine / BudgetArms
 .proc MoveCursorRight
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
-    ldx current_player
-    lda tile_cursor_x, x
+    lda current_player_properties + P_TILE_X_POS
     clc
-    adc cursor_size, x
+    adc current_player_properties + P_CURSOR_SIZE
 
     cmp #CURSOR_MAX_X
     bmi @Apply_Move
@@ -295,11 +396,11 @@
     @Apply_Move:
 
     clc 
-    lda cursor_x, x
+    lda current_player_properties + P_X_POS
     adc #TILE_PIXEL_SIZE
-    sta cursor_x, x
+    sta current_player_properties + P_X_POS
 
-    inc tile_cursor_x, x
+    inc current_player_properties + P_TILE_X_POS
 
     rts 
 
@@ -312,45 +413,44 @@
     ; Load the brush size and checks if it's already the maximum size
     ; If MAX -> return back to the minimum size
     ; If not -> increment the brush size
-    ldx current_player
-    lda cursor_size, x
+    lda current_player_properties + P_CURSOR_SIZE
     cmp #MAXIMUM_CURSOR_SIZE
     bne @Not_Max
         lda #MINIMUM_CURSOR_SIZE
-        sta cursor_size, x
+        sta current_player_properties + P_CURSOR_SIZE
         jmp Change_Cursor_Sprite 
 
     @Not_Max:
-    inc cursor_size, x
+    inc current_player_properties + P_CURSOR_SIZE
 
-    clc 
-    lda tile_cursor_x, x
-    adc cursor_size, x
+    clc
+    lda current_player_properties + P_TILE_X_POS
+    adc current_player_properties + P_CURSOR_SIZE
     cmp #DISPLAY_SCREEN_WIDTH
     bcc @No_X_Move_Needed
-        dec tile_cursor_x, x
-        sec 
-        lda cursor_x, x
+        dec current_player_properties + P_TILE_X_POS
+        sec
+        lda current_player_properties + P_X_POS
         sbc #TILE_PIXEL_SIZE
-        sta cursor_x, x
+        sta current_player_properties + P_X_POS
     @No_X_Move_Needed:
 
     clc
-    lda tile_cursor_y, x
-    adc cursor_size, x
+    lda current_player_properties + P_TILE_Y_POS
+    adc current_player_properties + P_CURSOR_SIZE
     cmp #DISPLAY_SCREEN_HEIGHT
     bcc @No_Y_Move_Needed
-        dec tile_cursor_y, x
+        dec current_player_properties + P_TILE_Y_POS
         sec
-        lda cursor_y, x
+        lda current_player_properties + P_Y_POS
         sbc #TILE_PIXEL_SIZE
-        sta cursor_y, x
+        sta current_player_properties + P_Y_POS
 
     @No_Y_Move_Needed:
 
     Change_Cursor_Sprite:
     jsr LoadCursorSprite
-    rts 
+    rts
 
 .endproc
 ; Khine
@@ -377,8 +477,7 @@
 
 ; Joren
 .proc IncreaseChrTileIndex
-    ldx current_player
-    lda selected_color_chr_index, x
+    lda current_player_properties + P_SELECTED_COLOR_INDEX
     clc 
     adc #$01
 
@@ -388,7 +487,7 @@
         lda #BACKGROUND_TILE_INDEX ; set value back to 0
 
     Value_Was_Okay:
-        sta selected_color_chr_index, x
+        sta current_player_properties + P_SELECTED_COLOR_INDEX
 
     jsr UpdateColorSelectionOverlayPosition
     rts 
@@ -399,8 +498,7 @@
 
 ;Joren
 .proc DecreaseChrTileIndex
-    ldx current_player
-    lda selected_color_chr_index, x
+    lda current_player_properties + P_SELECTED_COLOR_INDEX
     sec 
     sbc #$01
 
@@ -409,7 +507,7 @@
     ; TODO: USE CONSTANT
 
     Value_Was_Okay:
-        sta selected_color_chr_index, x
+        sta current_player_properties + P_SELECTED_COLOR_INDEX
 
     jsr UpdateColorSelectionOverlayPosition
     rts 
@@ -418,10 +516,10 @@
 ;Joren
 
 
-; Joren
+; Joren / Khine
 .proc IncreaseColorValueForSelectedTile
-    
-    ldx selected_color_chr_index
+
+    ldx current_player_properties + P_SELECTED_COLOR_INDEX
 
     lda palette, x
     clc 
@@ -431,13 +529,14 @@
     rts 
 
 .endproc
-; Joren
+; Joren / Khine
 
 
-; Joren
+; Joren / Khine
 .proc DecreaseColorValueForSelectedTile
 
-    ldx selected_color_chr_index
+    ldx current_player_properties + P_SELECTED_COLOR_INDEX
+
     lda palette, x
     sec 
     sbc #$01
@@ -446,13 +545,12 @@
     rts 
 
 .endproc
-; Joren
+; Joren / Khine
 
 
 ; Joren
 .proc IncreaseButtonHeldFrameCount
-    ldx current_player
-    lda frame_count, x
+    lda current_player_properties + P_INPUT_FRAME_COUNT
     clc 
     adc #$01
     cmp #FRAMES_BETWEEN_MOVEMENT
@@ -460,7 +558,7 @@
         lda #$00
 
     Value_Is_Okay:
-    sta frame_count, x
+    sta current_player_properties + P_INPUT_FRAME_COUNT
 
     rts 
 
@@ -470,8 +568,7 @@
 
 ; Joren / Khine
 .proc IncreaseToolSelection
-    ldx current_player
-    lda selected_tool, x
+    lda current_player_properties + P_SELECTED_TOOL
     clc 
     adc #$01
 
@@ -481,7 +578,7 @@
         lda #00 ; set value back to 0
 
     Value_Was_Okay:
-    sta selected_tool, x
+    sta current_player_properties + P_SELECTED_TOOL
 
     lda update_flag
     ora #UPDATE_TOOL_TEXT_OVERLAY
@@ -496,8 +593,7 @@
 
 ; Joren / Khine
 .proc DecreaseToolSelection
-    ldx current_player
-    lda selected_tool, x
+    lda current_player_properties + P_SELECTED_TOOL
     sec 
     sbc #$01
 
@@ -505,7 +601,7 @@
     lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
 
     Value_Was_Okay:
-    sta selected_tool, x
+    sta current_player_properties + P_SELECTED_TOOL
 
     lda update_flag
     ora #UPDATE_TOOL_TEXT_OVERLAY
@@ -541,7 +637,8 @@
     ; Reset the PPU location after the clear
     ChangePPUNameTableAddr OVERLAY_TOOL_TEXT_OFFSET
 
-    lda selected_tool
+    ;lda selected_tool
+    lda player_1_properties + P_SELECTED_TOOL
 
     cmp #BRUSH_TOOL_SELECTED
     bne :+

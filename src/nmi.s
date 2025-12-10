@@ -43,15 +43,32 @@
         cpx #PALETTE_SIZE
         bcc loop
 
+    lda #$00
+    sta current_player_index
+
+    Loop_Players:
+        jsr LoadPlayerProperties
+        ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
+
+        jsr UseClearCanvasTool
+        jsr UseBrushTool
+        jsr UseFillTool
+
+        jsr SavePlayerProperties
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+
+
     Tools:
-    jsr UseClearCanvasTool
-    jsr UseBrushTool
-    jsr UseShapeTool
-    jsr UseFillTool
+
+    ;jsr UseShapeTool
+
 
     Overlay:
-    jsr DrawCursorPositionOverlay
-    jsr RefreshToolTextOverlay
+    ;jsr DrawCursorPositionOverlay
+    ;jsr RefreshToolTextOverlay
 
     jsr ResetScroll
 
@@ -64,7 +81,7 @@
     ppu_update_end:
 
     ; update FamiStudio sound engine
-    jsr famistudio_update
+    ;jsr famistudio_update
 
     ; restore registers and return
     pla 

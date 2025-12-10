@@ -54,10 +54,6 @@
         inx 
         bne Clear_Oam
 
-    ; Initialize brush variables
-    lda #CURSOR_STARTUP_SIZE
-    sta cursor_size ; Brush size
-
     ; Initialize scroll positions
     lda #$00
     sta scroll_x_position
@@ -66,24 +62,31 @@
     lda #$00
     sta current_program_mode
 
-    lda #ALL_TOOLS_OFF
-    sta tool_use_flag
-
     lda #UPDATE_ALL_OFF
     sta update_flag
 
-    ; Initialize color for both players
+    ; Set multiplayer mode
+    lda #02
+    sta player_count
+
+    jsr InitializeEachPlayer
+
     lda #$00
-    sta current_player
-    ChangeBrushTileIndex #$01
+    sta current_player_index
 
-    lda #$01
-    sta current_player
-    ChangeBrushTileIndex #$02
+    Loop_Players:
+        jsr LoadPlayerProperties
 
-    jsr InitializeCursorPosition
-    jsr InitializeOverlayIndicators
-    jsr LoadCursorSprite
+        jsr InitializeAllPlayers
+        jsr InitializeOverlayIndicators
+        jsr LoadCursorSprite
+
+        jsr SavePlayerProperties
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+
 
     ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
     ; 	lda cursor_y

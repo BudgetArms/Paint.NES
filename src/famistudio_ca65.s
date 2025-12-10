@@ -3971,7 +3971,7 @@ famistudio_update:
     dec famistudio_tempo_env_counter
     beq @advance_tempo_envelope
     lda #1
-    jmp @store_frame_count
+    jmp @store_players_frame_count
 
 @advance_tempo_envelope:
     ; Advance the envelope by one step.
@@ -3994,10 +3994,10 @@ famistudio_update:
     ; Reset the counter
     sta famistudio_tempo_env_counter
     lda famistudio_tempo_frame_num
-    bne @store_frame_count
+    bne @store_players_frame_count
     jmp @skip_frame
 
-@store_frame_count:
+@store_players_frame_count:
     sta famistudio_tempo_frame_cnt
 
 .endif

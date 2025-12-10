@@ -38,6 +38,25 @@ JOYPAD1 = $4016 ; Joypad 1 (Read/Write)
 JOYPAD2 = $4017 ; Joypad 2 (Read/Write)
 JOYPAD_COUNT = 2
 
+; Players
+PLAYER_1 = 0
+PLAYER_2 = 1
+
+; Player property offsets
+P_INDEX                = 0      ; 1 byte
+P_INPUT                = 1      ; 1 byte
+P_INPUT_FRAME_COUNT    = 2      ; 1 byte
+P_X_POS                = 3      ; 1 byte
+P_Y_POS                = 4      ; 1 byte
+P_TILE_X_POS           = 5      ; 1 byte
+P_TILE_Y_POS           = 6      ; 1 byte
+P_CURSOR_SIZE          = 7      ; 1 byte
+P_TILE_ADDR            = 8      ; 2 bytes
+P_SELECTED_TOOL        = 10     ; 1 byte
+P_SELECTED_COLOR_INDEX = 11     ; 1 byte
+P_TOOL_USE_FLAG        = 12     ; 1 byte
+P_PROPERTY_SIZE        = 13     ; ALWAYS UPDATE THIS AFTER MAKING CHANGES TO THE PROPERTIES
+
 ; Gamepad bit values
 PAD_A      = $80
 PAD_B      = $40

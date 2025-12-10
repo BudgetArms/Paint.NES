@@ -26,7 +26,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 ;********************************************
 ; Reserves
 ; using .res you can reserve addresses in memory as "variables" 
-; this way you can do stuff like `lda current_input` to read what input was given
+; this way you can do stuff like `lda players_input` to read what input was given
 ; the number behind .res is the amount of bytes it will reserve for this address
 ;********************************************
 
@@ -35,9 +35,28 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
-current_input: .res 2
+players_input: .res 2
 last_frame_input: .res 2
-frame_count: .res 2
+players_frame_count: .res 2
+
+; p1_index: .res 1
+; p1_input: .res 1
+; p1_input_frame_count: .res 1
+; p1_cursor_x: .res 1
+; p1_cursor_y: .res 1
+; p1_tile_cursor_x: .res 1
+; p1_tile_cursor_y: .res 1
+; p1_cursor_size: .res 1
+; p1_cursor_tile_pos: .res 1
+; p1_selected_tool: .res 1
+; p1_selected_color_index: .res 1
+; p1_tool_use_flag: .res 1
+
+player_1_properties: .res 13
+player_2_properties: .res 13
+
+current_player_index: .res 1
+current_player_properties: .res 13
 
 ; Shape Tool
 shape_tool_type: .res 1
@@ -95,6 +114,8 @@ current_program_mode: .res 1
 scroll_x_position: .res 1
 scroll_y_position: .res 1
 current_player: .res 1
+current_player2: .res 1
+player_count: .res 1
 
 ; Sound engine variables
 sfx_temp: .res 1        ; Temporary storage for SFX operations

@@ -12,22 +12,14 @@
 
 ; Khine
 .proc UseClearCanvasTool
-    ldx #$00
-    Check_Loop:
-    stx current_player
-    cpx #JOYPAD_COUNT
-    bne :+
-        rts
-    :
-    lda tool_use_flag, x
+    lda current_player_properties + P_TOOL_USE_FLAG
     and #CLEAR_TOOL_ON
     bne @Use_Fill
-        inx
-        jmp Check_Loop
+        rts
     @Use_Fill:
-    lda tool_use_flag, x
+    lda current_player_properties + P_TOOL_USE_FLAG
     eor #CLEAR_TOOL_ON
-    sta tool_use_flag, x
+    sta current_player_properties + P_TOOL_USE_FLAG
 
     jsr PPUOff
 
@@ -92,27 +84,50 @@
 
 ; BudgetArms
 .proc InitializeCursorPosition
+        ;lda #CURSOR_STARTUP_SIZE
+        ;sta cursor_size
+        ;sta cursor_size + 1
+
+        ; set cursor_x/y
+        ;lda #CURSOR_MIN_X * 8
+        ;sta cursor_x
+        ;sta cursor_x + 1
+
+        ;lda #CURSOR_MIN_Y * 8
+        ;sta cursor_y
+        ;sta cursor_y + 1
+
+        ; set cursor tile x/y
+        ;lda #CURSOR_MIN_X
+        ;sta tile_cursor_x
+        ;sta tile_cursor_x + 1
+
+        ;lda #CURSOR_MIN_Y
+        ;sta tile_cursor_y
+        ;sta tile_cursor_y + 1
+
+
+
         lda #CURSOR_STARTUP_SIZE
-        sta cursor_size
-        sta cursor_size + 1
+        sta current_player_properties + P_CURSOR_SIZE
 
         ; set cursor_x/y
         lda #CURSOR_MIN_X * 8
-        sta cursor_x
-        sta cursor_x + 1
+        ;sta cursor_x
+        sta current_player_properties + P_X_POS
 
         lda #CURSOR_MIN_Y * 8
-        sta cursor_y
-        sta cursor_y + 1
+        ;sta cursor_y
+        sta current_player_properties + P_Y_POS
 
         ; set cursor tile x/y
         lda #CURSOR_MIN_X
-        sta tile_cursor_x
-        sta tile_cursor_x + 1
+        ;sta tile_cursor_x
+        sta current_player_properties + P_TILE_X_POS
 
         lda #CURSOR_MIN_Y
-        sta tile_cursor_y
-        sta tile_cursor_y + 1
+        ;sta tile_cursor_y
+        sta current_player_properties + P_TILE_Y_POS
     rts
 .endproc
 ; BudgetArms
@@ -120,15 +135,8 @@
 
 ; BudgetArms
 .proc UpdateCursorSpritePosition
-
-    ldy #$00
-    Loop_Controllers:
-    sty player_controller_loop
-    cpy #JOYPAD_COUNT
-    bne :+
-        rts
-    :
-    lda cursor_size, y
+    ;lda cursor_size, y
+    lda current_player_properties + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
     bne :+
@@ -163,13 +171,15 @@
     Start_Update:
 
     Start_Loop:
-    cpy #$00
+    ldy current_player_properties + P_INDEX
+    cpy #PLAYER_1
     bne P2
 
     P1:
         ldy #$00
         P1_Loop:
-            lda cursor_y
+            ;lda cursor_y
+            lda current_player_properties + P_Y_POS
             clc
             adc (abs_address_to_access), y
 
@@ -181,7 +191,8 @@
             iny
             iny
 
-            lda cursor_x
+            ;lda cursor_x
+            lda current_player_properties + P_X_POS
             clc
             adc (abs_address_to_access), y
             sta oam + OAM_OFFSET_P1_CURSOR, y
@@ -194,7 +205,8 @@
     P2:
         ldy #$00
         P2_Loop:
-            lda cursor_y + 1
+            ;lda cursor_y + 1
+            lda current_player_properties + P_Y_POS
             clc
             adc (abs_address_to_access), y
 
@@ -206,7 +218,8 @@
             iny
             iny
 
-            lda cursor_x + 1
+            ;lda cursor_x + 1
+            lda current_player_properties + P_X_POS
             clc
             adc (abs_address_to_access), y
             sta oam + OAM_OFFSET_P2_CURSOR, y
@@ -215,9 +228,7 @@
             dex
             bne P2_Loop
     End_Loop:
-    ldy player_controller_loop
-    iny
-    jmp Loop_Controllers
+
     rts
 .endproc
 ; BudgetArms
@@ -298,9 +309,13 @@
 
 ; Khine
 .proc UpdateColorSelectionOverlayPosition
+    ldx current_player_properties + P_INDEX
+    bne Color_Indicator_P2
+
     Color_Indicator_P1:
         lda #OVERLAY_P1_COLOR_OFFSET_X
-        ldx selected_color_chr_index
+        ;ldx selected_color_chr_index
+        ldx current_player_properties + P_SELECTED_COLOR_INDEX
         beq Skip_Color_Loop_P1
 
         clc
@@ -311,10 +326,12 @@
 
         Skip_Color_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_X
+        rts
 
     Color_Indicator_P2:
         lda #OVERLAY_P2_COLOR_OFFSET_X
-        ldx selected_color_chr_index + 1
+        ;ldx selected_color_chr_index + 1
+        ldx current_player_properties + P_SELECTED_COLOR_INDEX
         beq Skip_Color_Loop_P2
 
         clc
@@ -325,15 +342,19 @@
 
         Skip_Color_Loop_P2:
         sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_X
-    rts
+        rts
 .endproc
 
 
 ; Khine
 .proc UpdateToolSelectionOverlayPosition
+    ldx current_player_properties + P_INDEX
+    bne Tool_Indicator_P2
+
     Tool_Indicator_P1:
         lda #OVERLAY_P1_TOOL_OFFSET_X
-        ldx selected_tool
+        ;ldx selected_tool
+        ldx current_player_properties + P_SELECTED_TOOL
         beq Skip_Tool_Loop_P1
 
         clc
@@ -344,10 +365,12 @@
 
         Skip_Tool_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
+        rts
 
     Tool_Indicator_P2:
         lda #OVERLAY_P2_TOOL_OFFSET_X
-        ldx selected_tool + 1
+        ;ldx selected_tool + 1
+        ldx current_player_properties + P_SELECTED_TOOL
         beq Skip_Tool_Loop_P2
 
         clc
@@ -358,7 +381,7 @@
 
         Skip_Tool_Loop_P2:
         sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_X
-    rts
+        rts
 .endproc
 ; Khine
 
@@ -367,7 +390,8 @@
 .proc UpdateCursorPositionOverlay
 
     ; Convert cursor_x to three decimal digits
-    lda cursor_x
+    ;lda cursor_x
+    lda player_1_properties + P_X_POS
     ldx #100
     jsr DivideByX           ; hundreds in A, remainder in X
     sta cursor_x_digits     ; hundreds digit (0-2)
@@ -378,7 +402,8 @@
     stx cursor_x_digits + 2 ; ones digit (0-9)
     
     ; Convert cursor_y to three decimal digits
-    lda cursor_y
+    ;lda cursor_y
+    lda player_1_properties + P_Y_POS
     sec
     sbc #OVERLAY_YPOS_OFFSET_FROM_CANVAS
     ldx #100
@@ -510,8 +535,9 @@
     sta PPU_ADDR
 
     ; write brush color (at current address) to vram 
-    ldx current_player
-    lda selected_color_chr_index, x ;brush_tile_index
+    ;ldx current_player
+    ;lda selected_color_chr_index, x ;brush_tile_index
+    lda current_player_properties + P_SELECTED_COLOR_INDEX
     sta PPU_DATA
 
     rts 

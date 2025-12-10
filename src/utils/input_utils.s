@@ -5,44 +5,27 @@
 ;*****************************************************************
 .proc PollGamepad
 
-        lda current_input
-        sta last_frame_input
+        ;lda players_input
+        ;sta last_frame_input
         ; strobe the gamepad to latch current button state
         lda #$01
         sta JOYPAD_STROBING
         lda #$00
         sta JOYPAD_STROBING    ; read 8 bytes from the interface at $4016
 
-        ldx #$00
-        Get_2_Joypad_Inputs:
-            lda #$01
-            sta current_input, x
-            lsr a
-            Get_Input_Loop:
-                lda JOYPAD1, x
-                and #%00000011
-                cmp #$01
-                rol current_input, x
-                bcc Get_Input_Loop
-
-            ;lda last_frame_input, x
-            ;eor #%11111111
-            ;and current_input, x
-            ;sta input_pressed_this_frame, x
-
-            ;lda current_input, x
-            ;eor #%11111111
-            ;and last_frame_input, x
-            ;sta input_released_this_frame, x
-
-            ;lda last_frame_input, x
-            ;and current_input, x
-            ;eor input_released_this_frame, x
-            ;sta input_holding_this_frame, x
-
-            inx
-            cpx #JOYPAD_COUNT
-            bne Get_2_Joypad_Inputs
+        ldx current_player_index
+        lda #$01
+        ;sta players_input, x
+        sta current_player_properties + P_INPUT
+        sta current_player_properties + P_INPUT
+        lsr a
+        Get_Input_Loop:
+            lda JOYPAD1, x
+            and #%00000011
+            cmp #$01
+            ;rol players_input, x
+            rol current_player_properties + P_INPUT
+            bcc Get_Input_Loop
 
     rts
 
@@ -90,92 +73,86 @@
 ; Joren / Khine
 .proc HandleCanvasInput
 
-    ldx #$00
-    Loop_Controllers:
-    stx current_player
-    cpx #JOYPAD_COUNT
-    bne :+
-        rts
-    :
-    lda current_input, x
+    lda current_player_properties + P_INPUT
     bne Input_Detected
-        lda #$00 ; reset frame count to 0
-        sta frame_count, x
-        jmp Stop_Checking2
+
+    lda #$00 ; reset frame count to 0
+    sta current_player_properties + P_INPUT_FRAME_COUNT
+    rts
 
     Input_Detected:
     ; Check if the frame count is 0
-    lda frame_count, x
+    lda current_player_properties + P_INPUT_FRAME_COUNT
     beq Start_Checking_Input
         jmp Stop_Checking
 
     Start_Checking_Input:
-    lda current_input, x
+    lda current_player_properties + P_INPUT
 
     Check_PAD_A:
         cmp #PAD_A
         bne Check_PAD_A_LEFT
-        jsr UseSelectedTool
+            jsr UseSelectedTool
         jmp Stop_Checking
     
     Check_PAD_A_LEFT:
         cmp #PAD_A_LEFT
         bne Check_PAD_A_RIGHT
-        jsr UseSelectedTool
-        jsr MoveCursorLeft
+            jsr UseSelectedTool
+            jsr MoveCursorLeft
         jmp Stop_Checking
 
     Check_PAD_A_RIGHT:
         cmp #PAD_A_RIGHT
         bne Check_PAD_A_UP
-        jsr UseSelectedTool
-        jsr MoveCursorRight
+            jsr UseSelectedTool
+            jsr MoveCursorRight
         jmp Stop_Checking
 
     Check_PAD_A_UP:
         cmp #PAD_A_UP
         bne Check_PAD_A_DOWN
-        jsr UseSelectedTool
-        jsr MoveCursorUp
+            jsr UseSelectedTool
+            jsr MoveCursorUp
         jmp Stop_Checking
 
     Check_PAD_A_DOWN:
         cmp #PAD_A_DOWN
         bne Check_PAD_A_UP_LEFT
-        jsr UseSelectedTool
-        jsr MoveCursorDown
+            jsr UseSelectedTool
+            jsr MoveCursorDown
         jmp Stop_Checking
 
     Check_PAD_A_UP_LEFT:
         cmp #PAD_A_UP_LEFT
         bne Check_PAD_A_DOWN_LEFT
-        jsr UseSelectedTool
-        jsr MoveCursorUp
-        jsr MoveCursorLeft
+            jsr UseSelectedTool
+            jsr MoveCursorUp
+            jsr MoveCursorLeft
         jmp Stop_Checking
 
     Check_PAD_A_DOWN_LEFT:
         cmp #PAD_A_DOWN_LEFT
         bne Check_PAD_A_UP_RIGHT
-        jsr UseSelectedTool
-        jsr MoveCursorDown
-        jsr MoveCursorLeft
+            jsr UseSelectedTool
+            jsr MoveCursorDown
+            jsr MoveCursorLeft
         jmp Stop_Checking
 
     Check_PAD_A_UP_RIGHT:
         cmp #PAD_A_UP_RIGHT
         bne Check_PAD_A_DOWN_RIGHT
-        jsr UseSelectedTool
-        jsr MoveCursorUp
-        jsr MoveCursorRight
+            jsr UseSelectedTool
+            jsr MoveCursorUp
+            jsr MoveCursorRight
         jmp Stop_Checking
 
     Check_PAD_A_DOWN_RIGHT:
         cmp #PAD_A_DOWN_RIGHT
         bne Check_PAD_SELECT
-        jsr UseSelectedTool
-        jsr MoveCursorDown
-        jsr MoveCursorRight
+            jsr UseSelectedTool
+            jsr MoveCursorDown
+            jsr MoveCursorRight
         jmp Stop_Checking
 
     Check_PAD_SELECT:
@@ -188,28 +165,28 @@
         cmp #PAD_SELECT_LEFT
         bne Check_PAD_SELECT_RIGHT
         
-        jsr DecreaseChrTileIndex
+            jsr DecreaseChrTileIndex
         jmp Stop_Checking
 
     Check_PAD_SELECT_RIGHT:
         cmp #PAD_SELECT_RIGHT
         bne Check_PAD_SELECT_UP
         
-        jsr IncreaseChrTileIndex
+            jsr IncreaseChrTileIndex
         jmp Stop_Checking
 
     Check_PAD_SELECT_UP:
         cmp #PAD_SELECT_UP
         bne Check_PAD_SELECT_DOWN
         
-        jsr IncreaseColorValueForSelectedTile
+            jsr IncreaseColorValueForSelectedTile
         jmp Stop_Checking
 
     Check_PAD_SELECT_DOWN:
         cmp #PAD_SELECT_DOWN
         bne Check_PAD_START
         
-        jsr DecreaseColorValueForSelectedTile
+            jsr DecreaseColorValueForSelectedTile
         jmp Stop_Checking
 
     Check_PAD_START:
@@ -221,13 +198,13 @@
     Check_PAD_START_LEFT:
         cmp #PAD_START_LEFT
         bne Check_PAD_START_RIGHT
-        jsr DecreaseToolSelection
+            jsr DecreaseToolSelection
         jmp Stop_Checking
 
     Check_PAD_START_RIGHT:
         cmp #PAD_START_RIGHT
         bne Check_PAD_START_UP
-        jsr IncreaseToolSelection
+            jsr IncreaseToolSelection
         jmp Stop_Checking
 
     Check_PAD_START_UP:
@@ -243,77 +220,75 @@
     Check_PAD_LEFT:
         cmp #PAD_LEFT
         bne Check_PAD_RIGHT
-        jsr MoveCursorLeft
+            jsr MoveCursorLeft
         jmp Stop_Checking
 
     Check_PAD_RIGHT:
         cmp #PAD_RIGHT
         bne Check_PAD_UP
-        jsr MoveCursorRight
+            jsr MoveCursorRight
         jmp Stop_Checking
 
     Check_PAD_UP:
         cmp #PAD_UP
         bne Check_PAD_DOWN
 
-        jsr MoveCursorUp
+            jsr MoveCursorUp
         jmp Stop_Checking
 
     Check_PAD_DOWN:
         cmp #PAD_DOWN
         bne Check_PAD_UP_LEFT
 
-        jsr MoveCursorDown
+            jsr MoveCursorDown
         jmp Stop_Checking
         
     Check_PAD_UP_LEFT:
         cmp #PAD_UP_LEFT
         bne Check_PAD_DOWN_LEFT
-        jsr MoveCursorUp
-        jsr MoveCursorLeft
+            jsr MoveCursorUp
+            jsr MoveCursorLeft
         jmp Stop_Checking
 
     Check_PAD_DOWN_LEFT:
         cmp #PAD_DOWN_LEFT
         bne Check_PAD_UP_RIGHT
-        jsr MoveCursorDown
-        jsr MoveCursorLeft
+            jsr MoveCursorDown
+            jsr MoveCursorLeft
         jmp Stop_Checking
 
     Check_PAD_UP_RIGHT:
         cmp #PAD_UP_RIGHT
         bne Check_PAD_DOWN_RIGHT
-        jsr MoveCursorUp
-        jsr MoveCursorRight
+            jsr MoveCursorUp
+            jsr MoveCursorRight
         jmp Stop_Checking
 
     Check_PAD_DOWN_RIGHT:
         cmp #PAD_DOWN_RIGHT
         bne Check_PAD_B
-        jsr MoveCursorDown
-        jsr MoveCursorRight
+            jsr MoveCursorDown
+            jsr MoveCursorRight
         jmp Stop_Checking
 
     Check_PAD_B:
         cmp #PAD_B
         bne Stop_Checking
-        jsr CycleCursorSize
+            jsr CycleCursorSize
         jmp Stop_Checking
 
     Stop_Checking:
-        jsr IncreaseButtonHeldFrameCount
-    Stop_Checking2:
-        ldx current_player
-        inx
-        jmp Loop_Controllers
+            jsr IncreaseButtonHeldFrameCount
+        rts
 .endproc
 ; Joren / Khine
 
 
 ; BudgetArms
 .proc UseSelectedTool
-    ldx current_player
-    lda selected_tool, x
+    ; Only to be jumped from HandleCanvasInput
+    ; or the current_player var would be corrupted
+    lda current_player_properties + P_SELECTED_TOOL
 
     Check_Brush_Tool:
     cmp #BRUSH_TOOL_SELECTED
