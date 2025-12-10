@@ -90,26 +90,26 @@
     beq @End
         lda menu_selected_index
         cmp #0
-        beq @EnterCanvas
+        beq @1Player
         cmp #1
-        beq @Settings
+        beq @2Player
         cmp #2
-        beq @Exit
+        beq @Controls
         rts
 
-    @EnterCanvas:
+    @1Player:
         lda #CANVAS
         sta current_program_mode
         lda #CANVAS_SCROLL_Y
         sta scroll_y_position
         rts
 
-    @Settings:
-        ; TODO: Implement settings logic here
+    @2Player:
+        ; TODO: Implement 2Player logic here
         rts
 
-    @Exit:
-        ; TODO: Implement exit logic here
+    @Controls:
+        ; TODO: Implement HelpMenu logic here
         rts
 
     @End:
