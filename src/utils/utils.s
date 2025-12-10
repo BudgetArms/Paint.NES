@@ -339,10 +339,18 @@
 ; Khine
 
 
-; BudgetArms
-.proc ResetScroll
+; BudgetArms / Jeronimas
+.proc ResetScroll 
 
-    lda #%10000000
+    ; Set nametable based on scroll position
+    lda scroll_y_position
+    cmp #$80
+    bcc @UseNametable0
+        lda #%10001000  ; Nametable 2
+        jmp @SetControl
+    @UseNametable0:
+        lda #%10000000  ; Nametable 0
+    @SetControl:
     sta PPU_CONTROL
 
     lda PPU_STATUS      ; Reset PPU address latch
@@ -355,7 +363,7 @@
     rts 
 
 .endproc
-; BudgetArms
+; BudgetArms / Jeronimas
 
 
 ; Joren

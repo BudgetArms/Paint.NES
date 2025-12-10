@@ -112,6 +112,9 @@ FRAMES_BETWEEN_MOVEMENT     = 8
 MAIN_MENU = 0
 CANVAS = 1
 
+; Main menu scroll positions
+MAIN_MENU_SCROLL_Y = $EF
+CANVAS_SCROLL_Y = $00
 
 ; Cursor locks (can't go lower/higher)
 CURSOR_MIN_X = 0

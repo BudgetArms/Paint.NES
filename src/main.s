@@ -211,7 +211,7 @@ MainMenu_Tilemap:
     ; Load MainMenu tilemap to nametable 2
     jsr LoadMainMenuTilemap
     
-    ; Comment these out for now:
+    ; Setup canvas on nametable 0
     jsr SetupCanvas
     jsr InitializeColorSelectionOverlay
     jsr InitializeToolSelectionOverlay
@@ -237,6 +237,16 @@ MainMenu_Tilemap:
     Initialize_Shape_Tool_Type:
         lda #SHAPE_TOOL_TYPE_DEFAULT
         sta shape_tool_type
+
+    ; Initialize to MAIN MENU mode
+    lda #MAIN_MENU
+    sta current_program_mode
+    
+    ; Set scroll to show main menu (nametable 2)
+    lda #$00
+    sta scroll_x_position
+    lda #MAIN_MENU_SCROLL_Y
+    sta scroll_y_position
 
     jsr PPUUpdate
 

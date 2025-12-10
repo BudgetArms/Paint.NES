@@ -44,7 +44,7 @@
     ; check if input last frame = same as input current frame
 
     ; if in menu
-    lda #01
+    lda current_program_mode
     cmp #MAIN_MENU
     bne Not_In_Menu
 
@@ -60,14 +60,28 @@
 ; BudgetArms
 
 
-; BudgetArms
+; BudgetArms / Jeronimas
 .proc HandleMenuInput
 
-    ; stub (yet to be implemented)
-    rts 
+    ; Check for START button to begin painting
+    lda current_input
+    and #PAD_START
+    beq @NotStart
 
+        ; Switch to canvas mode
+        lda #CANVAS_MODE
+        sta current_program_mode
+        
+        ; Set scroll to show canvas (nametable 0)
+        lda #CANVAS_SCROLL_Y
+        sta scroll_y_position
+        
+        rts 
+    @NotStart:
+
+        rts
 .endproc
-; BudgetArms
+; BudgetArms / Jeronimas
 
 
 ; Joren
