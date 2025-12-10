@@ -192,9 +192,15 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .include "SFX.s"
 ;***************************************
 
+MainMenu_Tilemap:
+    .incbin "./tilemaps/MainMenu.nam"
+
 .segment "CODE"
 .proc main
     ; main application - rendering is currently off
+    
+    ; Load MainMenu tilemap to nametable
+    jsr LoadMainMenuTilemap
     
     ; clear 1st name table
     jsr SetupCanvas
@@ -306,6 +312,5 @@ CURSOR_SHAPE_TOOL_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
 
-Start_Menu_Tilemap:
-    .incbin "./tilemaps/start_menu_tilemap.nam"
+
 

@@ -627,3 +627,59 @@
 .endproc
 ; BudgetArms
 
+; Jeronimas
+; Load MainMenu tilemap into nametable 2
+.proc LoadMainMenuTilemap
+    ; Disable rendering first
+    lda #%00000000
+    sta PPU_MASK
+    
+    lda #%10000000 ; set horizontal nametable increment
+    sta PPU_CONTROL
+
+    ; Load nametable data
+    lda PPU_STATUS ; reset address latch
+    lda #>PPU_NAMETABLE_2
+    sta PPU_ADDR
+    lda #<PPU_NAMETABLE_2
+    sta PPU_ADDR
+
+    ; Use 16-bit pointer for data source
+    lda #<MainMenu_Tilemap
+    sta $00  ; Use zero page addresses $00-$01 as pointer
+    lda #>MainMenu_Tilemap
+    sta $01
+
+    ldx #$00
+    ldy #$00
+    
+LoadMainMenuLoop:
+    lda ($00), y    ; Load from pointer + Y
+    sta PPU_DATA
+    iny
+    bne LoadMainMenuLoop    ; Loop until Y wraps to 0
+    
+    inc $01         ; Increment high byte of pointer
+    inx
+    cpx #$04        ; Load 4 * 256 = 1024 bytes
+    bne LoadMainMenuLoop
+
+    ; Load attribute table - fill with palette 2 for all tiles
+    lda PPU_STATUS
+    lda #$2B        ; Nametable 2 attribute table starts at $2BC0
+    sta PPU_ADDR
+    lda #$C0
+    sta PPU_ADDR
+
+    lda #%10101010  ; Binary 10 in each 2-bit field = palette 2
+    ldy #$00
+LoadAttributeLoop:
+    sta PPU_DATA    ; Write palette 2 to all attribute bytes
+    iny
+    cpy #$40        ; Load 64 attribute bytes
+    bne LoadAttributeLoop
+
+LoadMainMenuDone:
+    rts
+.endproc
+; Jeronimas
