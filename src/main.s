@@ -99,6 +99,9 @@ current_program_mode: .res 1
 scroll_x_position: .res 1
 scroll_y_position: .res 1
 
+; menu selection index (0,1,2)
+menu_selected_index: .res 1
+
 
 ; Sound engine variables
 sfx_temp: .res 1        ; Temporary storage for SFX operations

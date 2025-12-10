@@ -62,24 +62,58 @@
 
 ; BudgetArms / Jeronimas
 .proc HandleMenuInput
-
-    ; Check for START button to begin painting
     lda current_input
-    and #PAD_START
-    beq @NotStart
 
-        ; Switch to canvas mode
+    ; UP: Move selection up
+    and #PAD_UP
+    beq @CheckDown
+        lda menu_selected_index
+        beq @NoMoveUp
+            dec menu_selected_index
+        @NoMoveUp:
+        rts
+
+    @CheckDown:
+    lda current_input
+    and #PAD_DOWN
+    beq @CheckA
+        lda menu_selected_index
+        cmp #2
+        beq @NoMoveDown
+            inc menu_selected_index
+        @NoMoveDown:
+        rts
+
+    @CheckA:
+    lda current_input
+    and #PAD_A
+    beq @End
+        lda menu_selected_index
+        cmp #0
+        beq @EnterCanvas
+        cmp #1
+        beq @Settings
+        cmp #2
+        beq @Exit
+        rts
+
+    @EnterCanvas:
         lda #CANVAS
         sta current_program_mode
-        
-        ; Set scroll to show canvas (nametable 0)
         lda #CANVAS_SCROLL_Y
         sta scroll_y_position
-        
-        rts 
-    @NotStart:
-
         rts
+
+    @Settings:
+        ; TODO: Implement settings logic here
+        rts
+
+    @Exit:
+        ; TODO: Implement exit logic here
+        rts
+
+    @End:
+    rts
 .endproc
 ; BudgetArms / Jeronimas
 
