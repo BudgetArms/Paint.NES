@@ -170,7 +170,27 @@
     ldx #$00
 
     @Loop:
-        lda CURSOR_SHAPE_TOOL_DATA, X
+        lda shape_tool_type
+        
+        @Check_Rectangle:
+            cmp #SHAPE_TOOL_TYPE_RECTANGLE
+            bne @Check_Circle
+
+                lda CURSOR_SHAPE_TOOL_RECTANGLE_DATA, X
+                jmp @Store_Shape
+        
+        @Check_Circle:
+            cmp #SHAPE_TOOL_TYPE_CIRCLE
+            bne @Check_Others
+
+                lda CURSOR_SHAPE_TOOL_CIRCLE_DATA, X
+                jmp @Store_Shape
+        
+        @Check_Others:
+            ; this should never be reached
+            rts 
+
+        @Store_Shape:
         sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
         inx 
 
@@ -185,7 +205,28 @@
     ldx #$00
 
     @Loop:
-        lda CURSOR_SHAPE_TOOL_DATA + 4, X  ; 4 is the next sprite
+
+        lda shape_tool_type
+        
+        @Check_Rectangle:
+            cmp #SHAPE_TOOL_TYPE_RECTANGLE
+            bne @Check_Circle
+
+                lda CURSOR_SHAPE_TOOL_RECTANGLE_DATA + 4, X
+                jmp @Store_Shape
+        
+        @Check_Circle:
+            cmp #SHAPE_TOOL_TYPE_CIRCLE
+            bne @Check_Others
+
+                lda CURSOR_SHAPE_TOOL_CIRCLE_DATA + 4, X
+                jmp @Store_Shape
+        
+        @Check_Others:
+            ; this should never be reached
+            rts 
+        
+        @Store_Shape:
         sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
 
         inx 
