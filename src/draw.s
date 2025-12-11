@@ -5,7 +5,7 @@
 
     jsr HideCursorSprite
 
-    lda current_player_properties + P_CURSOR_SIZE
+    lda player + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
     bne :+
@@ -38,7 +38,7 @@
     :
 
     Start_Load:
-    ldy current_player_properties + P_INDEX
+    ldy player + P_INDEX
     cpy #PLAYER_1
     bne P2
 
@@ -129,14 +129,14 @@
 
 ; Khine / BudgetArms / Jeronimas
 .proc UseBrushTool
-    lda current_player_properties + P_SELECTED_TOOL
+    lda player + P_SELECTED_TOOL
     cmp #ERASER_TOOL_SELECTED
     bne :+
         lda #BACKGROUND_TILE_INDEX
         sta drawing_color_tile_index
         jmp :++
     :
-        lda current_player_properties + P_SELECTED_COLOR_INDEX
+        lda player + P_SELECTED_COLOR_INDEX
         sta drawing_color_tile_index
     :
 
@@ -149,9 +149,9 @@
     ldy #$00
     @column_loop:
         lda PPU_STATUS ; reset address latch
-        lda current_player_properties + P_TILE_ADDR + 1 ; High bit of the location
+        lda player + P_TILE_ADDR + 1 ; High bit of the location
         sta PPU_ADDR
-        lda current_player_properties + P_TILE_ADDR ; Low bit of the location
+        lda player + P_TILE_ADDR ; Low bit of the location
         sta PPU_ADDR
 
         lda drawing_color_tile_index
@@ -159,18 +159,18 @@
         @row_loop:
             sta PPU_DATA
             inx
-            cpx current_player_properties + P_CURSOR_SIZE
+            cpx player + P_CURSOR_SIZE
             bne @row_loop
 
         clc
-        lda current_player_properties + P_TILE_ADDR
+        lda player + P_TILE_ADDR
         adc #32
-        sta current_player_properties + P_TILE_ADDR
-        lda current_player_properties + P_TILE_ADDR + 1
+        sta player + P_TILE_ADDR
+        lda player + P_TILE_ADDR + 1
         adc #$00
-        sta current_player_properties + P_TILE_ADDR + 1
+        sta player + P_TILE_ADDR + 1
         iny
-        cpy current_player_properties + P_CURSOR_SIZE
+        cpy player + P_CURSOR_SIZE
         bne @column_loop
 
     rts
@@ -326,15 +326,15 @@
     ; 7654 3210   7654 3210
     ; ---- --YY   YYYX XXXX
     ;lda tool_use_flag, x
-    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;lda player + P_TOOL_USE_FLAG
     ;and #FILL_TOOL_ON
     ;bne @Use_Fill
         ;rts
 
     ; Store the current tile position to the cursor_pos
-    lda current_player_properties + P_TILE_ADDR + 1
+    lda player + P_TILE_ADDR + 1
     sta fill_current_addr + 1
-    lda current_player_properties + P_TILE_ADDR
+    lda player + P_TILE_ADDR
     sta fill_current_addr
 
     ; Resets the scroll, so the window
@@ -349,9 +349,8 @@
     sta fill_target_color
 
     ; if the brush tile index is not transparent, Start_Fill
-    ;ldx current_player
     lda fill_target_color
-    cmp current_player_properties + P_SELECTED_COLOR_INDEX
+    cmp player + P_SELECTED_COLOR_INDEX
     bne Start_Fill
         ; if transparent, Finish
         jmp Finish

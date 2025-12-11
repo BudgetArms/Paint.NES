@@ -4,30 +4,30 @@
     cmp #PLAYER_1
     bne :+
         lda player_1_properties + P_SELECTED_TOOL
-        sta current_player_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
         lda player_1_properties + P_SELECTED_COLOR_INDEX
-        sta current_player_properties + P_SELECTED_COLOR_INDEX
+        sta player + P_SELECTED_COLOR_INDEX
         lda player_1_properties + P_CURSOR_SIZE
-        sta current_player_properties + P_CURSOR_SIZE
+        sta player + P_CURSOR_SIZE
         lda player_1_properties + P_TILE_ADDR
-        sta current_player_properties + P_TILE_ADDR
+        sta player + P_TILE_ADDR
         lda player_1_properties + P_TILE_ADDR + 1
-        sta current_player_properties + P_TILE_ADDR + 1
+        sta player + P_TILE_ADDR + 1
     rts
     :
 
     cmp #PLAYER_2
     bne :+
         lda player_2_properties + P_SELECTED_TOOL
-        sta current_player_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
         lda player_2_properties + P_SELECTED_COLOR_INDEX
-        sta current_player_properties + P_SELECTED_COLOR_INDEX
+        sta player + P_SELECTED_COLOR_INDEX
         lda player_2_properties + P_CURSOR_SIZE
-        sta current_player_properties + P_CURSOR_SIZE
+        sta player + P_CURSOR_SIZE
         lda player_2_properties + P_TILE_ADDR
-        sta current_player_properties + P_TILE_ADDR
+        sta player + P_TILE_ADDR
         lda player_2_properties + P_TILE_ADDR + 1
-        sta current_player_properties + P_TILE_ADDR + 1
+        sta player + P_TILE_ADDR + 1
     rts
     :
 .endproc
@@ -45,12 +45,12 @@
         lda player_2_properties + property
     :
 
-    sta current_player_properties + property
+    sta player + property
 .endmacro
 
 
 .macro SaveCurrentPlayerProperty property
-    lda current_player_properties + property
+    lda player + property
 
     ldx current_player_index
     cpx #PLAYER_1

@@ -16,15 +16,15 @@
         ldx current_player_index
         lda #$01
         ;sta players_input, x
-        sta current_player_properties + P_INPUT
-        sta current_player_properties + P_INPUT
+        sta player + P_INPUT
+        sta player + P_INPUT
         lsr a
         Get_Input_Loop:
             lda JOYPAD1, x
             and #%00000011
             cmp #$01
             ;rol players_input, x
-            rol current_player_properties + P_INPUT
+            rol player + P_INPUT
             bcc Get_Input_Loop
 
     rts
@@ -73,21 +73,21 @@
 ; Joren / Khine
 .proc HandleCanvasInput
 
-    lda current_player_properties + P_INPUT
+    lda player + P_INPUT
     bne Input_Detected
 
     lda #$00 ; reset frame count to 0
-    sta current_player_properties + P_INPUT_FRAME_COUNT
+    sta player + P_INPUT_FRAME_COUNT
     rts
 
     Input_Detected:
     ; Check if the frame count is 0
-    lda current_player_properties + P_INPUT_FRAME_COUNT
+    lda player + P_INPUT_FRAME_COUNT
     beq Start_Checking_Input
         jmp Stop_Checking
 
     Start_Checking_Input:
-    lda current_player_properties + P_INPUT
+    lda player + P_INPUT
 
     Check_PAD_A:
         cmp #PAD_A
@@ -286,7 +286,7 @@
 
 ; BudgetArms
 .proc UseSelectedTool
-    lda current_player_properties + P_SELECTED_TOOL
+    lda player + P_SELECTED_TOOL
 
     Check_Brush_Tool:
     cmp #BRUSH_TOOL_SELECTED

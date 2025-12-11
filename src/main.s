@@ -39,7 +39,7 @@ player_1_properties: .res P_PROPERTY_SIZE
 player_2_properties: .res P_PROPERTY_SIZE
 
 current_player_index: .res 1
-current_player_properties: .res P_PROPERTY_SIZE
+player: .res P_PROPERTY_SIZE
 
 ; Shape Tool
 shape_tool_type: .res 1

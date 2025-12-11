@@ -12,14 +12,14 @@
 
 ; Khine
 .proc UseClearCanvasTool
-    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;lda player + P_TOOL_USE_FLAG
     ;and #CLEAR_TOOL_ON
     ;bne @Use_Fill
         ;rts
     ;@Use_Fill:
-    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;lda player + P_TOOL_USE_FLAG
     ;eor #CLEAR_TOOL_ON
-    ;sta current_player_properties + P_TOOL_USE_FLAG
+    ;sta player + P_TOOL_USE_FLAG
 
     jsr PPUOff
 
@@ -86,7 +86,7 @@
 .proc UpdateCursorSpritePosition
     ; Multiply TILE_X/TILE_Y POS by 8 to get X/Y POS
     lda #$00
-    ldx current_player_properties + P_TILE_X_POS
+    ldx player + P_TILE_X_POS
     beq :+
         clc
         Adding_X_Loop:
@@ -94,10 +94,10 @@
         dex
         bne Adding_X_Loop
     :
-    sta current_player_properties + P_X_POS
+    sta player + P_X_POS
 
     lda #$00
-    ldx current_player_properties + P_TILE_Y_POS
+    ldx player + P_TILE_Y_POS
     beq :+
         clc
         Adding_Y_Loop:
@@ -105,9 +105,9 @@
         dex
         bne Adding_Y_Loop
     :
-    sta current_player_properties + P_Y_POS
+    sta player + P_Y_POS
 
-    lda current_player_properties + P_CURSOR_SIZE
+    lda player + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
     bne :+
@@ -142,14 +142,14 @@
     Start_Update:
 
     Start_Loop:
-    ldy current_player_properties + P_INDEX
+    ldy player + P_INDEX
     cpy #PLAYER_1
     bne P2
 
     P1:
         ldy #$00
         P1_Loop:
-            lda current_player_properties + P_Y_POS
+            lda player + P_Y_POS
             clc
             adc (abs_address_to_access), y
 
@@ -161,7 +161,7 @@
             iny
             iny
 
-            lda current_player_properties + P_X_POS
+            lda player + P_X_POS
             clc
             adc (abs_address_to_access), y
             sta oam + OAM_OFFSET_P1_CURSOR, y
@@ -174,7 +174,7 @@
     P2:
         ldy #$00
         P2_Loop:
-            lda current_player_properties + P_Y_POS
+            lda player + P_Y_POS
             clc
             adc (abs_address_to_access), y
 
@@ -186,7 +186,7 @@
             iny
             iny
 
-            lda current_player_properties + P_X_POS
+            lda player + P_X_POS
             clc
             adc (abs_address_to_access), y
             sta oam + OAM_OFFSET_P2_CURSOR, y
@@ -281,12 +281,12 @@
 
 ; Khine
 .proc UpdateColorSelectionOverlayPosition
-    ldx current_player_properties + P_INDEX
+    ldx player + P_INDEX
     bne Color_Indicator_P2
 
     Color_Indicator_P1:
         lda #OVERLAY_P1_COLOR_OFFSET_X
-        ldx current_player_properties + P_SELECTED_COLOR_INDEX
+        ldx player + P_SELECTED_COLOR_INDEX
         beq Skip_Color_Loop_P1
 
         clc
@@ -301,7 +301,7 @@
 
     Color_Indicator_P2:
         lda #OVERLAY_P2_COLOR_OFFSET_X
-        ldx current_player_properties + P_SELECTED_COLOR_INDEX
+        ldx player + P_SELECTED_COLOR_INDEX
         beq Skip_Color_Loop_P2
 
         clc
@@ -318,12 +318,12 @@
 
 ; Khine
 .proc UpdateToolSelectionOverlayPosition
-    ldx current_player_properties + P_INDEX
+    ldx player + P_INDEX
     bne Tool_Indicator_P2
 
     Tool_Indicator_P1:
         lda #OVERLAY_P1_TOOL_OFFSET_X
-        ldx current_player_properties + P_SELECTED_TOOL
+        ldx player + P_SELECTED_TOOL
         beq Skip_Tool_Loop_P1
 
         clc
@@ -338,7 +338,7 @@
 
     Tool_Indicator_P2:
         lda #OVERLAY_P2_TOOL_OFFSET_X
-        ldx current_player_properties + P_SELECTED_TOOL
+        ldx player + P_SELECTED_TOOL
         beq Skip_Tool_Loop_P2
 
         clc
@@ -502,7 +502,7 @@
     sta PPU_ADDR
 
     ; write brush color (at current address) to vram 
-    lda current_player_properties + P_SELECTED_COLOR_INDEX
+    lda player + P_SELECTED_COLOR_INDEX
     sta PPU_DATA
 
     rts 
