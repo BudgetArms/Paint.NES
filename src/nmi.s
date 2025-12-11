@@ -145,11 +145,7 @@
     cmp player_count
     bne Loop_Players
 
-
-    Tools:
-
     ;jsr UseShapeTool
-
 
     Overlay:
     jsr DrawCursorPositionOverlay

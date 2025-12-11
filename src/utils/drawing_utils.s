@@ -353,7 +353,6 @@
 
     Tool_Indicator_P1:
         lda #OVERLAY_P1_TOOL_OFFSET_X
-        ;ldx selected_tool
         ldx current_player_properties + P_SELECTED_TOOL
         beq Skip_Tool_Loop_P1
 
@@ -369,7 +368,6 @@
 
     Tool_Indicator_P2:
         lda #OVERLAY_P2_TOOL_OFFSET_X
-        ;ldx selected_tool + 1
         ldx current_player_properties + P_SELECTED_TOOL
         beq Skip_Tool_Loop_P2
 

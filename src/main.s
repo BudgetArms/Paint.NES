@@ -35,23 +35,6 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
-players_input: .res 2
-last_frame_input: .res 2
-players_frame_count: .res 2
-
-; p1_index: .res 1
-; p1_input: .res 1
-; p1_input_frame_count: .res 1
-; p1_cursor_x: .res 1
-; p1_cursor_y: .res 1
-; p1_tile_cursor_x: .res 1
-; p1_tile_cursor_y: .res 1
-; p1_cursor_size: .res 1
-; p1_cursor_tile_pos: .res 1
-; p1_selected_tool: .res 1
-; p1_selected_color_index: .res 1
-; p1_tool_use_flag: .res 1
-
 player_1_properties: .res 13
 player_2_properties: .res 13
 
@@ -88,9 +71,6 @@ tile_cursor_x: .res 2
 tile_cursor_y: .res 2
 
 cursor_size: .res 2 ; 0: small, 1: normal, 2: big
-temp_tile_position: .res 2
-p1_cursor_tile_position: .res 2
-p2_cursor_tile_position: .res 2
 player_controller_loop: .res 1
 
 ; store zero page for digit conversion (might not need this)
@@ -100,10 +80,9 @@ divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
 
 
 ; drawing-related vars
-selected_tool: .res 2
-selected_color_chr_index: .res 2
-tool_use_flag: .res 2
-drawing_tile_position: .res 2
+selected_tool: .res 1
+selected_color_chr_index: .res 1
+tool_use_flag: .res 1
 drawing_color_tile_index: .res 1
 
 
@@ -113,8 +92,6 @@ abs_address_to_access: .res 2
 current_program_mode: .res 1
 scroll_x_position: .res 1
 scroll_y_position: .res 1
-current_player: .res 1
-current_player2: .res 1
 player_count: .res 1
 
 ; Sound engine variables

@@ -129,30 +129,6 @@
 
 ; Khine / BudgetArms / Jeronimas
 .proc UseBrushTool
-
-    ; Check if the PAD_A has been pressed
-    ; This is not checked in the `input_utils.s` because this can run into issues with
-    ; the program updating the PPU even though PPU has not finished drawing on the screen
-    ; not waiting for the VBLANK
-    ;lda tool_use_flag, x
-    ;lda current_player_properties + P_TOOL_USE_FLAG
-    ;and #BRUSH_TOOL_ON
-    ;bne @Use_Brush
-        ;rts
-
-    ;@Use_Brush:
-    ;lda tool_use_flag, x
-    ;lda current_player_properties + P_TOOL_USE_FLAG
-    ;eor #BRUSH_TOOL_ON
-    ;sta tool_use_flag, x
-    ;sta current_player_properties + P_TOOL_USE_FLAG
-
-    lda current_player_properties + P_TILE_ADDR
-    sta drawing_tile_position
-    lda current_player_properties + P_TILE_ADDR + 1
-    sta drawing_tile_position + 1
-
-    ;lda selected_tool, x
     lda current_player_properties + P_SELECTED_TOOL
     cmp #ERASER_TOOL_SELECTED
     bne :+
@@ -160,7 +136,6 @@
         sta drawing_color_tile_index
         jmp :++
     :
-        ;lda selected_color_chr_index, x
         lda current_player_properties + P_SELECTED_COLOR_INDEX
         sta drawing_color_tile_index
     :
@@ -171,13 +146,12 @@
     ; This is done so that the cursor position can stay on the original spot
     ; after drawing has completed.
 
-    ; square brush
     ldy #$00
     @column_loop:
         lda PPU_STATUS ; reset address latch
-        lda drawing_tile_position + 1 ; High bit of the location
+        lda current_player_properties + P_TILE_ADDR + 1 ; High bit of the location
         sta PPU_ADDR
-        lda drawing_tile_position ; Low bit of the location
+        lda current_player_properties + P_TILE_ADDR ; Low bit of the location
         sta PPU_ADDR
 
         lda drawing_color_tile_index
@@ -185,19 +159,17 @@
         @row_loop:
             sta PPU_DATA
             inx
-            ;cpx cursor_size
             cpx current_player_properties + P_CURSOR_SIZE
             bne @row_loop
 
         clc
-        lda drawing_tile_position
+        lda current_player_properties + P_TILE_ADDR
         adc #32
-        sta drawing_tile_position
-        lda drawing_tile_position + 1
+        sta current_player_properties + P_TILE_ADDR
+        lda current_player_properties + P_TILE_ADDR + 1
         adc #$00
-        sta drawing_tile_position + 1
+        sta current_player_properties + P_TILE_ADDR + 1
         iny
-        ;cpy cursor_size
         cpy current_player_properties + P_CURSOR_SIZE
         bne @column_loop
 
@@ -359,33 +331,11 @@
     ;bne @Use_Fill
         ;rts
 
-    ;@Use_Fill:
-    ;lda tool_use_flag, x
-    ;lda current_player_properties + P_TOOL_USE_FLAG
-    ;eor #FILL_TOOL_ON
-    ;sta tool_use_flag, x
-    ;sta current_player_properties + P_TOOL_USE_FLAG
-
     ; Store the current tile position to the cursor_pos
     lda current_player_properties + P_TILE_ADDR + 1
     sta fill_current_addr + 1
     lda current_player_properties + P_TILE_ADDR
     sta fill_current_addr
-
-    ;cpx #$00
-    ;beq P1
-    ;P2:
-    ;    lda p2_cursor_tile_position + 1
-    ;    sta fill_current_addr + 1
-    ;    lda p2_cursor_tile_position
-    ;    sta fill_current_addr
-    ;    jmp End_Assignment
-    ;P1:
-    ;    lda p1_cursor_tile_position + 1
-    ;    sta fill_current_addr + 1
-    ;    lda p1_cursor_tile_position
-    ;    sta fill_current_addr
-    ;End_Assignment:
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
