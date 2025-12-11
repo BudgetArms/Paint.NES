@@ -250,76 +250,32 @@
     ; square brush
     ldy #$00
     @column_loop:
-        ; lda PPU_STATUS ; reset address latch
-        ; lda drawing_tile_position + 1 ; High bit of the location
-        ; sta PPU_ADDR
-        ; lda drawing_tile_position ; Low bit of the location
-        ; sta PPU_ADDR
-
-        ldx #$00
-        lda selected_color_chr_index
-        @row_loop:
-
         lda PPU_STATUS ; reset address latch
         lda drawing_tile_position + 1 ; High bit of the location
         sta PPU_ADDR
         lda drawing_tile_position ; Low bit of the location
         sta PPU_ADDR
 
-        lda #$03
-        sta PPU_DATA
-
-        clc 
-        lda drawing_tile_position
-        adc #$01
-        sta drawing_tile_position
-
-        lda drawing_tile_position + 1
-        adc #$00
-        sta drawing_tile_position + 1
-
-        inx 
-
+        ldx #$00
+        lda selected_color_chr_index
+        @row_loop:
+            sta PPU_DATA
+            inx
             cpx brush_size
             bne @row_loop
 
-
-    ; reset pos
-    lda cursor_tile_position
-    sta drawing_tile_position
-    lda cursor_tile_position + 1
-    sta drawing_tile_position + 1
-
-    iny 
-    tya 
-    
-    ; * 32
-    asl 
-    asl  
-    asl  
-    asl  
-    asl  
-
-    clc 
-    adc drawing_tile_position
-    sta drawing_tile_position
-
-    lda drawing_tile_position + 1
-    adc #$00
-    sta drawing_tile_position + 1
-
-        ; clc 
-        ; lda drawing_tile_position
-        ; adc #32
-        ; sta drawing_tile_position
-        ; lda drawing_tile_position + 1
-        ; adc #$00
-        ; sta drawing_tile_position + 1
-        ; iny 
+        clc 
+        lda drawing_tile_position
+        adc #32
+        sta drawing_tile_position
+        lda drawing_tile_position + 1
+        adc #$00
+        sta drawing_tile_position + 1
+        iny 
         cpy brush_size
         bne @column_loop
 
-    rts
+    rts 
 
 .endproc
 ; Khine / BudgetArms
@@ -468,6 +424,10 @@
         lda cursor_y
         sta shape_tool_second_pos + 1
         
+
+            ; for testing
+            jsr DrawShapeCircle
+            rts 
 
         ; Rectangle
         lda shape_tool_type
@@ -907,15 +867,20 @@
 
             DrawTile selected_color_chr_index, shape_tool_temp_pos
 
+            ; add go to next X pos
             clc 
             lda shape_tool_temp_pos
             adc #$08
             sta shape_tool_temp_pos
 
             inx 
-            
+
+            lda shape_tool_temp_pos
             cpx shape_tool_rectangle_width
-            bne @Column_Loop
+            beq @Done_Column_Loop
+                jmp @Column_Loop
+
+        @Done_Column_Loop:
 
 
         ; reset temp position to starting position
@@ -950,14 +915,294 @@
 .endproc
 ; BudgetArms
 
-
 ; BudgetArms
 .proc DrawShapeCircle
 
-    ; stub (aka yet to be implemented)
+    jsr PPUOff
+    jsr ResetScroll
 
+    ; Besham's circle algorithm:
+    ; https://fci.stafpu.bu.edu.eg/Computer%20Science/4899/crs-12417/Files/Midpoint%20Circle%20Algorithm.pdf
+    ; https://stackoverflow.com/questions/59382988/filling-a-circle-produced-by-midpoint-algorithm
+    
+
+    ; Starting pos is center
+    lda shape_tool_first_pos
+    sta shape_tool_starting_pos
+    lda shape_tool_first_pos + 1
+    sta shape_tool_starting_pos + 1
+
+
+    ; Calculate abosolute X
+    sec 
+    lda shape_tool_second_pos
+    sbc shape_tool_first_pos
+    bpl @Dx_Pos
+
+        ; make negative value absolute
+        eor #$FF
+        adc #$01
+
+    @Dx_Pos:
+    sta shape_tool_circle_offset
+
+    ; calculate abosolute Y
+    sec 
+    lda shape_tool_second_pos + 1
+    sbc shape_tool_first_pos + 1
+    bpl @Dy_Pos
+
+        ; make negative value absolute
+        eor #$FF
+        adc #$01
+
+
+    @Dy_Pos:
+    sta shape_tool_circle_offset + 1
+
+    ; Calculate radius: max + min/2 
+    lda shape_tool_circle_offset
+    cmp shape_tool_circle_offset + 1
+    bcs @X_Is_Max
+    
+        ; if dy is max (or equal)
+        ; r = dy + (dx / 2)
+        clc 
+        lda shape_tool_circle_offset
+        lsr 
+        adc shape_tool_circle_offset + 1
+        jmp @Store_Radius
+
+
+    @X_Is_Max:
+
+    ; r = dx + (dy / 2)
+    clc 
+    lda shape_tool_circle_offset + 1
+    lsr 
+    adc shape_tool_circle_offset
+
+
+    @Store_Radius:
+
+    ; convert radius from pos to tile pos
+    lsr 
+    lsr 
+    lsr 
+    sta shape_tool_circle_radius
+
+    ; if radius is 0, discard drawing 
+    lda shape_tool_circle_radius
+    beq Done_Drawing
+
+
+    ; start algorithm: 
+    ; x = 0
+    ; y = radius
+    lda #$00
+    sta shape_tool_temp_pos
+
+    lda shape_tool_circle_radius
+    sta shape_tool_temp_pos + 1  
+
+    ; Decision parameter: d = 1 - radius
+    sec 
+    lda #$01
+    sbc shape_tool_circle_radius
+    sta shape_tool_circle_decision_parameter  ; Reuse variable for 'd'
+
+    ; Draw Loop
+    Circle_Loop:
+        jsr DrawCircleOctants
+
+        ; if x >= y (aka >=45°), stop drawing
+        lda shape_tool_temp_pos
+        cmp shape_tool_temp_pos + 1
+        bcs Done_Drawing
+
+        ; Update decision parameter
+        lda shape_tool_circle_decision_parameter
+        bmi @D_Negative
+
+        @D_Positive:
+            ; d = d + 2(x-y) + 5
+            clc 
+            lda shape_tool_circle_decision_parameter
+            adc shape_tool_temp_pos
+            adc shape_tool_temp_pos
+
+            sec 
+            sbc shape_tool_temp_pos + 1
+            sbc shape_tool_temp_pos + 1
+            adc #$05
+            sta shape_tool_circle_decision_parameter
+
+            ; y--
+            dec shape_tool_temp_pos + 1  
+
+            jmp @Next_Iteration
+
+        @D_Negative:
+            ; d = d + 2x + 3
+            clc 
+            lda shape_tool_circle_decision_parameter
+            adc shape_tool_temp_pos
+            adc shape_tool_temp_pos
+            adc #$03
+            sta shape_tool_circle_decision_parameter
+
+        @Next_Iteration:
+            ; x++
+            inc shape_tool_temp_pos
+            jmp Circle_Loop
+
+    Done_Drawing:
     rts 
 
 .endproc
 ; BudgetArms
 
+
+; BudgetArms
+.proc DrawCircleOctants
+
+    ; Octants visual representation:
+    ;       8 8 1 1
+    ;    7           2
+    ;  7               2
+    ; 6                 3
+    ; 6                 3
+    ;  5               4
+    ;    5           4
+    ;       5 5 4 4
+
+
+    ; convert x/y pos to tile pos
+    lda shape_tool_temp_pos
+    asl 
+    asl 
+    asl 
+    sta shape_tool_circle_offset
+
+    lda shape_tool_temp_pos + 1
+    asl 
+    asl 
+    asl 
+    sta shape_tool_circle_offset + 1
+
+
+    ; Octant 1: (CenterX + x, CenterY - y)
+    clc 
+    lda shape_tool_starting_pos
+    adc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos
+
+    sec 
+    lda shape_tool_starting_pos + 1
+    sbc shape_tool_circle_offset + 1       
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    ; Octant 2: (CenterX + y, CenterY - x)
+    clc 
+    lda shape_tool_starting_pos
+    adc shape_tool_circle_offset + 1
+    sta shape_tool_circle_draw_pos
+
+    sec 
+    lda shape_tool_starting_pos + 1
+    sbc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    ; Octant 3: (CenterX + y, CenterY + x)
+    clc 
+    lda shape_tool_starting_pos
+    adc shape_tool_circle_offset + 1
+    sta shape_tool_circle_draw_pos
+
+    clc 
+    lda shape_tool_starting_pos + 1
+    adc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    ; Octant 4: (CenterX + x, CenterY + y)
+    clc 
+    lda shape_tool_starting_pos
+    adc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos
+
+    clc 
+    lda shape_tool_starting_pos + 1
+    adc shape_tool_circle_offset + 1
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    ; Octant 5: (CenterX - x, CenterY + y)
+    sec 
+    lda shape_tool_starting_pos
+    sbc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos
+
+    clc 
+    lda shape_tool_starting_pos + 1
+    adc shape_tool_circle_offset + 1
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    ; Octant 6: (CenterX - y, CenterY + x)
+    sec 
+    lda shape_tool_starting_pos
+    sbc shape_tool_circle_offset + 1
+    sta shape_tool_circle_draw_pos
+
+    clc 
+    lda shape_tool_starting_pos + 1
+    adc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    ; Octant 7: (CenterX - y, CenterY - x)
+    sec 
+    lda shape_tool_starting_pos
+    sbc shape_tool_circle_offset + 1
+    sta shape_tool_circle_draw_pos
+
+    sec 
+    lda shape_tool_starting_pos + 1
+    sbc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    ; Octant 8: (CenterX - x, CenterY - y)
+    sec 
+    lda shape_tool_starting_pos
+    sbc shape_tool_circle_offset
+    sta shape_tool_circle_draw_pos
+
+    sec 
+    lda shape_tool_starting_pos + 1
+    sbc shape_tool_circle_offset + 1
+    sta shape_tool_circle_draw_pos + 1
+
+    DrawTile selected_color_chr_index, shape_tool_circle_draw_pos
+
+
+    rts 
+
+.endproc
