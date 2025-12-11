@@ -694,6 +694,7 @@
     clc 
     adc #$01
     sta palette, x
+    sta color_palette_ui_overlay, x
 
     rts 
 
@@ -710,6 +711,7 @@
     sec 
     sbc #$01
     sta palette, x
+    sta color_palette_ui_overlay, x
 
     rts 
 
@@ -900,18 +902,59 @@
         cmp #START_MENU_MODE
         bne Check_CANVAS_MODE
         ;Code for when entering start menu
+        ldx #$00
+        StartMenuLoop:
+            lda color_palette_startup_menu, X
+            sta palette, X
+            cpx #16
+            bne StartMenuLoop
+
         jmp StopChecking
 
         Check_CANVAS_MODE:
         cmp #CANVAS_MODE
         bne Check_HELP_MENU_MODE
         ;Code for when entering canvasMode
+        ; color_palette_ui_overlay:
+            ;.byte BgColor, Color_01, Color_02, Color_03
+            ;.byte BgColor, BgColor, Color_01, $0f
+            ;.byte BgColor, $0f, $24, $2c
+            ;.byte BgColor, Color_02, Color_03, $0f
+            ldx #$01
+            ldy #$06
+            lda color_palette_ui_overlay, X
+            sta color_palette_ui_overlay, y
+
+            ldx #$02
+            ldy #$0d
+            lda color_palette_ui_overlay, X
+            sta color_palette_ui_overlay, y
+
+            ldx #$03
+            ldy #$0e
+            lda color_palette_ui_overlay, X
+            sta color_palette_ui_overlay, y
+
+        ldx #$00
+        CanvasOverlayLoop:
+            lda color_palette_ui_overlay, X
+            sta palette, X
+            cpx #16
+            bne CanvasOverlayLoop
+
         jmp StopChecking
 
         Check_HELP_MENU_MODE:
         cmp #HELP_MENU_MODE
         bne Check_NEXT_MENU_MODE
         ;code for when entering help menu mode
+        ldx #$00
+        HelpMenuLoop:
+            lda color_palette_help_menu, X
+            sta palette, X
+            cpx #16
+            bne HelpMenuLoop
+
         jmp StopChecking
 
         Check_NEXT_MENU_MODE:

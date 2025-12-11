@@ -227,6 +227,30 @@ default_palette:
 .byte $0f,$0b,$1a,$29
 
 
+color_palette_ui_overlay:
+    ;.byte BgColor, Color_01, Color_02, Color_03
+    ;.byte BgColor, BgColor, Color_01, $0f
+    ;.byte BgColor, $0f, $24, $2c
+    ;.byte BgColor, Color_02, Color_03, $0f
+    .byte $00, $05, $09, $01
+    .byte $00, $00, $05, $0f
+    .byte $00, $0f, $24, $2c
+    .byte $00, $09, $01, $0f
+
+color_palette_help_menu:
+    .byte $00, $3c, $2c, $01
+    .byte $00, $3d, $05, $0f
+    .byte $00, $0d, $24, $31
+    .byte $00, $1c, $3c, $0f
+
+color_palette_startup_menu:
+    .byte $16, $00, $29, $0f
+    .byte $16, $19, $29, $0f
+    .byte $16, $05, $16, $27
+    .byte $16, $0b, $19, $29
+
+
+
 ; EXAMPLE_DATA:
     ; .byte EXAMPLE_Y_POS, TILEINDEX_EXAMPLE,   %10000001, $10
 
