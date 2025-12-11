@@ -14,7 +14,38 @@
     sta current_program_mode
     lda new_mode
     sta next_program_mode
+
+    jsr StartTransitionAnimation
 .endmacro
+; Khine
+
+
+; Khine
+.proc StartTransitionAnimation
+    lda next_program_mode
+
+    cmp #CANVAS_MODE
+    bne :+
+        lda #<Canvas_Tilemap
+        sta abs_address_to_access
+        lda #>Canvas_Tilemap
+        sta abs_address_to_access + 1
+    :
+
+    cmp #START_MENU_MODE
+    bne :+
+        lda #<Start_Menu_Tilemap
+        sta abs_address_to_access
+        lda #>Start_Menu_Tilemap
+        sta abs_address_to_access + 1
+    :
+
+    lda #<NAME_TABLE_1
+    sta current_transition_addr
+    lda #>NAME_TABLE_1
+    sta current_transition_addr + 1
+    rts
+.endproc
 ; Khine
 
 ; Khine

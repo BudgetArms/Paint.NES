@@ -667,6 +667,46 @@
 
 
 ; Khine
+.proc LoadTilemapWithTransition
+    ldx PPU_STATUS ; reset address latch
+    ldx current_transition_addr + 1
+    stx PPU_ADDR
+    ldx current_transition_addr ; Low bit of the location
+    stx PPU_ADDR
+
+    ldx #$00
+    ldy #$00
+    Loop:
+        lda (abs_address_to_access), y
+        sta PPU_DATA
+
+        lda abs_address_to_access
+        clc
+        adc #$01
+        sta abs_address_to_access
+
+        lda abs_address_to_access + 1
+        adc #$00
+        sta abs_address_to_access + 1
+
+        lda current_transition_addr
+        clc
+        adc #$01
+        sta current_transition_addr
+
+        lda current_transition_addr + 1
+        adc #$00
+        sta current_transition_addr + 1
+
+        inx
+        cpx #$04 ; Speed
+        bne Loop
+    rts
+.endproc
+; Khine
+
+
+; Khine
 .proc LoadTilemapToNameTable3
     jsr PPUOff
 

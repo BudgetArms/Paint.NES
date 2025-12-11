@@ -123,18 +123,15 @@ mainloop:
         cmp #HELP_MENU_SCROLL_Y
         beq :+
             inc scroll_y_position
+            rts
         :
     Next_Not_Help_Mode:
 
-    lda previous_program_mode
-    cmp #HELP_MENU_MODE
-    bne Previous_Not_Help_Mode
-        lda scroll_y_position
-        cmp #NORMAL_SCROLL_Y
-        beq :+
-            dec scroll_y_position
-        :
-    Previous_Not_Help_Mode:
+    lda scroll_y_position
+    cmp #NORMAL_SCROLL_Y
+    beq :+
+        dec scroll_y_position
+    :
 
     rts
 .endproc

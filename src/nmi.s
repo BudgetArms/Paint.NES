@@ -138,6 +138,11 @@
         jsr CanvasNMI
     :
 
+    cmp #TRANSITION_MODE
+    bne :+
+        jsr TransitionNMI
+    :
+
     End_Of_NMI:
     jsr ResetScroll
 
@@ -174,6 +179,23 @@
     rts
 .endproc
 
+
+.proc TransitionNMI
+    lda previous_program_mode
+    cmp #HELP_MENU_MODE
+    bne :+
+        rts
+    :
+
+    lda next_program_mode
+    cmp #HELP_MENU_MODE
+    bne :+
+        rts
+    :
+
+    jsr LoadTilemapWithTransition
+    rts
+.endproc
 
 .proc CanvasNMI
     lda #$00
