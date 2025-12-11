@@ -274,6 +274,30 @@
     Check_PAD_B:
         cmp #PAD_B
         bne Stop_Checking
+
+        lda selected_tool
+        cmp #SHAPE_TOOL_ACTIVATED
+        bne @Not_Shape_Tool 
+            
+            lda shape_tool_type
+            cmp #SHAPE_TOOL_TYPE_RECTANGLE
+            bne @Change_To_Rectangle
+
+                lda #SHAPE_TOOL_TYPE_CIRCLE
+                sta shape_tool_type
+
+                jmp Stop_Checking
+
+            @Change_To_Rectangle:
+
+                lda #SHAPE_TOOL_TYPE_RECTANGLE
+                sta shape_tool_type
+
+                jmp Stop_Checking
+
+        @Not_Shape_Tool:
+
+        
         jsr ChangeBrushSize
         jmp Stop_Checking
 
