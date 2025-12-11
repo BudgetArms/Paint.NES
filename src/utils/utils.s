@@ -237,6 +237,10 @@
     sta abs_address_to_access + 1
     jsr LoadTilemapToNameTable1
 
+
+;jsr SetColorPaletteForProgramMode
+
+
     rts
 .endproc
 ; Khine
@@ -254,6 +258,8 @@
 
     lda #$EF
     sta scroll_y_position
+
+;jsr SetColorPaletteForProgramMode
 
     rts
 .endproc
@@ -305,6 +311,10 @@
     sta abs_address_to_access + 1
     jsr LoadTilemapToNameTable1
 
+
+
+;jsr SetColorPaletteForProgramMode
+
     rts
 .endproc
 ; Khine
@@ -343,6 +353,10 @@
         cmp player_count
         bne Loop_Players
     :
+
+
+;jsr SetColorPaletteForProgramMode
+
 
     rts
 .endproc
@@ -893,7 +907,7 @@
 ; Khine
 
 
-.proc SetCorrectColorPaletteForProgramMode
+.proc SetColorPaletteForProgramMode
 
     lda current_program_mode
     cmp previous_program_mode

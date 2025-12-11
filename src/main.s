@@ -299,7 +299,7 @@ Help_Menu_Tilemap:
     .incbin "./tilemaps/HelpMenu.nam"
 
 Canvas_Tilemap:
-    .incbin "./tilemaps/UiOverlay.nam"
+    .incbin "./tilemaps/UiOverlay_Squares.nam"
 
 
 Overlay_Tool_Text:
