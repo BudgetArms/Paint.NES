@@ -125,6 +125,154 @@
 
 
 ; Khine
+.proc InitializeStartMenuCursor
+    ldx #$00
+    ldy #OAM_BYTE_SIZE_START_MENU_CURSOR
+    Loop:
+        lda CURSOR_START_MENU, x
+        sta oam + OAM_OFFSET_START_MENU_CURSOR, x
+        inx
+        dey
+        bne Loop
+
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc ConfirmStartMenuSelection
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #START_MENU_1_PLAYER_SELECTION
+    bne :+
+        lda #OAM_OFFSCREEN
+        sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+        lda #01
+        sta player_count
+        jsr EnterCanvasMode
+        rts
+    :
+
+    cmp #START_MENU_2_PLAYERS_SELECTION
+    bne :+
+        lda #OAM_OFFSCREEN
+        sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+        lda #02
+        sta player_count
+        jsr EnterCanvasMode
+        rts
+    :
+
+    cmp #START_MENU_CONTROLS_SELECTION
+    bne :+
+        rts
+    :
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc MoveStartMenuCursorUp
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #START_MENU_1_PLAYER_SELECTION
+    bne :+
+        rts
+    :
+
+    sec
+    sbc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc MoveStartMenuCursorDown
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #START_MENU_CONTROLS_SELECTION
+    bne :+
+        rts
+    :
+
+    clc
+    adc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc EnterStartMenuMode
+
+    lda #START_MENU
+    sta current_program_mode
+
+    jsr InitializeStartMenuCursor
+
+    lda #<Start_Menu_Tilemap
+    sta abs_address_to_access
+    lda #>Start_Menu_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable1
+
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc EnterCanvasMode
+
+    lda #CANVAS
+    sta current_program_mode
+
+    lda #UPDATE_ALL_OFF
+    sta update_flag
+
+    jsr InitializeEachPlayer
+
+    lda #$00
+    sta current_player_index
+    Loop_Players:
+
+        jsr LoadPlayerProperties
+
+        jsr InitializeAllPlayers
+        ;jsr UpdateCursorPositionFromTilePosition
+        jsr InitializeOverlayIndicators
+        jsr LoadCursorSprite
+
+        jsr SavePlayerProperties
+
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+
+    Initialize_Shape_Tool_Type:
+        lda #SHAPE_TOOL_TYPE_DEFAULT
+        sta shape_tool_type
+
+    lda #<Canvas_Tilemap
+    sta abs_address_to_access
+    lda #>Canvas_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable1
+
+    rts
+.endproc
+; Khine
+
+
+; Khine
 .proc InitializeEachPlayer
     lda #PLAYER_1
     sta player_1_properties + P_INDEX

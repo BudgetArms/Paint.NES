@@ -37,34 +37,81 @@
 ; HandleButtonPressed, HandleButtonReleased and HandleButtonHeld.
 ;*****************************************************************
 
-; BudgetArms
-.proc HandleInput
-
-    ;input holding = 
-    ; check if input last frame = same as input current frame
-
-    ; if in menu
-    lda #01
-    cmp #MAIN_MENU
-    bne Not_In_Menu
-
-        jsr HandleMenuInput
-        rts 
-
-    Not_In_Menu:
-
-    jsr HandleCanvasInput
-    rts 
-
-.endproc
-; BudgetArms
-
 
 ; BudgetArms
-.proc HandleMenuInput
+.proc HandleStartMenuInput
 
-    ; stub (yet to be implemented)
-    rts 
+    lda player + P_INPUT
+    bne Input_Detected
+
+    lda #$00 ; reset frame count to 0
+    sta player + P_INPUT_FRAME_COUNT
+    rts
+
+    Input_Detected:
+    ; Check if the frame count is 0
+    lda player + P_INPUT_FRAME_COUNT
+    beq Start_Checking_Input
+        jmp Stop_Checking
+
+    Start_Checking_Input:
+    lda player + P_INPUT
+
+    Check_PAD_A:
+        cmp #PAD_A
+        bne :+
+        jmp Stop_Checking
+        :
+
+
+    Check_PAD_B:
+        cmp #PAD_B
+        bne :+
+        jmp Stop_Checking
+        :
+
+    Check_PAD_SELECT:
+        cmp #PAD_SELECT
+        bne :+
+        jmp Stop_Checking
+        :
+
+    Check_PAD_START:
+        cmp #PAD_START
+        bne :+
+            jsr ConfirmStartMenuSelection
+        jmp Stop_Checking
+        :
+
+    Check_PAD_LEFT:
+        cmp #PAD_LEFT
+        bne :+
+        jmp Stop_Checking
+        :
+
+    Check_PAD_RIGHT:
+        cmp #PAD_RIGHT
+        bne :+
+        jmp Stop_Checking
+        :
+
+    Check_PAD_UP:
+        cmp #PAD_UP
+        bne :+
+            jsr MoveStartMenuCursorUp
+        jmp Stop_Checking
+        :
+
+    Check_PAD_DOWN:
+        cmp #PAD_DOWN
+        bne :+
+            jsr MoveStartMenuCursorDown
+        jmp Stop_Checking
+        :
+
+    Stop_Checking:
+            jsr IncreaseButtonHeldFrameCount
+        rts
 
 .endproc
 ; BudgetArms

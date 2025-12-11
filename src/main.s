@@ -178,8 +178,8 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .proc main
     ; main application - rendering is currently off
     
-    ; clear 1st name table
-    jsr LoadTilemap
+    ; load start menu
+    jsr EnterStartMenuMode
 
     ; initialize palette table
     ldx #$00
@@ -189,10 +189,6 @@ FAMISTUDIO_DPCM_OFF             = $c000
         inx
         cpx #PALETTE_SIZE
         bcc paletteloop
-
-    Initialize_Shape_Tool_Type:
-        lda #SHAPE_TOOL_TYPE_DEFAULT
-        sta shape_tool_type
 
     jsr PPUUpdate
 
@@ -230,9 +226,11 @@ default_palette:
         ;|+------- Flip sprite horizontally
         ;+-------- Flip sprite vertically
 
+CURSOR_START_MENU:
+    .byte START_MENU_CURSOR_Y_OFFSET, TILEINDEX_STAR, %00000000, START_MENU_CURSOR_X_OFFSET
 
 CURSOR_NORMAL_DATA:
-    .byte $00, TILEINDEX_CURSOR_NORMAL,  %00000000, $00
+    .byte $00, TILEINDEX_CURSOR_NORMAL, %00000000, $00
 
 
 CURSOR_MEDIUM_DATA:
@@ -257,7 +255,10 @@ CURSOR_SHAPE_TOOL_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
-Canvas_UI_Tilemap:
+Start_Menu_Tilemap:
+    .incbin "./tilemaps/main_menu.nam"
+
+Canvas_Tilemap:
     .incbin "./tilemaps/canvas.nam"
 
 

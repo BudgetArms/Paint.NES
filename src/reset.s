@@ -62,33 +62,9 @@
     lda #$00
     sta current_program_mode
 
-    lda #UPDATE_ALL_OFF
-    sta update_flag
-
     ; Set multiplayer mode
     lda #02
     sta player_count
-
-    jsr InitializeEachPlayer
-
-    lda #$00
-    sta current_player_index
-    Loop_Players:
-
-        jsr LoadPlayerProperties
-
-        jsr InitializeAllPlayers
-        ;jsr UpdateCursorPositionFromTilePosition
-        jsr InitializeOverlayIndicators
-        jsr LoadCursorSprite
-
-        jsr SavePlayerProperties
-
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
-
 
     ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
     ; 	lda cursor_y

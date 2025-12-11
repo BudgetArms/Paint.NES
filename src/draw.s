@@ -635,18 +635,48 @@
 
 
 ; Khine
-.proc LoadTilemap
-    lda PPU_STATUS ; reset address latch
-    lda #>NAME_TABLE_1 ; High bit of the location
-    sta PPU_ADDR
-    lda #<NAME_TABLE_1 ; Low bit of the location
-    sta PPU_ADDR
+.proc LoadTilemapToNameTable1
+    jsr PPUOff
+
+    ldx PPU_STATUS ; reset address latch
+    ldx #>NAME_TABLE_1 ; High bit of the location
+    stx PPU_ADDR
+    ldx #<NAME_TABLE_1 ; Low bit of the location
+    stx PPU_ADDR
 
     ldx #$00
-    lda #<Canvas_UI_Tilemap
-    sta abs_address_to_access
-    lda #>Canvas_UI_Tilemap
+    @outer_loop:
+    ldy #$00
+        @inner_loop:
+        lda (abs_address_to_access), y
+        sta PPU_DATA
+        iny
+        bne @inner_loop
+    lda abs_address_to_access + 1
+    clc
+    adc #$01
     sta abs_address_to_access + 1
+    inx
+    cpx #$04
+    bne @outer_loop
+
+    rts
+
+.endproc
+; Khine
+
+
+; Khine
+.proc LoadTilemapToNameTable3
+    jsr PPUOff
+
+    ldx PPU_STATUS ; reset address latch
+    ldx #>NAME_TABLE_3 ; High bit of the location
+    stx PPU_ADDR
+    ldx #<NAME_TABLE_3 ; Low bit of the location
+    stx PPU_ADDR
+
+    ldx #$00
     @outer_loop:
     ldy #$00
         @inner_loop:
