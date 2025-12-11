@@ -83,59 +83,7 @@
 
 
 ; BudgetArms
-.proc InitializeCursorPosition
-        ;lda #CURSOR_STARTUP_SIZE
-        ;sta cursor_size
-        ;sta cursor_size + 1
-
-        ; set cursor_x/y
-        ;lda #CURSOR_MIN_X * 8
-        ;sta cursor_x
-        ;sta cursor_x + 1
-
-        ;lda #CURSOR_MIN_Y * 8
-        ;sta cursor_y
-        ;sta cursor_y + 1
-
-        ; set cursor tile x/y
-        ;lda #CURSOR_MIN_X
-        ;sta tile_cursor_x
-        ;sta tile_cursor_x + 1
-
-        ;lda #CURSOR_MIN_Y
-        ;sta tile_cursor_y
-        ;sta tile_cursor_y + 1
-
-
-
-        lda #CURSOR_STARTUP_SIZE
-        sta current_player_properties + P_CURSOR_SIZE
-
-        ; set cursor_x/y
-        lda #CURSOR_MIN_X * 8
-        ;sta cursor_x
-        sta current_player_properties + P_X_POS
-
-        lda #CURSOR_MIN_Y * 8
-        ;sta cursor_y
-        sta current_player_properties + P_Y_POS
-
-        ; set cursor tile x/y
-        lda #CURSOR_MIN_X
-        ;sta tile_cursor_x
-        sta current_player_properties + P_TILE_X_POS
-
-        lda #CURSOR_MIN_Y
-        ;sta tile_cursor_y
-        sta current_player_properties + P_TILE_Y_POS
-    rts
-.endproc
-; BudgetArms
-
-
-; BudgetArms
 .proc UpdateCursorSpritePosition
-    ;lda cursor_size, y
     lda current_player_properties + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
@@ -178,7 +126,6 @@
     P1:
         ldy #$00
         P1_Loop:
-            ;lda cursor_y
             lda current_player_properties + P_Y_POS
             clc
             adc (abs_address_to_access), y
@@ -205,7 +152,6 @@
     P2:
         ldy #$00
         P2_Loop:
-            ;lda cursor_y + 1
             lda current_player_properties + P_Y_POS
             clc
             adc (abs_address_to_access), y
@@ -218,7 +164,6 @@
             iny
             iny
 
-            ;lda cursor_x + 1
             lda current_player_properties + P_X_POS
             clc
             adc (abs_address_to_access), y
@@ -319,7 +264,6 @@
 
     Color_Indicator_P1:
         lda #OVERLAY_P1_COLOR_OFFSET_X
-        ;ldx selected_color_chr_index
         ldx current_player_properties + P_SELECTED_COLOR_INDEX
         beq Skip_Color_Loop_P1
 
@@ -335,7 +279,6 @@
 
     Color_Indicator_P2:
         lda #OVERLAY_P2_COLOR_OFFSET_X
-        ;ldx selected_color_chr_index + 1
         ldx current_player_properties + P_SELECTED_COLOR_INDEX
         beq Skip_Color_Loop_P2
 
@@ -405,7 +348,6 @@
     stx cursor_x_digits + 2 ; ones digit (0-9)
     
     ; Convert cursor_y to three decimal digits
-    ;lda cursor_y
     lda player_1_properties + P_Y_POS
     sec
     sbc #OVERLAY_YPOS_OFFSET_FROM_CANVAS
@@ -538,8 +480,6 @@
     sta PPU_ADDR
 
     ; write brush color (at current address) to vram 
-    ;ldx current_player
-    ;lda selected_color_chr_index, x ;brush_tile_index
     lda current_player_properties + P_SELECTED_COLOR_INDEX
     sta PPU_DATA
 

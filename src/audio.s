@@ -30,7 +30,6 @@
 .proc PlayBrushSoundEffect
 
     ; Play drawing sound effect here based on tool mode
-    ;lda selected_tool
     lda current_player_properties + P_SELECTED_TOOL
     cmp #BRUSH_TOOL_SELECTED
     beq @Play_Splash

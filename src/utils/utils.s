@@ -151,22 +151,16 @@
         lda #CURSOR_STARTUP_SIZE
         sta current_player_properties + P_CURSOR_SIZE
 
-        ; set cursor_x/y
         lda #CURSOR_MIN_X * 8
-        ;sta cursor_x
         sta current_player_properties + P_X_POS
 
         lda #CURSOR_MIN_Y * 8
-        ;sta cursor_y
         sta current_player_properties + P_Y_POS
 
-        ; set cursor tile x/y
         lda #CURSOR_MIN_X
-        ;sta tile_cursor_x
         sta current_player_properties + P_TILE_X_POS
 
         lda #CURSOR_MIN_Y
-        ;sta tile_cursor_y
         sta current_player_properties + P_TILE_Y_POS
 
     rts
@@ -309,13 +303,10 @@
 
     @Apply_Move:
     sec 
-    ;lda cursor_y, x
     lda current_player_properties + P_Y_POS
     sbc #TILE_PIXEL_SIZE
-    ;sta cursor_y, x
     sta current_player_properties + P_Y_POS
 
-    ;dec tile_cursor_y, x
     dec current_player_properties + P_TILE_Y_POS
 
     rts 
@@ -327,10 +318,8 @@
 ; Khine / BudgetArms
 .proc MoveCursorDown
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
-    ;lda tile_cursor_y, x
     lda current_player_properties + P_TILE_Y_POS
     clc
-    ;adc cursor_size, x
     adc current_player_properties + P_CURSOR_SIZE
 
     cmp #CURSOR_MAX_Y
@@ -339,14 +328,11 @@
 
     @Apply_Move:
 
-    ;lda cursor_y, x
     lda current_player_properties + P_Y_POS
     clc
     adc #TILE_PIXEL_SIZE
-    ;sta cursor_y, x
     sta current_player_properties + P_Y_POS
 
-    ;inc tile_cursor_y, x
     inc current_player_properties + P_TILE_Y_POS
 
     rts
@@ -358,7 +344,6 @@
 ; Khine / BudgetArms
 .proc MoveCursorLeft
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
-    ;lda tile_cursor_x, x
     lda current_player_properties + P_TILE_X_POS
     cmp #CURSOR_MIN_X
     bne @Apply_Move
@@ -366,14 +351,11 @@
 
     @Apply_Move:
 
-    ;lda cursor_x, x
     lda current_player_properties + P_X_POS
     sec
     sbc #TILE_PIXEL_SIZE
-    ;sta cursor_x, x
     sta current_player_properties + P_X_POS
 
-    ;dec tile_cursor_x, x
     dec current_player_properties + P_TILE_X_POS
 
     rts 
@@ -637,7 +619,6 @@
     ; Reset the PPU location after the clear
     ChangePPUNameTableAddr OVERLAY_TOOL_TEXT_OFFSET
 
-    ;lda selected_tool
     lda player_1_properties + P_SELECTED_TOOL
 
     cmp #BRUSH_TOOL_SELECTED

@@ -35,11 +35,11 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 nmi_ready: .res 1 ; set to 1 to push a PPU frame update, 2 to turn rendering off next NMI
 
-player_1_properties: .res 13
-player_2_properties: .res 13
+player_1_properties: .res P_PROPERTY_SIZE
+player_2_properties: .res P_PROPERTY_SIZE
 
 current_player_index: .res 1
-current_player_properties: .res 13
+current_player_properties: .res P_PROPERTY_SIZE
 
 ; Shape Tool
 shape_tool_type: .res 1
@@ -67,10 +67,7 @@ fill_neighbor_addr: .res 2
 ; Cursor position (single 8x8 sprite)
 cursor_x: .res 2
 cursor_y: .res 2
-tile_cursor_x: .res 2
-tile_cursor_y: .res 2
 
-cursor_size: .res 2 ; 0: small, 1: normal, 2: big
 player_controller_loop: .res 1
 
 ; store zero page for digit conversion (might not need this)
@@ -81,7 +78,6 @@ divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
 
 ; drawing-related vars
 selected_tool: .res 1
-selected_color_chr_index: .res 1
 tool_use_flag: .res 1
 drawing_color_tile_index: .res 1
 

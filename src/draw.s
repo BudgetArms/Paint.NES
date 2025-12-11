@@ -351,7 +351,6 @@
     ; if the brush tile index is not transparent, Start_Fill
     ;ldx current_player
     lda fill_target_color
-    ;cmp selected_color_chr_index, x     ; brush_tile_index
     cmp current_player_properties + P_SELECTED_COLOR_INDEX
     bne Start_Fill
         ; if transparent, Finish
