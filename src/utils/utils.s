@@ -151,12 +151,6 @@
         lda #CURSOR_STARTUP_SIZE
         sta current_player_properties + P_CURSOR_SIZE
 
-        lda #CURSOR_MIN_X * 8
-        sta current_player_properties + P_X_POS
-
-        lda #CURSOR_MIN_Y * 8
-        sta current_player_properties + P_Y_POS
-
         lda #CURSOR_MIN_X
         sta current_player_properties + P_TILE_X_POS
 
@@ -302,11 +296,6 @@
         rts 
 
     @Apply_Move:
-    sec 
-    lda current_player_properties + P_Y_POS
-    sbc #TILE_PIXEL_SIZE
-    sta current_player_properties + P_Y_POS
-
     dec current_player_properties + P_TILE_Y_POS
 
     rts 
@@ -327,12 +316,6 @@
         rts 
 
     @Apply_Move:
-
-    lda current_player_properties + P_Y_POS
-    clc
-    adc #TILE_PIXEL_SIZE
-    sta current_player_properties + P_Y_POS
-
     inc current_player_properties + P_TILE_Y_POS
 
     rts
@@ -350,12 +333,6 @@
         rts 
 
     @Apply_Move:
-
-    lda current_player_properties + P_X_POS
-    sec
-    sbc #TILE_PIXEL_SIZE
-    sta current_player_properties + P_X_POS
-
     dec current_player_properties + P_TILE_X_POS
 
     rts 
@@ -376,12 +353,6 @@
         rts 
 
     @Apply_Move:
-
-    clc 
-    lda current_player_properties + P_X_POS
-    adc #TILE_PIXEL_SIZE
-    sta current_player_properties + P_X_POS
-
     inc current_player_properties + P_TILE_X_POS
 
     rts 
@@ -411,10 +382,6 @@
     cmp #DISPLAY_SCREEN_WIDTH
     bcc @No_X_Move_Needed
         dec current_player_properties + P_TILE_X_POS
-        sec
-        lda current_player_properties + P_X_POS
-        sbc #TILE_PIXEL_SIZE
-        sta current_player_properties + P_X_POS
     @No_X_Move_Needed:
 
     clc
@@ -423,10 +390,6 @@
     cmp #DISPLAY_SCREEN_HEIGHT
     bcc @No_Y_Move_Needed
         dec current_player_properties + P_TILE_Y_POS
-        sec
-        lda current_player_properties + P_Y_POS
-        sbc #TILE_PIXEL_SIZE
-        sta current_player_properties + P_Y_POS
 
     @No_Y_Move_Needed:
 

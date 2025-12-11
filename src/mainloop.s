@@ -14,6 +14,7 @@ mainloop:
         jsr HandleInput
 
         jsr ConvertCursorPosToTilePositions
+        ;jsr UpdateCursorPositionFromTilePosition
         jsr UpdateCursorSpritePosition
 
         jsr SavePlayerProperties

@@ -78,6 +78,7 @@
         jsr LoadPlayerProperties
 
         jsr InitializeAllPlayers
+        ;jsr UpdateCursorPositionFromTilePosition
         jsr InitializeOverlayIndicators
         jsr LoadCursorSprite
 

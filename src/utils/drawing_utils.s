@@ -84,6 +84,29 @@
 
 ; BudgetArms
 .proc UpdateCursorSpritePosition
+    ; Multiply TILE_X/TILE_Y POS by 8 to get X/Y POS
+    lda #$00
+    ldx current_player_properties + P_TILE_X_POS
+    beq :+
+        clc
+        Adding_X_Loop:
+        adc #TILE_PIXEL_SIZE
+        dex
+        bne Adding_X_Loop
+    :
+    sta current_player_properties + P_X_POS
+
+    lda #$00
+    ldx current_player_properties + P_TILE_Y_POS
+    beq :+
+        clc
+        Adding_Y_Loop:
+        adc #TILE_PIXEL_SIZE
+        dex
+        bne Adding_Y_Loop
+    :
+    sta current_player_properties + P_Y_POS
+
     lda current_player_properties + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
@@ -138,12 +161,11 @@
             iny
             iny
 
-            ;lda cursor_x
             lda current_player_properties + P_X_POS
             clc
             adc (abs_address_to_access), y
             sta oam + OAM_OFFSET_P1_CURSOR, y
-            
+
             iny
             dex
             bne P1_Loop
@@ -337,7 +359,7 @@
 
     ; Convert cursor_x to three decimal digits
     ;lda cursor_x
-    lda player_1_properties + P_X_POS
+    lda player_1_properties + P_TILE_X_POS
     ldx #100
     jsr DivideByX           ; hundreds in A, remainder in X
     sta cursor_x_digits     ; hundreds digit (0-2)
@@ -348,7 +370,7 @@
     stx cursor_x_digits + 2 ; ones digit (0-9)
     
     ; Convert cursor_y to three decimal digits
-    lda player_1_properties + P_Y_POS
+    lda player_1_properties + P_TILE_Y_POS
     sec
     sbc #OVERLAY_YPOS_OFFSET_FROM_CANVAS
     ldx #100
