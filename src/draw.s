@@ -466,14 +466,10 @@
         sta shape_tool_second_pos + 1
         
 
-            ; for testing
-            jsr DrawShapeCircle
-            rts 
-
         ; Rectangle
         lda shape_tool_type
-        and #SHAPE_TOOL_TYPE_RECTANGLE
-        beq @Not_Rectangle_Type
+        cmp #SHAPE_TOOL_TYPE_RECTANGLE
+        bne @Not_Rectangle_Type
 
             ; if rectangle mode
             jsr DrawShapeRectangle
@@ -483,8 +479,8 @@
 
         ; Circle
         lda shape_tool_type
-        and #SHAPE_TOOL_TYPE_CIRCLE
-        beq @Not_Circle_Type
+        cmp #SHAPE_TOOL_TYPE_CIRCLE
+        bne @Not_Circle_Type
 
             ; if circle mode
             jsr DrawShapeCircle
