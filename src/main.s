@@ -269,10 +269,10 @@ color_palette_help_menu:
 .byte $00, $1c, $3c, $0f
 
 color_palette_startup_menu:
-.byte $00, $3c, $2c, $01 ; will probably have to be changed later
-.byte $00, $3d, $05, $0f ; will probably have to be changed later
-.byte $00, $0d, $24, $31 ; will probably have to be changed later
-.byte $00, $1c, $3c, $0f ; will probably have to be changed later
+.byte $16, $00, $29, $0f
+.byte $16, $19, $29, $0f
+.byte $16, $05, $16, $27
+.byte $16, $0b, $19, $29
 
 
 ; EXAMPLE_DATA:
