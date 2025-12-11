@@ -132,6 +132,115 @@
 .endmacro
 ; BudgetArms
 
+; BudgetArms
+.macro ConvertPositionToTilePosition position
+    
+    ; Convert the X and Y coordinates of the input to
+    ; the tile index storied in 'x/y' variable
+    ; 2 bytes -> LO + HI bytes
+    ; parameters: 0 -> position X, 1 -> position Y
+
+    .local @RowLoop
+    .local @SkipLoop
+    .local @SkipHighBitIncrement1
+    .local @SkipHighBitIncrement2
+
+    ; save registers
+    pha 
+    txa 
+    pha 
+    tya 
+    pha 
+
+    lda #$00 
+    sta tile_position_output
+    sta tile_position_output + 1
+
+
+    ; push (save) position to stack
+    lda position
+    pha 
+    lda position + 1
+    pha 
+
+    ; convert position to tile x/y
+    lda position
+    lsr  
+    lsr  
+    lsr  
+    sta position
+
+    lda position + 1
+    lsr  
+    lsr  
+    lsr  
+    sta position + 1
+
+
+    ; A loop that multiplies the Y coordinate
+    ; with 32 since each namespace is 32 tiles wide
+    ; and then adding the resultant number to the X coordinate
+    ; Simple table to index conversion
+    ; For example, X: 2, Y: 6 would convert to (6 * 32) + 2 = 194 => #$C2
+    ; then add the nametable
+
+    clc 
+    lda #$00
+    ; ldx tile_cursor_y
+    ldx position + 1
+    beq @SkipLoop
+
+    @RowLoop:
+        adc #DISPLAY_SCREEN_WIDTH
+        ; Check for carry bit and then increment the high bit when carry is set
+        bcc @SkipHighBitIncrement1
+            inc tile_position_output + 1
+            clc 
+
+        @SkipHighBitIncrement1:
+        dex 
+        bne @RowLoop
+
+    @SkipLoop:
+
+    adc position
+    sta tile_position_output ; Low bit of the location
+
+    ; Increment the high bit position if there is a remaining carry flag set
+    bcc @SkipHighBitIncrement2
+        inc tile_position_output + 1 ; High bit of the location
+        clc 
+
+    @SkipHighBitIncrement2:
+
+    ; Add the offset of nametable 1 to the tile index
+    lda #<NAME_TABLE_1
+    adc	tile_position_output
+    sta tile_position_output
+
+    lda #>NAME_TABLE_1
+    adc #$00
+    adc tile_position_output + 1
+    sta tile_position_output + 1
+    
+
+    ; restore position
+    pla 
+    sta position + 1
+    pla 
+    sta position
+    
+    ; restore registers
+    pla 
+    tay 
+    pla 
+    tax 
+    pla 
+
+
+.endmacro
+; BudgetArms
+
 
 ;*****************************************************************
 ; PPUUpdate: waits until next NMI, turns rendering on (if not already), uploads OAM, palette, and nametable update to PPU
@@ -329,10 +438,6 @@
     cmp player_count
     bne Loop_Players
 
-    Initialize_Shape_Tool_Type:
-        lda #SHAPE_TOOL_TYPE_DEFAULT
-        sta shape_tool_type
-
     lda #<Canvas_Tilemap
     sta abs_address_to_access
     lda #>Canvas_Tilemap
@@ -382,6 +487,9 @@
 
         lda #UPDATE_ALL_OFF
         sta player + P_TOOL_USE_FLAG
+
+        lda #SHAPE_TOOL_TYPE_DEFAULT
+        sta player + P_SHAPE_TOOL_TYPE
 
         lda #BRUSH_TOOL_SELECTED
         sta player + P_SELECTED_TOOL

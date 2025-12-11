@@ -40,19 +40,29 @@ player_2_properties: .res P_PROPERTY_SIZE
 
 current_player_index: .res 1
 player: .res P_PROPERTY_SIZE
+; tile position output
+tile_position_output: .res 2
 
 ; Shape Tool
-shape_tool_type: .res 1
-shape_tool_has_set_first_pos: .res 1
+;player + P_SHAPE_TOOL_TYPE: .res 1
+;player + P_SHAPE_TOOL_FIRST_SET: .res 1
 
-shape_tool_first_pos_x: .res 1
-shape_tool_first_pos_y: .res 1
+;player + P_SHAPE_TOOL_FIRST_POS: .res 2
+;player + P_SHAPE_TOOL_SECOND_POS: .res 2
 
-shape_tool_second_pos_x: .res 1
-shape_tool_second_pos_y: .res 1
+shape_tool_starting_pos: .res 2
+shape_tool_temp_pos: .res 2
 
-shape_tool_staring_pos_x: .res 1
-shape_tool_staring_pos_y: .res 1
+; shape tool: retangle
+shape_tool_rectangle_width: .res 1
+shape_tool_rectangle_height: .res 1
+
+
+; shape tool: circle
+shape_tool_circle_radius: .res 1
+shape_tool_circle_draw_pos: .res 2
+shape_tool_circle_offset: .res 2
+shape_tool_circle_decision_parameter: .res 1
 
 
 ; Fill tool (ring queue)
@@ -63,13 +73,6 @@ queue_tail: .res 1
 fill_current_addr: .res 2
 fill_neighbor_addr: .res 2
 
-
-; Cursor position (single 8x8 sprite)
-cursor_x: .res 2
-cursor_y: .res 2
-
-player_controller_loop: .res 1
-
 ; store zero page for digit conversion (might not need this)
 cursor_x_digits: .res 3
 cursor_y_digits: .res 3
@@ -77,8 +80,6 @@ divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
 
 
 ; drawing-related vars
-selected_tool: .res 1
-tool_use_flag: .res 1
 drawing_color_tile_index: .res 1
 
 
@@ -289,9 +290,13 @@ CURSOR_BIG_DATA:
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
 
 
-CURSOR_SHAPE_TOOL_DATA:
-    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_FIRST,    %00000000,     $00
-    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
+CURSOR_SHAPE_TOOL_RECTANGLE_DATA:
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_RECTANGLE_FIRST,    %00000000,     $00
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_RECTANGLE_SECOND,   %00000000,     $00
+
+CURSOR_SHAPE_TOOL_CIRCLE_DATA:
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE_FIRST,    %00000000,     $00
+    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE_SECOND,   %00000000,     $00
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/start_menu.nam"

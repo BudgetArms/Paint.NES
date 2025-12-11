@@ -349,7 +349,30 @@
     Check_PAD_B:
         cmp #PAD_B
         bne Stop_Checking
-            jsr CycleCursorSize
+
+        lda player + P_SELECTED_TOOL
+        cmp #SHAPE_TOOL_SELECTED
+        bne @Not_Shape_Tool 
+            
+            lda player + P_SHAPE_TOOL_TYPE
+            cmp #SHAPE_TOOL_TYPE_RECTANGLE
+            bne @Change_To_Rectangle
+
+                lda #SHAPE_TOOL_TYPE_CIRCLE
+                sta player + P_SHAPE_TOOL_TYPE
+
+                jmp Stop_Checking
+
+            @Change_To_Rectangle:
+
+                lda #SHAPE_TOOL_TYPE_RECTANGLE
+                sta player + P_SHAPE_TOOL_TYPE
+
+                jmp Stop_Checking
+
+        @Not_Shape_Tool:
+
+        jsr CycleCursorSize
         jmp Stop_Checking
 
     Stop_Checking:

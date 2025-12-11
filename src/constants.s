@@ -43,19 +43,23 @@ PLAYER_1 = 0
 PLAYER_2 = 1
 
 ; Player property offsets
-P_INDEX                = 0      ; 1 byte
-P_INPUT                = 1      ; 1 byte
-P_INPUT_FRAME_COUNT    = 2      ; 1 byte
-P_X_POS                = 3      ; 1 byte
-P_Y_POS                = 4      ; 1 byte
-P_TILE_X_POS           = 5      ; 1 byte
-P_TILE_Y_POS           = 6      ; 1 byte
-P_CURSOR_SIZE          = 7      ; 1 byte
-P_TILE_ADDR            = 8      ; 2 bytes
-P_SELECTED_TOOL        = 10     ; 1 byte
-P_SELECTED_COLOR_INDEX = 11     ; 1 byte
-P_TOOL_USE_FLAG        = 12     ; 1 byte
-P_PROPERTY_SIZE        = 13     ; ALWAYS UPDATE THIS AFTER MAKING CHANGES TO THE PROPERTIES
+P_INDEX                 = 0      ; 1 byte
+P_INPUT                 = 1      ; 1 byte
+P_INPUT_FRAME_COUNT     = 2      ; 1 byte
+P_X_POS                 = 3      ; 1 byte
+P_Y_POS                 = 4      ; 1 byte
+P_TILE_X_POS            = 5      ; 1 byte
+P_TILE_Y_POS            = 6      ; 1 byte
+P_CURSOR_SIZE           = 7      ; 1 byte
+P_TILE_ADDR             = 8      ; 2 bytes
+P_SELECTED_TOOL         = 10     ; 1 byte
+P_SELECTED_COLOR_INDEX  = 11     ; 1 byte
+P_TOOL_USE_FLAG         = 12     ; 1 byte
+P_SHAPE_TOOL_TYPE       = 13     ; 1 byte
+P_SHAPE_TOOL_FIRST_SET  = 14     ; 1 byte
+P_SHAPE_TOOL_FIRST_POS  = 15     ; 2 byte
+P_SHAPE_TOOL_SECOND_POS = 17     ; 2 byte
+P_PROPERTY_SIZE         = 19     ; ALWAYS UPDATE THIS AFTER MAKING CHANGES TO THE PROPERTIES
 
 ; Gamepad bit values
 PAD_A      = $80
@@ -167,8 +171,12 @@ TILEINDEX_CURSOR_BIG_TOP_LEFT   = $30
 TILEINDEX_CURSOR_BIG_TOP        = $40
 TILEINDEX_CURSOR_BIG_LEFT       = $50
 
-TILEINDEX_CURSOR_SHAPE_TOOL_FIRST   = $A0
-TILEINDEX_CURSOR_SHAPE_TOOL_SECOND  = $B0
+
+TILEINDEX_CURSOR_SHAPE_TOOL_RECTANGLE_FIRST   = $33
+TILEINDEX_CURSOR_SHAPE_TOOL_RECTANGLE_SECOND  = $43
+
+TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE_FIRST   = $A0
+TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE_SECOND  = $B0
 
 
 ; OAM
@@ -197,10 +205,10 @@ OAM_OFFSET_P1_CURSOR         = $00 ; 32 bytes -> END $19
 OAM_OFFSET_P2_CURSOR         = $20 ; 32 bytes -> END $39
 OAM_OFFSET_START_MENU_CURSOR = $40 ;  4 bytes -> END $43
 OAM_OFFSET_CURSOR_SHAPE_TOOL = $44 ;  4 bytes -> END $47
-OAM_OFFSET_OVERLAY_P1_COLOR  = $48
-OAM_OFFSET_OVERLAY_P1_TOOL   = $4C
-OAM_OFFSET_OVERLAY_P2_COLOR  = $50
-OAM_OFFSET_OVERLAY_P2_TOOL   = $54
+OAM_OFFSET_OVERLAY_P1_COLOR  = $4C
+OAM_OFFSET_OVERLAY_P1_TOOL   = $50
+OAM_OFFSET_OVERLAY_P2_COLOR  = $54
+OAM_OFFSET_OVERLAY_P2_TOOL   = $58
 
 
 OAM_OFFSET_CURSOR_BIG_BOTTOM_LEFT   = $00

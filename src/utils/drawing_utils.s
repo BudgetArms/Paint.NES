@@ -11,6 +11,85 @@
 ;*****************************************************************
 
 
+
+; BudgetArms
+.macro DrawTile colorIndex, position
+
+    ; position is 2 bytes
+    .local @In_Canvas 
+    .local @Not_In_Canvas 
+    .local @Skip_Drawing 
+
+    ; discard if position not in between canvas position
+
+    ; if posX (converted to tile) < cursor_min_x
+    clc 
+    lda position
+    lsr 
+    lsr 
+    lsr 
+    cmp #CURSOR_MIN_X
+    bcc @Not_In_Canvas  
+
+    ; if posX (tile) > cursor_max_x
+    clc 
+    lda position
+    lsr 
+    lsr 
+    lsr 
+    cmp #CURSOR_MAX_X 
+    bcs @Not_In_Canvas  
+
+    ; if posY (tile) < cursor_min_y
+    clc 
+    lda position + 1
+    lsr 
+    lsr 
+    lsr 
+    cmp #CURSOR_MIN_Y
+    bcc @Not_In_Canvas  
+
+    ; if posX (tile) > cursor_max_y
+    clc 
+    lda position + 1
+    lsr 
+    lsr 
+    lsr 
+    cmp #CURSOR_MAX_Y
+    bcs @Not_In_Canvas  
+
+    
+    jmp @In_Canvas
+
+
+    @Not_In_Canvas:
+        jmp @Skip_Drawing
+
+
+    @In_Canvas:
+
+
+    ; reset ppu lash
+    lda PPU_STATUS
+    
+    ConvertPositionToTilePosition position
+
+    lda tile_position_output + 1
+    sta PPU_ADDR
+    lda tile_position_output
+    sta PPU_ADDR
+
+    lda colorIndex     
+    sta PPU_DATA 
+
+    @Skip_Drawing:
+    lda #$00
+
+
+.endmacro
+; BudgetArms
+
+
 ; Khine / Template
 .proc HideAllSprites
     ; place all sprites offscreen at Y=255
@@ -463,7 +542,6 @@
 
 ; BudgetArms
 .proc WriteBrushToCurrentAddr
-    ; write brush_tile_index to current tile
 
     ; Reset PPU latch
     lda PPU_STATUS

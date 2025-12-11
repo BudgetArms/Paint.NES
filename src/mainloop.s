@@ -161,6 +161,7 @@ mainloop:
 
         jsr ConvertCursorPosToTilePositions
         jsr UpdateCursorSpritePosition
+        jsr DrawShapeToolCursor
 
         jsr SavePlayerProperties
     inc current_player_index
@@ -170,7 +171,6 @@ mainloop:
 
     @Cursor:
     ;jsr UpdateCursorPositionOverlay
-    ;jsr DrawShapeToolCursor
 
     jsr MagicPaletteCopyingSubroutine
     rts
