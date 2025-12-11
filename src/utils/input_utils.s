@@ -37,8 +37,7 @@
 ; HandleButtonPressed, HandleButtonReleased and HandleButtonHeld.
 ;*****************************************************************
 
-
-; BudgetArms
+; Khine
 .proc HandleStartMenuInput
 
     lda player + P_INPUT
@@ -83,7 +82,54 @@
         rts
 
 .endproc
-; BudgetArms
+; Khine
+
+
+; Khine
+.proc HandleHelpMenuInput
+
+    lda player + P_INPUT
+    bne Input_Detected
+
+    lda #$00 ; reset frame count to 0
+    sta player + P_INPUT_FRAME_COUNT
+    rts
+
+    Input_Detected:
+    ; Check if the frame count is 0
+    lda player + P_INPUT_FRAME_COUNT
+    beq Start_Checking_Input
+        jmp Stop_Checking
+
+    Start_Checking_Input:
+    lda player + P_INPUT
+
+    Check_PAD_START:
+        cmp #PAD_START
+        bne :+
+            jsr EnterStartMenuMode
+        jmp Stop_Checking
+        :
+
+    Check_PAD_A:
+        cmp #PAD_A
+        bne :+
+        jmp Stop_Checking
+        :
+
+    Check_PAD_B:
+        cmp #PAD_B
+        bne :+
+            jsr ContinuePreviousMode
+        jmp Stop_Checking
+        :
+
+    Stop_Checking:
+            jsr IncreaseButtonHeldFrameCount
+        rts
+
+.endproc
+; Khine
 
 
 ; Joren / Khine
@@ -230,8 +276,16 @@
 
     Check_PAD_START_DOWN:
         cmp #PAD_START_DOWN
-        bne Check_PAD_LEFT
+        bne :+
         jmp Stop_Checking
+        :
+
+    Check_PAD_START_SELECT:
+        cmp #PAD_START_SELECT
+        bne :+
+            jsr EnterHelpMenuMode
+        jmp Stop_Checking
+        :
 
     Check_PAD_LEFT:
         cmp #PAD_LEFT

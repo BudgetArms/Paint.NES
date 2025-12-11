@@ -175,8 +175,8 @@
 
         LoadCurrentPlayerProperty P_TOOL_USE_FLAG
 
-        cmp #BRUSH_TOOL_ON
-        bne Brush_Not_Use
+        and #BRUSH_TOOL_ON
+        beq Brush_Not_Use
             jsr LoadPlayerBrushProperties
             jsr UseBrushTool
 

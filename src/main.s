@@ -83,9 +83,10 @@ drawing_color_tile_index: .res 1
 
 
 ; misc
+current_program_mode: .res 1
+previous_program_mode: .res 1
 update_flag: .res 1
 abs_address_to_access: .res 2
-current_program_mode: .res 1
 scroll_x_position: .res 1
 scroll_y_position: .res 1
 player_count: .res 1
@@ -179,6 +180,8 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; main application - rendering is currently off
     
     ; load start menu
+    ; Help menu is only needed to load once
+    jsr InitializeHelpMenuTilemap
     jsr EnterStartMenuMode
 
     ; initialize palette table
@@ -267,6 +270,9 @@ CURSOR_SHAPE_TOOL_DATA:
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/main_menu.nam"
+
+Help_Menu_Tilemap:
+    .incbin "./tilemaps/help_menu.nam"
 
 Canvas_Tilemap:
     .incbin "./tilemaps/canvas.nam"

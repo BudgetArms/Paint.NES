@@ -42,17 +42,7 @@
     ; handy for debugging if a clean page is needed
     ; jsr clear_wram_p1
 
-    ; place all sprites offscreen at Y=255
-    lda #255
-    ldx #$00
-
-    Clear_Oam:
-        sta oam,x
-        inx 
-        inx 
-        inx 
-        inx 
-        bne Clear_Oam
+    jsr HideAllSprites
 
     ; Initialize scroll positions
     lda #$00

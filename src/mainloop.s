@@ -18,8 +18,9 @@ mainloop:
         jmp End_Of_Loop
     :
 
-    cmp #HELP_MENU
+    cmp #HELP_MENU_MODE
     bne :+
+        jsr HelpMenuLoop
         jmp End_Of_Loop
     :
 
@@ -49,7 +50,8 @@ mainloop:
 .endproc
 
 
-.proc CanvasLoop
+; Khine
+.proc HelpMenuLoop
     lda #$00
     sta current_player_index
 
@@ -57,10 +59,32 @@ mainloop:
         jsr LoadPlayerProperties
         ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
         jsr PollGamepad
-        jsr HandleCanvasInput
+        jsr HandleHelpMenuInput
+
+        jsr SavePlayerProperties
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+    rts
+.endproc
+; Khine
+
+
+; Khine
+.proc CanvasLoop
+    lda #$00
+    sta current_player_index
+
+    Loop_Players:
+        jsr LoadPlayerProperties
+        ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
 
         jsr ConvertCursorPosToTilePositions
         jsr UpdateCursorSpritePosition
+
+        jsr PollGamepad
+        jsr HandleCanvasInput
 
         jsr SavePlayerProperties
     inc current_player_index
@@ -75,3 +99,4 @@ mainloop:
     jsr OverwriteAllBackgroundColorIndex
     rts
 .endproc
+; Khine

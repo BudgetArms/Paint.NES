@@ -146,9 +146,6 @@
 
     cmp #START_MENU_1_PLAYER_SELECTION
     bne :+
-        lda #OAM_OFFSCREEN
-        sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
-
         lda #01
         sta player_count
         jsr EnterCanvasMode
@@ -157,9 +154,6 @@
 
     cmp #START_MENU_2_PLAYERS_SELECTION
     bne :+
-        lda #OAM_OFFSCREEN
-        sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
-
         lda #02
         sta player_count
         jsr EnterCanvasMode
@@ -168,6 +162,7 @@
 
     cmp #START_MENU_CONTROLS_SELECTION
     bne :+
+        jsr EnterHelpMenuMode
         rts
     :
     rts
@@ -210,10 +205,29 @@
 
 
 ; Khine
+.proc InitializeHelpMenuTilemap
+    lda #<Help_Menu_Tilemap
+    sta abs_address_to_access
+    lda #>Help_Menu_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable3
+
+    rts
+.endproc
+; Khine
+
+; Khine
 .proc EnterStartMenuMode
+    jsr HideAllSprites
+
+    lda current_program_mode
+    sta previous_program_mode
 
     lda #START_MENU_MODE
     sta current_program_mode
+
+    lda #$00
+    sta scroll_y_position
 
     jsr InitializeStartMenuCursor
 
@@ -229,10 +243,35 @@
 
 
 ; Khine
+.proc EnterHelpMenuMode
+    jsr HideAllSprites
+
+    lda current_program_mode
+    sta previous_program_mode
+
+    lda #HELP_MENU_MODE
+    sta current_program_mode
+
+    lda #$EF
+    sta scroll_y_position
+
+    rts
+.endproc
+; Khine
+
+
+; Khine
 .proc EnterCanvasMode
+    jsr HideAllSprites
+
+    lda current_program_mode
+    sta previous_program_mode
 
     lda #CANVAS_MODE
     sta current_program_mode
+
+    lda #$00
+    sta scroll_y_position
 
     lda #UPDATE_ALL_OFF
     sta update_flag
@@ -246,7 +285,6 @@
         jsr LoadPlayerProperties
 
         jsr InitializeAllPlayers
-        ;jsr UpdateCursorPositionFromTilePosition
         jsr InitializeOverlayIndicators
         jsr LoadCursorSprite
 
@@ -271,6 +309,44 @@
 .endproc
 ; Khine
 
+
+; Khine
+.proc ContinuePreviousMode
+    lda #$00
+    sta scroll_y_position
+
+    lda previous_program_mode
+    sta current_program_mode
+
+    lda #HELP_MENU_MODE
+    sta previous_program_mode
+
+    lda current_program_mode
+    cmp #START_MENU_MODE
+    bne :+
+        jsr EnterStartMenuMode
+    :
+
+    cmp #CANVAS_MODE
+    bne :+
+        lda #$00
+        sta current_player_index
+        Loop_Players:
+
+            jsr LoadPlayerProperties
+
+            jsr InitializeOverlayIndicators
+            jsr LoadCursorSprite
+
+        inc current_player_index
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
+    :
+
+    rts
+.endproc
+; Khine
 
 ; Khine
 .proc InitializeEachPlayer
