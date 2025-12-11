@@ -85,35 +85,44 @@ mainloop:
 
         cmp #CANVAS_MODE
         bne Next_Not_Canvas
+
             lda previous_program_mode
             cmp #HELP_MENU_MODE
             bne :+
                 lda next_program_mode
                 sta current_program_mode
-                rts
+                jmp Transition_Done
             :
+
             jsr EnterCanvasMode
-            rts
+            jmp Transition_Done
         Next_Not_Canvas:
 
         cmp #START_MENU_MODE
         bne Next_Not_Start_Menu
+
             lda previous_program_mode
             cmp #HELP_MENU_MODE
             bne :+
                 lda next_program_mode
                 sta current_program_mode
-                rts
+                jmp Transition_Done
             :
+
             jsr EnterStartMenuMode
-            rts
+            jmp Transition_Done
         Next_Not_Start_Menu:
 
         cmp #HELP_MENU_MODE
         bne Next_Not_Help_Menu
             jsr EnterHelpMenuMode
-            rts
+            jmp Transition_Done
         Next_Not_Help_Menu:
+
+        Transition_Done:
+        jsr LoadPalette
+        rts
+
     No_Transition_Yet:
 
     lda next_program_mode
@@ -163,7 +172,7 @@ mainloop:
     ;jsr UpdateCursorPositionOverlay
     ;jsr DrawShapeToolCursor
 
-    jsr OverwriteAllBackgroundColorIndex
+    jsr MagicPaletteCopyingSubroutine
     rts
 .endproc
 ; Khine

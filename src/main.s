@@ -187,15 +187,7 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; Help menu is only needed to load once
     jsr InitializeHelpMenuTilemap
     jsr EnterStartMenuMode
-
-    ; initialize palette table
-    ldx #$00
-    paletteloop:
-        lda default_palette, x
-        sta palette, x
-        inx
-        cpx #PALETTE_SIZE
-        bcc paletteloop
+    jsr LoadPalette
 
     jsr PPUUpdate
 
@@ -210,26 +202,55 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
 START_MENU_PALETTE:
-.byte $00, $3c, $2c, $01
-.byte $00, $3d, $05, $0f
-.byte $00, $0d, $24, $31
-.byte $00, $1c, $3c, $0f
-.byte GRAY, BLACK, BLUE, RED
-.byte $0f,$00,$10,$30
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+;.byte $00, $3c, $2c, $01
+;.byte $00, $3d, $05, $0f
+;.byte $00, $0d, $24, $31
+;.byte $00, $1c, $3c, $0f
+;.byte GRAY, BLACK, BLUE, RED
+;.byte $0f,$00,$10,$30
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
 default_palette:
 ;bg tiles/ text
-.byte OFFWHITE, RED, GREEN, BLUE
-.byte OFFWHITE,OFFWHITE,RED,BLACK
-.byte OFFWHITE,BLACK,$24,$2c ; pink and blue
-.byte OFFWHITE,GREEN,BLUE,BLACK
-.byte GRAY, BLACK, BLUE, RED
-.byte $0f,$00,$10,$30
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+;.byte OFFWHITE, RED, GREEN, BLUE
+;.byte OFFWHITE,OFFWHITE,RED,BLACK
+;.byte OFFWHITE,BLACK,$24,$2c ; pink and blue
+;.byte OFFWHITE,GREEN,BLUE,BLACK
+;.byte GRAY, BLACK, BLUE, RED
+;.byte $0f,$00,$10,$30
+;.byte $0f,$05,$16,$27
+;.byte $0f,$0b,$1a,$29
 
+color_palette_ui_overlay:
+    .byte OFFWHITE, RED, GREEN, BLUE
+    .byte OFFWHITE, OFFWHITE, RED, $0f
+    .byte OFFWHITE, $0f, $24, $2c
+    .byte OFFWHITE, GREEN, BLUE, $0f
+    .byte GRAY, BLACK, BLUE, RED
+    .byte $0f,$00,$10,$30
+    .byte $0f,$05,$16,$27
+    .byte $0f,$0b,$1a,$29
+
+color_palette_help_menu:
+    .byte $00, $3c, $2c, $01
+    .byte $00, $3d, $05, $0f
+    .byte $00, $0d, $24, $31
+    .byte $00, $1c, $3c, $0f
+    .byte GRAY, BLACK, BLUE, RED
+    .byte $0f,$00,$10,$30
+    .byte $0f,$05,$16,$27
+    .byte $0f,$0b,$1a,$29
+
+color_palette_startup_menu:
+    .byte $16, $00, $29, $0f
+    .byte $16, $19, $29, $0f
+    .byte $16, $05, $16, $27
+    .byte $16, $0b, $19, $29
+    .byte GRAY, BLACK, BLUE, RED
+    .byte $0f,$00,$10,$30
+    .byte $0f,$05,$16,$27
+    .byte $0f,$0b,$1a,$29
 
 ; EXAMPLE_DATA:
     ; .byte EXAMPLE_Y_POS, TILEINDEX_EXAMPLE,   %10000001, $10
@@ -273,7 +294,7 @@ CURSOR_SHAPE_TOOL_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
 Start_Menu_Tilemap:
-    .incbin "./tilemaps/main_menu.nam"
+    .incbin "./tilemaps/start_menu.nam"
 
 Help_Menu_Tilemap:
     .incbin "./tilemaps/help_menu.nam"

@@ -885,7 +885,7 @@
 
 
 ; Khine
-.proc OverwriteAllBackgroundColorIndex
+.proc MagicPaletteCopyingSubroutine
 
     ldx #$00
     lda palette
@@ -899,7 +899,64 @@
         cpx #PALETTE_SIZE
         bcc @Loop
 
+    lda palette + PALETTE_COLOR_BG
+    sta palette + PALETTE_COLOR_BG_COPY_01
+    sta palette + PALETTE_COLOR_BG_COPY_02
+
+    lda palette + PALETTE_COLOR_00
+    sta palette + PALETTE_COLOR_00_COPY
+
+    lda palette + PALETTE_COLOR_01
+    sta palette + PALETTE_COLOR_01_COPY
+
+    lda palette + PALETTE_COLOR_02
+    sta palette + PALETTE_COLOR_02_COPY
+
     rts 
 
+.endproc
+; Khine
+
+
+; Khine
+.proc LoadPalette
+    lda current_program_mode
+    
+    cmp #START_MENU_MODE
+    bne :+
+        ldx #$00
+        Start_Menu_Loop:
+            lda color_palette_startup_menu, x
+            sta palette, x
+            inx
+            cpx #PALETTE_SIZE
+            bcc Start_Menu_Loop
+        rts
+    :
+
+    cmp #CANVAS_MODE
+    bne :+
+        ldx #$00
+        Canvas_Loop:
+            lda color_palette_ui_overlay, x
+            sta palette, x
+            inx
+            cpx #PALETTE_SIZE
+            bcc Canvas_Loop
+        rts
+    :
+
+    cmp #HELP_MENU_MODE
+    bne :+
+        ldx #$00
+        Help_Menu_Loop:
+            lda color_palette_help_menu, x
+            sta palette, x
+            inx
+            cpx #PALETTE_SIZE
+            bcc Help_Menu_Loop
+        rts
+    :
+    rts
 .endproc
 ; Khine
