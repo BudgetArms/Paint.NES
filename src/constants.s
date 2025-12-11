@@ -126,8 +126,8 @@ BUTTON_HOLD_TIME_INSTANTLY  = 1
 FRAMES_BETWEEN_MOVEMENT     = 8
 
 ; program modes
-START_MENU = 0
-CANVAS = 1
+START_MENU_MODE = 0
+CANVAS_MODE = 1
 HELP_MENU = 2
 
 ; Cursor locks (can't go lower/higher)

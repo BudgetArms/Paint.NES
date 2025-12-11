@@ -57,41 +57,10 @@
     Start_Checking_Input:
     lda player + P_INPUT
 
-    Check_PAD_A:
-        cmp #PAD_A
-        bne :+
-        jmp Stop_Checking
-        :
-
-
-    Check_PAD_B:
-        cmp #PAD_B
-        bne :+
-        jmp Stop_Checking
-        :
-
     Check_PAD_SELECT:
         cmp #PAD_SELECT
         bne :+
-        jmp Stop_Checking
-        :
-
-    Check_PAD_START:
-        cmp #PAD_START
-        bne :+
             jsr ConfirmStartMenuSelection
-        jmp Stop_Checking
-        :
-
-    Check_PAD_LEFT:
-        cmp #PAD_LEFT
-        bne :+
-        jmp Stop_Checking
-        :
-
-    Check_PAD_RIGHT:
-        cmp #PAD_RIGHT
-        bne :+
         jmp Stop_Checking
         :
 

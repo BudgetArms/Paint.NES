@@ -6,13 +6,13 @@ mainloop:
 
     lda current_program_mode
 
-    cmp #START_MENU
+    cmp #START_MENU_MODE
     bne :+
         jsr StartMenuLoop
         jmp End_Of_Loop
     :
 
-    cmp #CANVAS
+    cmp #CANVAS_MODE
     bne :+
         jsr CanvasLoop
         jmp End_Of_Loop

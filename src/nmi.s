@@ -126,31 +126,19 @@
         cpx #PALETTE_SIZE
         bcc loop
 
-    lda #$00
-    sta current_player_index
-    Loop_Players:
+    lda current_program_mode
+    
+    cmp #START_MENU_MODE
+    bne :+
+        jsr StartMenuNMI
+    :
 
-        LoadCurrentPlayerProperty P_TOOL_USE_FLAG
+    cmp #CANVAS_MODE
+    bne :+
+        jsr CanvasNMI
+    :
 
-        cmp #BRUSH_TOOL_ON
-        bne Brush_Not_Use
-            jsr LoadPlayerBrushProperties
-            jsr UseBrushTool
-
-            SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
-        Brush_Not_Use:
-
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
-
-    ;jsr UseShapeTool
-
-    Overlay:
-    jsr DrawCursorPositionOverlay
-    jsr RefreshToolTextOverlay
-
+    End_Of_NMI:
     jsr ResetScroll
 
     ; enable rendering
@@ -175,3 +163,35 @@
 
 .endproc
 
+.proc StartMenuNMI
+    rts
+.endproc
+
+
+.proc CanvasNMI
+    lda #$00
+    sta current_player_index
+    Loop_Players:
+
+        LoadCurrentPlayerProperty P_TOOL_USE_FLAG
+
+        cmp #BRUSH_TOOL_ON
+        bne Brush_Not_Use
+            jsr LoadPlayerBrushProperties
+            jsr UseBrushTool
+
+            SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
+        Brush_Not_Use:
+
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+
+    ;jsr UseShapeTool
+
+    Overlay:
+    jsr DrawCursorPositionOverlay
+    jsr RefreshToolTextOverlay
+    rts
+.endproc

@@ -202,12 +202,22 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ;***************************************
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
+START_MENU_PALETTE:
+.byte $00, $3c, $2c, $01
+.byte $00, $3d, $05, $0f
+.byte $00, $0d, $24, $31
+.byte $00, $1c, $3c, $0f
+.byte GRAY, BLACK, BLUE, RED
+.byte $0f,$00,$10,$30
+.byte $0f,$05,$16,$27
+.byte $0f,$0b,$1a,$29
+
 default_palette:
 ;bg tiles/ text
-.byte WHITE, RED, GREEN, LIGHT_BLUE
-.byte $0f,$00,$10,$30
-.byte $0f,BLUE,$16,$27
-.byte $0f,$0b,$1a,$29
+.byte OFFWHITE, RED, GREEN, BLUE
+.byte OFFWHITE,OFFWHITE,RED,BLACK
+.byte OFFWHITE,BLACK,$24,$2c ; pink and blue
+.byte OFFWHITE,GREEN,BLUE,BLACK
 .byte GRAY, BLACK, BLUE, RED
 .byte $0f,$00,$10,$30
 .byte $0f,$05,$16,$27

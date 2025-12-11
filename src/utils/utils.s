@@ -212,7 +212,7 @@
 ; Khine
 .proc EnterStartMenuMode
 
-    lda #START_MENU
+    lda #START_MENU_MODE
     sta current_program_mode
 
     jsr InitializeStartMenuCursor
@@ -231,7 +231,7 @@
 ; Khine
 .proc EnterCanvasMode
 
-    lda #CANVAS
+    lda #CANVAS_MODE
     sta current_program_mode
 
     lda #UPDATE_ALL_OFF
