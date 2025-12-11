@@ -920,20 +920,6 @@
             ;.byte BgColor, BgColor, Color_01, $0f
             ;.byte BgColor, $0f, $24, $2c
             ;.byte BgColor, Color_02, Color_03, $0f
-            ldx #$01
-            ldy #$06
-            lda color_palette_ui_overlay, X
-            sta color_palette_ui_overlay, y
-
-            ;ldx #$02
-            ;ldy #$0d
-            ;lda color_palette_ui_overlay, X
-            ;sta color_palette_ui_overlay, y
-
-            ;ldx #$03
-            ;ldy #$0e
-            ;lda color_palette_ui_overlay, X
-            ;sta color_palette_ui_overlay, y
 
         ldx #$00
         CanvasOverlayLoop:
