@@ -925,15 +925,15 @@
             lda color_palette_ui_overlay, X
             sta color_palette_ui_overlay, y
 
-            ldx #$02
-            ldy #$0d
-            lda color_palette_ui_overlay, X
-            sta color_palette_ui_overlay, y
+            ;ldx #$02
+            ;ldy #$0d
+            ;lda color_palette_ui_overlay, X
+            ;sta color_palette_ui_overlay, y
 
-            ldx #$03
-            ldy #$0e
-            lda color_palette_ui_overlay, X
-            sta color_palette_ui_overlay, y
+            ;ldx #$03
+            ;ldy #$0e
+            ;lda color_palette_ui_overlay, X
+            ;sta color_palette_ui_overlay, y
 
         ldx #$00
         CanvasOverlayLoop:
