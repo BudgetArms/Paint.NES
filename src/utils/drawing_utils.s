@@ -258,6 +258,9 @@
 
 ; Khine
 .proc InitializeOverlayIndicators
+    ldx current_player_index
+    bne Player_2
+
     Player_1:
         Color_Indicator_1:
         lda #OVERLAY_P1_COLOR_OFFSET_Y
@@ -278,6 +281,7 @@
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_ATTR
         lda #OVERLAY_P1_TOOL_OFFSET_X
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
+    jmp End_Load
 
     Player_2:
         Color_Indicator_2:
@@ -299,6 +303,7 @@
         sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_ATTR
         lda #OVERLAY_P2_TOOL_OFFSET_X
         sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_X
+    End_Load:
 
     jsr UpdateColorSelectionOverlayPosition
     jsr UpdateToolSelectionOverlayPosition

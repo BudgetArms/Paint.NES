@@ -73,8 +73,8 @@
 
     lda #$00
     sta current_player_index
-
     Loop_Players:
+
         jsr LoadPlayerProperties
 
         jsr InitializeAllPlayers
@@ -82,6 +82,7 @@
         jsr LoadCursorSprite
 
         jsr SavePlayerProperties
+
     inc current_player_index
     lda current_player_index
     cmp player_count

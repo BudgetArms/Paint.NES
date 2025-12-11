@@ -139,7 +139,7 @@
 
 ; Khine
 .proc InitializeAllPlayers
-        lda #$01
+        lda #$02
         sta current_player_properties + P_SELECTED_COLOR_INDEX
 
         lda #UPDATE_ALL_OFF
