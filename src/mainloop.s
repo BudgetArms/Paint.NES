@@ -24,7 +24,7 @@ mainloop:
     bne Loop_Players
 
     @Cursor:
-    jsr UpdateCursorPositionOverlay
+    ;jsr UpdateCursorPositionOverlay
     jsr DrawShapeToolCursor
 
     jsr OverwriteAllBackgroundColorIndex

@@ -196,6 +196,8 @@
             bne P2_Loop
     End_Loop:
 
+    jsr UpdateCursorPositionOverlay
+
     rts
 .endproc
 ; BudgetArms
@@ -372,7 +374,7 @@
     ; Convert cursor_y to three decimal digits
     lda player_1_properties + P_TILE_Y_POS
     sec
-    sbc #OVERLAY_YPOS_OFFSET_FROM_CANVAS
+    sbc #CURSOR_MIN_Y
     ldx #100
     jsr DivideByX
     sta cursor_y_digits     ; hundreds digit (0-2)
