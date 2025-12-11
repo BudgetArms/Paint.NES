@@ -83,13 +83,16 @@ drawing_color_tile_index: .res 1
 
 
 ; misc
+next_program_mode: .res 1
 current_program_mode: .res 1
 previous_program_mode: .res 1
+mode_transition_time: .res 1
 update_flag: .res 1
 abs_address_to_access: .res 2
 scroll_x_position: .res 1
 scroll_y_position: .res 1
 player_count: .res 1
+loop_index: .res 1
 
 ; Sound engine variables
 sfx_temp: .res 1        ; Temporary storage for SFX operations

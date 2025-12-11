@@ -7,6 +7,17 @@
 
 
 ; Khine
+.macro TransitionToMode     new_mode
+    lda current_program_mode
+    sta previous_program_mode
+    lda #TRANSITION_MODE
+    sta current_program_mode
+    lda new_mode
+    sta next_program_mode
+.endmacro
+; Khine
+
+; Khine
 .macro ChangePPUNameTableAddr address_to_change
     lda PPU_STATUS ; reset address latch
     lda #>address_to_change ; > takes highbyte of 16 bit value
@@ -148,7 +159,8 @@
     bne :+
         lda #01
         sta player_count
-        jsr EnterCanvasMode
+        ;jsr EnterCanvasMode
+        TransitionToMode #CANVAS_MODE
         rts
     :
 
@@ -156,13 +168,15 @@
     bne :+
         lda #02
         sta player_count
-        jsr EnterCanvasMode
+        ;jsr EnterCanvasMode
+        TransitionToMode #CANVAS_MODE
         rts
     :
 
     cmp #START_MENU_CONTROLS_SELECTION
     bne :+
-        jsr EnterHelpMenuMode
+        ;jsr EnterHelpMenuMode
+        TransitionToMode #HELP_MENU_MODE
         rts
     :
     rts
@@ -220,9 +234,6 @@
 .proc EnterStartMenuMode
     jsr HideAllSprites
 
-    lda current_program_mode
-    sta previous_program_mode
-
     lda #START_MENU_MODE
     sta current_program_mode
 
@@ -244,15 +255,10 @@
 
 ; Khine
 .proc EnterHelpMenuMode
-    jsr HideAllSprites
-
-    lda current_program_mode
-    sta previous_program_mode
-
     lda #HELP_MENU_MODE
     sta current_program_mode
 
-    lda #$EF
+    lda #HELP_MENU_SCROLL_Y
     sta scroll_y_position
 
     rts
@@ -264,13 +270,10 @@
 .proc EnterCanvasMode
     jsr HideAllSprites
 
-    lda current_program_mode
-    sta previous_program_mode
-
     lda #CANVAS_MODE
     sta current_program_mode
 
-    lda #$00
+    lda #NORMAL_SCROLL_Y
     sta scroll_y_position
 
     lda #UPDATE_ALL_OFF
@@ -312,36 +315,16 @@
 
 ; Khine
 .proc ContinuePreviousMode
-    lda #$00
-    sta scroll_y_position
-
     lda previous_program_mode
-    sta current_program_mode
-
-    lda #HELP_MENU_MODE
-    sta previous_program_mode
-
-    lda current_program_mode
     cmp #START_MENU_MODE
     bne :+
-        jsr EnterStartMenuMode
+        ;jsr EnterStartMenuMode
+        TransitionToMode #START_MENU_MODE
     :
 
     cmp #CANVAS_MODE
     bne :+
-        lda #$00
-        sta current_player_index
-        Loop_Players:
-
-            jsr LoadPlayerProperties
-
-            jsr InitializeOverlayIndicators
-            jsr LoadCursorSprite
-
-        inc current_player_index
-        lda current_player_index
-        cmp player_count
-        bne Loop_Players
+        TransitionToMode #CANVAS_MODE
     :
 
     rts
@@ -375,10 +358,10 @@
         lda #CURSOR_STARTUP_SIZE
         sta player + P_CURSOR_SIZE
 
-        lda #CURSOR_MIN_X
+        lda #CURSOR_MIN_X + 16
         sta player + P_TILE_X_POS
 
-        lda #CURSOR_MIN_Y
+        lda #CURSOR_MIN_Y + 12
         sta player + P_TILE_Y_POS
 
     rts

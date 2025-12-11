@@ -47,14 +47,10 @@
     ; Initialize scroll positions
     lda #$00
     sta scroll_x_position
-    sta scroll_y_position
 
-    lda #$00
-    sta current_program_mode
+    lda #NO_MODE
+    sta previous_program_mode
 
-    ; Set multiplayer mode
-    lda #02
-    sta player_count
 
     ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
     ; 	lda cursor_y

@@ -142,7 +142,14 @@
     jsr ResetScroll
 
     ; enable rendering
-    lda #%00011110
+    lda current_program_mode
+    and #HELP_OR_TRANSITION_MODE
+    beq :+
+        lda #%00001110
+        jmp :++
+    :
+        lda #%00011110
+    :
     sta PPU_MASK
     ; flag PPU update complete
     ldx #0

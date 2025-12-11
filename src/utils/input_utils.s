@@ -107,7 +107,11 @@
     Check_PAD_START:
         cmp #PAD_START
         bne :+
-            jsr EnterStartMenuMode
+            ;jsr EnterStartMenuMode
+            TransitionToMode #START_MENU_MODE
+            ; Override previous mode as canvas
+            lda #CANVAS_MODE
+            sta previous_program_mode
         jmp Stop_Checking
         :
 
@@ -283,7 +287,8 @@
     Check_PAD_START_SELECT:
         cmp #PAD_START_SELECT
         bne :+
-            jsr EnterHelpMenuMode
+            ;jsr EnterHelpMenuMode
+            TransitionToMode #HELP_MENU_MODE
         jmp Stop_Checking
         :
 
