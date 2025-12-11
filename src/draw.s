@@ -135,17 +135,17 @@
     ; the program updating the PPU even though PPU has not finished drawing on the screen
     ; not waiting for the VBLANK
     ;lda tool_use_flag, x
-    lda current_player_properties + P_TOOL_USE_FLAG
-    and #BRUSH_TOOL_ON
-    bne @Use_Brush
-        rts
+    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;and #BRUSH_TOOL_ON
+    ;bne @Use_Brush
+        ;rts
 
-    @Use_Brush:
+    ;@Use_Brush:
     ;lda tool_use_flag, x
-    lda current_player_properties + P_TOOL_USE_FLAG
-    eor #BRUSH_TOOL_ON
+    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;eor #BRUSH_TOOL_ON
     ;sta tool_use_flag, x
-    sta current_player_properties + P_TOOL_USE_FLAG
+    ;sta current_player_properties + P_TOOL_USE_FLAG
 
     lda current_player_properties + P_TILE_ADDR
     sta drawing_tile_position
@@ -354,17 +354,17 @@
     ; 7654 3210   7654 3210
     ; ---- --YY   YYYX XXXX
     ;lda tool_use_flag, x
-    lda current_player_properties + P_TOOL_USE_FLAG
-    and #FILL_TOOL_ON
-    bne @Use_Fill
-        rts
+    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;and #FILL_TOOL_ON
+    ;bne @Use_Fill
+        ;rts
 
-    @Use_Fill:
+    ;@Use_Fill:
     ;lda tool_use_flag, x
-    lda current_player_properties + P_TOOL_USE_FLAG
-    eor #FILL_TOOL_ON
+    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;eor #FILL_TOOL_ON
     ;sta tool_use_flag, x
-    sta current_player_properties + P_TOOL_USE_FLAG
+    ;sta current_player_properties + P_TOOL_USE_FLAG
 
     ; Store the current tile position to the cursor_pos
     lda current_player_properties + P_TILE_ADDR + 1

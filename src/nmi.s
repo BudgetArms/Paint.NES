@@ -1,3 +1,86 @@
+.proc LoadPlayerBrushProperties
+    lda current_player_index
+
+    cmp #PLAYER_1
+    bne :+
+        lda player_1_properties + P_SELECTED_TOOL
+        sta current_player_properties + P_SELECTED_TOOL
+        lda player_1_properties + P_SELECTED_COLOR_INDEX
+        sta current_player_properties + P_SELECTED_COLOR_INDEX
+        lda player_1_properties + P_CURSOR_SIZE
+        sta current_player_properties + P_CURSOR_SIZE
+        lda player_1_properties + P_TILE_ADDR
+        sta current_player_properties + P_TILE_ADDR
+        lda player_1_properties + P_TILE_ADDR + 1
+        sta current_player_properties + P_TILE_ADDR + 1
+    rts
+    :
+
+    cmp #PLAYER_2
+    bne :+
+        lda player_2_properties + P_SELECTED_TOOL
+        sta current_player_properties + P_SELECTED_TOOL
+        lda player_2_properties + P_SELECTED_COLOR_INDEX
+        sta current_player_properties + P_SELECTED_COLOR_INDEX
+        lda player_2_properties + P_CURSOR_SIZE
+        sta current_player_properties + P_CURSOR_SIZE
+        lda player_2_properties + P_TILE_ADDR
+        sta current_player_properties + P_TILE_ADDR
+        lda player_2_properties + P_TILE_ADDR + 1
+        sta current_player_properties + P_TILE_ADDR + 1
+    rts
+    :
+.endproc
+
+
+.macro LoadCurrentPlayerProperty property
+    ldx current_player_index
+    cpx #PLAYER_1
+    bne :+
+        lda player_1_properties + property
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        lda player_2_properties + property
+    :
+
+    sta current_player_properties + property
+.endmacro
+
+
+.macro SaveCurrentPlayerProperty property
+    lda current_player_properties + property
+
+    ldx current_player_index
+    cpx #PLAYER_1
+    bne :+
+        sta player_1_properties + property
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        sta player_2_properties + property
+    :
+.endmacro
+
+
+.macro SaveValueToPlayerProperty property, value
+    lda value
+
+    ldx current_player_index
+    cpx #PLAYER_1
+    bne :+
+        sta player_1_properties + property
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        sta player_2_properties + property
+    :
+.endmacro
+
+
 .proc nmi
     ; save registers
     pha 
@@ -45,16 +128,18 @@
 
     lda #$00
     sta current_player_index
-
     Loop_Players:
-        jsr LoadPlayerProperties
-        ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
 
-        jsr UseClearCanvasTool
-        jsr UseBrushTool
-        jsr UseFillTool
+        LoadCurrentPlayerProperty P_TOOL_USE_FLAG
 
-        jsr SavePlayerProperties
+        cmp #BRUSH_TOOL_ON
+        bne Brush_Not_Use
+            jsr LoadPlayerBrushProperties
+            jsr UseBrushTool
+
+            SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
+        Brush_Not_Use:
+
     inc current_player_index
     lda current_player_index
     cmp player_count
@@ -67,8 +152,8 @@
 
 
     Overlay:
-    ;jsr DrawCursorPositionOverlay
-    ;jsr RefreshToolTextOverlay
+    jsr DrawCursorPositionOverlay
+    jsr RefreshToolTextOverlay
 
     jsr ResetScroll
 
@@ -81,7 +166,7 @@
     ppu_update_end:
 
     ; update FamiStudio sound engine
-    ;jsr famistudio_update
+    jsr famistudio_update
 
     ; restore registers and return
     pla 

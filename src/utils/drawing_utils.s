@@ -12,14 +12,14 @@
 
 ; Khine
 .proc UseClearCanvasTool
-    lda current_player_properties + P_TOOL_USE_FLAG
-    and #CLEAR_TOOL_ON
-    bne @Use_Fill
-        rts
-    @Use_Fill:
-    lda current_player_properties + P_TOOL_USE_FLAG
-    eor #CLEAR_TOOL_ON
-    sta current_player_properties + P_TOOL_USE_FLAG
+    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;and #CLEAR_TOOL_ON
+    ;bne @Use_Fill
+        ;rts
+    ;@Use_Fill:
+    ;lda current_player_properties + P_TOOL_USE_FLAG
+    ;eor #CLEAR_TOOL_ON
+    ;sta current_player_properties + P_TOOL_USE_FLAG
 
     jsr PPUOff
 

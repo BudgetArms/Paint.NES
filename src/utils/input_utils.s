@@ -286,8 +286,6 @@
 
 ; BudgetArms
 .proc UseSelectedTool
-    ; Only to be jumped from HandleCanvasInput
-    ; or the current_player var would be corrupted
     lda current_player_properties + P_SELECTED_TOOL
 
     Check_Brush_Tool:
@@ -299,13 +297,14 @@
     Check_Eraser_Tool:
     cmp #ERASER_TOOL_SELECTED
     bne Check_Fill_Tool
+        ChangeToolFlag #BRUSH_TOOL_ON
         ChangeToolFlag #ERASER_TOOL_ON
         rts 
 
     Check_Fill_Tool:
     cmp #FILL_TOOL_SELECTED
     bne Check_Shape_Tool
-        ChangeToolFlag #FILL_TOOL_ON
+        jsr UseFillTool
         rts 
 
     Check_Shape_Tool:
@@ -317,7 +316,7 @@
     Check_Clear_Tool:
     cmp #CLEAR_TOOL_SELECTED
     bne @End
-        ChangeToolFlag #CLEAR_TOOL_ON
+        jsr UseClearCanvasTool
         rts 
 
     @End:
