@@ -15,7 +15,7 @@ INES_SRAM   = 1 ; 1 = battery backed SRAM at $6000-7FFF
 
 ; Import both the background and sprite character sets
 .segment "TILES"
-.incbin "game.chr"
+.incbin "TheChrFile.chr"
 
 ; Define NES interrupt vectors
 .segment "VECTORS"
@@ -269,13 +269,13 @@ CURSOR_SHAPE_TOOL_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_SECOND,   %00000000,     $00
 
 Start_Menu_Tilemap:
-    .incbin "./tilemaps/main_menu.nam"
+    .incbin "./tilemaps/StartupMenu.nam"
 
 Help_Menu_Tilemap:
-    .incbin "./tilemaps/help_menu.nam"
+    .incbin "./tilemaps/HelpMenu.nam"
 
 Canvas_Tilemap:
-    .incbin "./tilemaps/canvas.nam"
+    .incbin "./tilemaps/UiOverlay.nam"
 
 
 Overlay_Tool_Text:

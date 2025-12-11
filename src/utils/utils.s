@@ -889,3 +889,40 @@
 
 .endproc
 ; Khine
+
+
+.proc SetCorrectColorPaletteForProgramMode
+
+    lda current_program_mode
+    cmp previous_program_mode
+    beq ColorPalleteAlreadySet ; will make sure the colorpallete is only set once. and not every frame.
+        ; Check_START_MENU_MODE:
+        cmp #START_MENU_MODE
+        bne Check_CANVAS_MODE
+        ;Code for when entering start menu
+        jmp StopChecking
+
+        Check_CANVAS_MODE:
+        cmp #CANVAS_MODE
+        bne Check_HELP_MENU_MODE
+        ;Code for when entering canvasMode
+        jmp StopChecking
+
+        Check_HELP_MENU_MODE:
+        cmp #HELP_MENU_MODE
+        bne Check_NEXT_MENU_MODE
+        ;code for when entering help menu mode
+        jmp StopChecking
+
+        Check_NEXT_MENU_MODE:
+        ;cmp #
+        ;bne
+        ; code
+        ;jmp StopChecking
+
+    StopChecking:
+
+    ColorPalleteAlreadySet:
+        rts
+
+.endproc
