@@ -54,18 +54,18 @@ shape_tool_first_pos: .res 2
 shape_tool_second_pos: .res 2
 
 shape_tool_starting_pos: .res 2
+shape_tool_temp_pos: .res 2
 
 ; shape tool: retangle
 shape_tool_rectangle_width: .res 1
 shape_tool_rectangle_height: .res 1
 
-shape_tool_temp_pos: .res 2
 
 ; shape tool: circle
-shape_tool_radius: .res 1
-shape_tool_draw_pos: .res 2
-shape_tool_offset_x: .res 1
-shape_tool_offset_y: .res 1
+shape_tool_circle_radius: .res 1
+shape_tool_circle_draw_pos: .res 2
+shape_tool_circle_offset: .res 2
+shape_tool_circle_decision_parameter: .res 1
 
 
 
