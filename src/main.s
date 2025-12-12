@@ -216,15 +216,20 @@ START_MENU_PALETTE:
 .byte $0f,$0b,$1a,$29
 
 default_palette:
+    .byte $16, $00, $29, $0f
+    .byte $16, $19, $29, $0f
+    .byte $16, $05, $16, $27
+    .byte $16, $0b, $19, $29
 ;bg tiles/ text
-.byte OFFWHITE, RED, GREEN, BLUE
-.byte OFFWHITE,OFFWHITE,RED,BLACK
-.byte OFFWHITE,BLACK,$24,$2c ; pink and blue
-.byte OFFWHITE,GREEN,BLUE,BLACK
-.byte GRAY, BLACK, BLUE, RED
-.byte $0f,$00,$10,$30
-.byte $0f,$05,$16,$27
-.byte $0f,$0b,$1a,$29
+; .byte OFFWHITE, RED, GREEN, BLUE
+; .byte OFFWHITE,OFFWHITE,RED,BLACK
+; .byte OFFWHITE,BLACK,$24,$2c ; pink and blue
+; .byte OFFWHITE,GREEN,BLUE,BLACK
+
+    .byte GRAY, BLACK, BLUE, RED
+    .byte $0f,$00,$10,$30
+    .byte $0f,$05,$16,$27
+    .byte $0f,$0b,$1a,$29
 
 
 color_palette_ui_overlay:
