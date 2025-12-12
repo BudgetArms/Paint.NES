@@ -28,8 +28,11 @@
         sta player + P_TILE_ADDR
         lda player_2_properties + P_TILE_ADDR + 1
         sta player + P_TILE_ADDR + 1
-    rts
+        rts 
     :
+    
+    rts 
+
 .endproc
 
 
@@ -56,7 +59,8 @@
         sta player + P_SHAPE_TOOL_SECOND_POS
         lda player_1_properties + P_SHAPE_TOOL_SECOND_POS + 1
         sta player + P_SHAPE_TOOL_SECOND_POS + 1
-    rts
+
+        rts 
     :
 
     cmp #PLAYER_2
@@ -79,8 +83,12 @@
         sta player + P_SHAPE_TOOL_SECOND_POS
         lda player_1_properties + P_SHAPE_TOOL_SECOND_POS + 1
         sta player + P_SHAPE_TOOL_SECOND_POS + 1
-    rts
+
+        rts 
     :
+
+    rts 
+
 .endproc
 
 
