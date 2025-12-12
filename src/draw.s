@@ -684,6 +684,11 @@
     jsr PPUOff
     jsr ResetScroll
 
+    lda player + P_SHAPE_TOOL_FIRST_POS
+    cmp player + P_SHAPE_TOOL_SECOND_POS
+    ldx #$00
+
+
     ; Set staring pos to first pos
     lda player + P_SHAPE_TOOL_FIRST_POS
     sta shape_tool_starting_pos
@@ -709,11 +714,10 @@
         lda player + P_SHAPE_TOOL_SECOND_POS
         sta shape_tool_starting_pos
 
-        ; set offset again (but no negative)
-        ; store rectangle width
-        sec 
-        lda player + P_SHAPE_TOOL_FIRST_POS
-        sbc player + P_SHAPE_TOOL_SECOND_POS
+        ; Change from neg to pos
+        lda shape_tool_rectangle_width
+        eor #$FF
+        adc #$01
         sta shape_tool_rectangle_width
 
 
@@ -738,10 +742,10 @@
         lda player + P_SHAPE_TOOL_SECOND_POS + 1
         sta shape_tool_starting_pos + 1
 
-        ; store rectangle height
-        sec 
-        lda player + P_SHAPE_TOOL_FIRST_POS + 1
-        sbc player + P_SHAPE_TOOL_SECOND_POS + 1
+        ; Change from neg to pos
+        lda shape_tool_rectangle_height
+        eor #$FF
+        adc #$01
         sta shape_tool_rectangle_height
 
 
@@ -1231,3 +1235,5 @@
     rts 
 
 .endproc
+; BudgetArms
+
