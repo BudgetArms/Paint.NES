@@ -684,75 +684,85 @@
     jsr PPUOff
     jsr ResetScroll
 
-    lda player + P_SHAPE_TOOL_FIRST_POS
-    cmp player + P_SHAPE_TOOL_SECOND_POS
-    ldx #$00
 
-
-    ; Set staring pos to first pos
-    lda player + P_SHAPE_TOOL_FIRST_POS
-    sta shape_tool_starting_pos
-
-    lda player + P_SHAPE_TOOL_FIRST_POS + 1
-    sta shape_tool_starting_pos + 1
-
+    ; Store starting position X & rectangle width
 
     ; check where the second pos X is compared to first    
+    lda player + P_SHAPE_TOOL_FIRST_POS
+    cmp player + P_SHAPE_TOOL_SECOND_POS
+    bpl First_PosX_Right_Of_Second_PosX
 
-    ; store rectangle width
-    sec  
-    lda player + P_SHAPE_TOOL_SECOND_POS
-    sbc player + P_SHAPE_TOOL_FIRST_POS
-    sta shape_tool_rectangle_width
+    First_PosX_Left_Of_Second_PosX:
 
-    ; if first position was left of second pos, ignore
-    bpl Done_Setting_X
+        ; Store rectangle width
+        sec  
+        lda player + P_SHAPE_TOOL_SECOND_POS
+        sbc player + P_SHAPE_TOOL_FIRST_POS
+        sta shape_tool_rectangle_width
 
-        ; first pos is right of second pos
+        ; Store starting position X
+        lda player + P_SHAPE_TOOL_FIRST_POS
+        sta shape_tool_starting_pos
+
+        jmp Done_Setting_X
+
+
+    First_PosX_Right_Of_Second_PosX:
+
+        ; Store rectangle width
+        sec  
+        lda player + P_SHAPE_TOOL_FIRST_POS
+        sbc player + P_SHAPE_TOOL_SECOND_POS
+        sta shape_tool_rectangle_width
 
         ; change staring pos X 
         lda player + P_SHAPE_TOOL_SECOND_POS
         sta shape_tool_starting_pos
 
-        ; Change from neg to pos
-        lda shape_tool_rectangle_width
-        eor #$FF
-        adc #$01
-        sta shape_tool_rectangle_width
-
+        jmp Done_Setting_X
+    
 
     Done_Setting_X:
 
+    ; Store starting position Y & rectangle height
 
     ; check where the second pos Y is compared to first    
+    lda player + P_SHAPE_TOOL_FIRST_POS + 1
+    cmp player + P_SHAPE_TOOL_SECOND_POS + 1
+    bpl First_PosY_Below_Second_PosY
 
-    ; store rectangle height
-    sec  
-    lda player + P_SHAPE_TOOL_SECOND_POS + 1
-    sbc player + P_SHAPE_TOOL_FIRST_POS + 1
-    sta shape_tool_rectangle_height
+    First_PosY_Above_Second_PosY:
 
-    ; higher as in the value is higher
-    ; but the position is lower vertically on screen than second pos
-    bpl Done_Setting_Y
+        ; Store rectangle height
+        sec  
+        lda player + P_SHAPE_TOOL_SECOND_POS + 1
+        sbc player + P_SHAPE_TOOL_FIRST_POS + 1
+        sta shape_tool_rectangle_height
 
-        ; first pos is lower than second pos
+        ; Store starting position Y
+        lda player + P_SHAPE_TOOL_FIRST_POS + 1
+        sta shape_tool_starting_pos + 1
 
-        ; change staring pos Y 
+        jmp Done_Setting_Y
+
+
+    First_PosY_Below_Second_PosY:
+
+        ; Store rectangle height
+        sec  
+        lda player + P_SHAPE_TOOL_FIRST_POS + 1
+        sbc player + P_SHAPE_TOOL_SECOND_POS + 1
+        sta shape_tool_rectangle_height
+
+        ; change staring pos Y
         lda player + P_SHAPE_TOOL_SECOND_POS + 1
         sta shape_tool_starting_pos + 1
 
-        ; Change from neg to pos
-        lda shape_tool_rectangle_height
-        eor #$FF
-        adc #$01
-        sta shape_tool_rectangle_height
-
+        jmp Done_Setting_Y
+    
 
     Done_Setting_Y:
 
-
-    Done_Setting:
 
     ; convert rectangle width/height from pos to tile size (eg. 16 -> 2)
     lda shape_tool_rectangle_width 
