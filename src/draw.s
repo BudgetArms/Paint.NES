@@ -690,7 +690,7 @@
     ; check where the second pos X is compared to first    
     lda player + P_SHAPE_TOOL_FIRST_POS
     cmp player + P_SHAPE_TOOL_SECOND_POS
-    bpl First_PosX_Right_Of_Second_PosX
+    bcs First_PosX_Right_Of_Second_PosX
 
     First_PosX_Left_Of_Second_PosX:
 
@@ -724,12 +724,13 @@
 
     Done_Setting_X:
 
+
     ; Store starting position Y & rectangle height
 
     ; check where the second pos Y is compared to first    
     lda player + P_SHAPE_TOOL_FIRST_POS + 1
     cmp player + P_SHAPE_TOOL_SECOND_POS + 1
-    bpl First_PosY_Below_Second_PosY
+    bcs First_PosY_Below_Second_PosY
 
     First_PosY_Above_Second_PosY:
 
