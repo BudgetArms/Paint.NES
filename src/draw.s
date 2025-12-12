@@ -97,7 +97,21 @@
             rts 
 
         @Store_Shape:
-        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
+        
+        ldy player + P_INDEX
+        cpy #PLAYER_1
+        bne @Player2
+
+            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR, X
+            jmp @Continue_Loop
+        
+        @Player2:
+
+            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR, X
+            jmp @Continue_Loop
+
+
+        @Continue_Loop:
         inx 
 
         cpx #OAM_BYTE_SIZE_CURSOR_SHAPE
@@ -133,7 +147,21 @@
             rts 
         
         @Store_Shape:
-        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL, X
+        
+        ldy player + P_INDEX
+        cpy #PLAYER_1
+        bne @Player2
+
+            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR, X
+            jmp @Continue_Loop
+        
+        @Player2:
+
+            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR, X
+            jmp @Continue_Loop
+
+
+        @Continue_Loop:
 
         inx 
 
@@ -145,26 +173,47 @@
 
     Update_Cursor_Shape_Position:
 
-        ; Increase cursor_y with oam data's y-pos
-        clc 
-        ;lda cursor_y
-        lda player + P_Y_POS
-        ; not addition to OAM Y bc it's set to offscreen        
-
-        ; subtract A (y pos) by one bc it's draw on the next scanline  
-        clc 
-        sbc #$00
-
         ; Store data to OAM
-        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + OAM_Y
-
         ; Increase cursor_x with oam data's x-pos
-        clc 
-        ;lda cursor_x
-        lda player + P_X_POS
-        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL + OAM_X
+        ldy player + P_INDEX
+        cpy #PLAYER_1
+        bne @Player2
 
-    rts 
+            ; Y pos
+            ; Increase cursor_y with oam data's y-pos
+            clc 
+            lda player + P_Y_POS
+            ; not addition to OAM Y bc it's set to offscreen        
+            ; subtract A (y pos) by one bc it's draw on the next scanline  
+            clc 
+            sbc #$00
+            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR + OAM_Y
+
+            ; X pos
+            clc 
+            lda player + P_X_POS
+            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR + OAM_X
+
+            rts 
+
+        @Player2:
+
+            ; Y pos
+            ; Increase cursor_y with oam data's y-pos
+            clc 
+            lda player + P_Y_POS
+            ; not addition to OAM Y bc it's set to offscreen        
+            ; subtract A (y pos) by one bc it's draw on the next scanline  
+            clc 
+            sbc #$00
+            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR + OAM_Y
+
+            ; X pos
+            clc 
+            lda player + P_X_POS
+            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR + OAM_X
+
+            rts 
 
 .endproc
 ; BudgetArms
@@ -338,15 +387,25 @@
     cmp #SHAPE_TOOL_SELECTED
     beq Use_Shape
 
-        ; hide shape cursor
-        lda #OAM_OFFSCREEN
-        sta oam + OAM_OFFSET_CURSOR_SHAPE_TOOL
 
-        rts 
+        ; hide shape cursor
+        lda player + P_INDEX
+        cmp #PLAYER_1
+        bne Player2
+
+            lda #OAM_OFFSCREEN
+            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR
+            rts 
+
+        Player2:
+
+            lda #OAM_OFFSCREEN
+            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR
+            rts 
     
     Use_Shape:
 
-    ; Draw Shape Cursor
+    jsr HideCursorSprite
     jsr LoadCursorShapeTool
 
     rts 
