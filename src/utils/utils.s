@@ -456,13 +456,13 @@
 
 ; Khine
 .proc EnterCanvasMode
-    jsr HideAllSprites
-
     lda #CANVAS_MODE
     sta current_program_mode
 
     lda #NORMAL_SCROLL_Y
     sta scroll_y_position
+
+    jsr HideAllSprites
 
     jsr InitializeEachPlayer
 
@@ -1131,6 +1131,14 @@
     lda palette + PALETTE_COLOR_02
     sta palette + PALETTE_COLOR_02_COPY
 
+    ldx player_1_properties + P_SELECTED_COLOR_INDEX
+    lda palette, x
+    sta palette + PALETTE_P1_COLOR
+
+    ldx player_2_properties + P_SELECTED_COLOR_INDEX
+    lda palette, x
+    sta palette + PALETTE_P2_COLOR
+
     rts 
 
 .endproc
@@ -1426,4 +1434,37 @@
 
 .endproc
 ; BudgetArms
+
+
+; Khine
+.proc UpdatePlayersCursorPalette
+    ldx #$00
+    ldy #OAM_SPRITE_SIZE_CURSOR_ALL
+    PLAYER_1:
+    lda oam + OAM_OFFSET_P1_CURSOR + OAM_ATTR, x
+    ora #PLAYER_1_OVERLAY_ATTR
+    sta oam + OAM_OFFSET_P1_CURSOR + OAM_ATTR, x
+    inx
+    inx
+    inx
+    inx
+    dey
+    bne PLAYER_1
+
+    ldx #$00
+    ldy #OAM_SPRITE_SIZE_CURSOR_ALL
+    PLAYER_2:
+    lda oam + OAM_OFFSET_P2_CURSOR + OAM_ATTR, x
+    ora #PLAYER_2_OVERLAY_ATTR
+    sta oam + OAM_OFFSET_P2_CURSOR + OAM_ATTR, x
+    inx
+    inx
+    inx
+    inx
+    dey
+    bne PLAYER_2
+
+    rts
+.endproc
+; Khine
 

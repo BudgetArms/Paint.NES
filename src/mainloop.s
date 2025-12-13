@@ -193,10 +193,8 @@ mainloop:
     cmp player_count
     bne Loop_Players
 
-    @Cursor:
-    ;jsr UpdateCursorPositionOverlay
-
     jsr MagicPaletteCopyingSubroutine
+    jsr UpdatePlayersCursorPalette
     rts
 .endproc
 ; Khine

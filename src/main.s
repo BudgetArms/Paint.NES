@@ -239,10 +239,10 @@ color_palette_ui_overlay:
     .byte OFFWHITE, $0f, $24, RED
     .byte OFFWHITE, $0f, $24, $2c
     .byte OFFWHITE, $0f, GREEN, BLUE
-    .byte GRAY, BLACK, BLUE, RED
-    .byte $0f,$00,$10,$30
-    .byte $0f,$05,$16,$27
-    .byte $0f,$0b,$1a,$29
+    .byte OFFWHITE, BLUE, BLUE, RED
+    .byte OFFWHITE,$00,$10,$30
+    .byte OFFWHITE,$05,$16,$27
+    .byte OFFWHITE,$0b,$1a,$29
 
 color_palette_help_menu:
     .byte $00, $3c, $2c, $01
@@ -325,3 +325,4 @@ Overlay_Tool_Text:
 
     Clear_Text:
     .byte 'c' + LETTER_OFFSET, 'l' + LETTER_OFFSET, 'e' + LETTER_OFFSET, 'a' + LETTER_OFFSET, 'r' + LETTER_OFFSET, $00
+
