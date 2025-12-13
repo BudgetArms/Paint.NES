@@ -41,6 +41,18 @@ mainloop:
     lda #$00
     sta current_player_index
 
+    ; Play CocoMelon (song 1) when entering start menu
+    lda current_bg_song
+    cmp #1
+    beq @skip_music_start
+        lda #1
+        jsr famistudio_music_play
+        lda #1
+        sta current_bg_song
+        lda #0
+        sta menu_music_started  ; Reset this when leaving menu
+    @skip_music_start:
+
     Loop_Players:
         jsr LoadPlayerProperties
         ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
@@ -151,6 +163,20 @@ mainloop:
 .proc CanvasLoop
     lda #$00
     sta current_player_index
+
+    ; Play Gymnopédie (song 0) when entering canvas
+    lda current_bg_song
+    cmp #0
+    beq @skip_music_start
+        lda #0
+        jsr famistudio_music_play
+        lda #0
+        sta current_bg_song
+    @skip_music_start:
+
+    ; Reset menu_music_started so CocoMelon can play again next time
+    ; lda #0
+    ; sta menu_music_started
 
     Loop_Players:
         jsr LoadPlayerProperties
