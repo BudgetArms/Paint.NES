@@ -1104,37 +1104,19 @@
 
     Canvas_Is_Saved:
 
-    ; Store save ptr
-    lda #<SAVE_ADDR_START
-    sta save_ptr
-    
-    lda #>SAVE_ADDR_START
-    sta save_ptr + 1
-
-
-    ; Load color values   
-    ldy #$00
-    Load_Header_Color_Values_Loop:
-
-        lda (save_ptr + SAVE_DATA_START_OFFSET), y
-        sta canvas_palette, y 
-
-        iny 
-
-        cpy #SAVE_HEADER_COLOR_VALUE_SIZE
-        bne Load_Header_Color_Values_Loop
-
 
     ; Load color palette   
-    ldy #$00
+    ldx #$00
+    ldy #SAVE_DATA_START_OFFSET
     Load_Header_Color_Palette:
 
-        lda (save_ptr + SAVE_DATA_START_OFFSET), y
-        sta canvas_palette, y 
+        lda (save_ptr), y
+        sta canvas_palette, x 
 
+        inx 
         iny 
 
-        cpy #SAVE_HEADER_COLOR_VALUE_SIZE
+        cpx #SAVE_HEADER_COLOR_VALUE_SIZE
         bne Load_Header_Color_Palette
 
 
@@ -1153,7 +1135,7 @@
 
 
     ; used for offset from save_ptr
-    ldy #SAVE_COLOR_OFFSET
+    ldy #SAVE_DATA_START_OFFSET
 
     Load_Colors_Indexes:
 
@@ -1192,7 +1174,7 @@
     @Load_Color_Index:
 
         iny 
-        cpy #SAVE_COLOR_DATA_SIZE
+        cpy #(SAVE_COLOR_DATA_SIZE + SAVE_DATA_START_OFFSET)
         bne Load_Colors_Indexes
 
     rts 
@@ -1224,15 +1206,19 @@
 
 
     ; Save color palette   
-    ldy #$00
+    ldx #$00
+    ldy #SAVE_DATA_START_OFFSET
     Save_Header_Color_Palette:
 
-        lda canvas_palette, y 
-        sta (save_ptr + SAVE_DATA_START_OFFSET), y
+        ; lda canvas_palette, y 
+        ; sta (save_ptr + SAVE_DATA_START_OFFSET), y
+        lda canvas_palette, x
+        sta (save_ptr), y
 
+        inx 
         iny 
 
-        cpy #SAVE_HEADER_COLOR_VALUE_SIZE
+        cpx #SAVE_HEADER_COLOR_VALUE_SIZE
         bne Save_Header_Color_Palette
 
 
@@ -1252,7 +1238,7 @@
 
     
     ; used for offset from save_ptr
-    ldy #SAVE_COLOR_OFFSET
+    ldy #SAVE_DATA_START_OFFSET
 
     Save_Colors_Indexes:
 
@@ -1286,7 +1272,7 @@
         sta (save_ptr), y
 
         iny 
-        cpy #SAVE_COLOR_DATA_SIZE
+        cpy #(SAVE_COLOR_DATA_SIZE + SAVE_DATA_START_OFFSET)
         bne Save_Colors_Indexes
 
     rts 
