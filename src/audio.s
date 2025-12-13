@@ -1,3 +1,52 @@
+; ; Jeronimas
+; ; Call when NOT in main menu: ensures Gymnopédie (song 0) is playing.
+; .proc EnsureCanvasMusic
+;     lda current_bg_song
+;     cmp #0
+;     beq @already_playing
+
+;     ; Switch to Gymnopédie
+;     lda #0
+;     jsr famistudio_music_play
+;     lda #0
+;     sta current_bg_song
+;     lda #0
+;     sta menu_music_started
+;     @already_playing:
+;         rts
+; .endproc
+; ; Jeronimas
+
+; ; Jeronimas
+; ; Call when IN main menu: plays CocoMelon (song 1) one time, does not loop.
+; .proc PlayMenuMusicOnce
+;     lda menu_music_started
+;     bne @done           ; Already started once, don't restart.
+
+;     ; Start CocoMelon
+;     lda #1
+;     jsr famistudio_music_play
+;     lda #1
+;     sta current_bg_song
+;     lda #1
+;     sta menu_music_started
+;     @done:
+;         rts
+; .endproc
+; ; Jeronimas
+
+; ; Jeronimas
+; ; A == 0 => not in menu (canvas), A != 0 => in menu
+; .proc UpdateMusicForMenuState
+;     beq @not_in_menu
+;     jsr PlayMenuMusicOnce
+;     rts
+;     @not_in_menu:
+;         jsr EnsureCanvasMusic
+;         rts
+; .endproc
+; ; Jeronimas
+
 ; Jeronimas
 .proc InitializeAudio
 
@@ -12,13 +61,15 @@
     ldy #.hibyte(sounds)
     jsr famistudio_sfx_init
 
-    ; Start playing first song (song index 0)
-    lda #0
+    ; Start playing first song (song index 1)
+    lda #1
     jsr famistudio_music_play
 
     ; Initialize music state
     lda #0
     sta music_paused
+    sta current_bg_song
+    sta menu_music_started
 
     rts 
 

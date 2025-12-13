@@ -101,6 +101,9 @@ sfx_temp: .res 1        ; Temporary storage for SFX operations
 sfx_channel: .res 1     ; SFX channel to use
 music_paused: .res 1    ; this is a flag changing this does not actually pause the music
 
+; Track currently selected background song (0 = Gymnopédie, 1 = CocoMelon)
+current_bg_song: .res 1
+menu_music_started: .res 1
 
 ; Save system
 save_temp_byte: .res 1
@@ -252,13 +255,13 @@ color_palette_help_menu:
     .byte $0f,$0b,$1a,$29
 
 color_palette_startup_menu:
-    .byte $16, $00, $29, $0f
-    .byte $16, $19, $29, $0f
-    .byte $16, $05, $16, $27
-    .byte $16, $0b, $19, $29
+    .byte $2d,$05,$09,$01
+    .byte $2d,$3d,$05,$0f
+    .byte $2d,$3c,$1c,$31
+    .byte $2d,$1c,$3c,$1c
     .byte GRAY, BLACK, BLUE, RED
     .byte $0f,$00,$10,$30
-    .byte $0f,$05,$16,$27
+    .byte $2d,$3c,$1c,$31
     .byte $0f,$0b,$1a,$29
 
 ; EXAMPLE_DATA:
@@ -274,7 +277,7 @@ color_palette_startup_menu:
         ;+-------- Flip sprite vertically
 
 CURSOR_START_MENU:
-    .byte START_MENU_CURSOR_Y_OFFSET, TILEINDEX_STAR, %00000000, START_MENU_CURSOR_X_OFFSET
+    .byte START_MENU_CURSOR_Y_OFFSET, TILEINDEX_STAR, %00000010, START_MENU_CURSOR_X_OFFSET
 
 CURSOR_NORMAL_DATA:
     .byte $00, TILEINDEX_CURSOR_NORMAL, %00000000, $00
