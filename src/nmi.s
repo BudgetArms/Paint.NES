@@ -60,6 +60,9 @@
         lda player_1_properties + P_SHAPE_TOOL_SECOND_POS + 1
         sta player + P_SHAPE_TOOL_SECOND_POS + 1
 
+        lda player_1_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
+
         rts 
     :
 
@@ -83,6 +86,9 @@
         sta player + P_SHAPE_TOOL_SECOND_POS
         lda player_1_properties + P_SHAPE_TOOL_SECOND_POS + 1
         sta player + P_SHAPE_TOOL_SECOND_POS + 1
+
+        lda player_2_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
 
         rts 
     :
@@ -294,8 +300,6 @@
     beq :+
         jmp Loop_Players
     :
-
-    ;jsr UseShapeTool
 
     Overlay:
     jsr DrawCursorPositionOverlay

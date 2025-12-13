@@ -118,6 +118,9 @@
     lda #<CANVAS_START_ADDRESS
     sta PPU_ADDR
 
+    ; todo: a clear sound effect
+    jsr PlayToolSoundEffect
+
     ; empty nametable A
     lda #BACKGROUND_TILE_INDEX
     ldy #CANVAS_ROWS ; clear 30 rows
