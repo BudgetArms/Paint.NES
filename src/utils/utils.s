@@ -550,7 +550,7 @@
         lda #CURSOR_MIN_Y + 12
         sta player + P_TILE_Y_POS
 
-        lda #UPDATE_ALL_OFF
+        lda #UPDATE_TOOL_TEXT_OVERLAY
         sta player + P_UPDATE_FLAG
 
     rts
