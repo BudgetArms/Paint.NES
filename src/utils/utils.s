@@ -438,6 +438,8 @@
     cmp player_count
     bne Loop_Players
 
+    ; jsr LoadCanvasFromWRAM
+
     lda #<Canvas_Tilemap
     sta abs_address_to_access
     lda #>Canvas_Tilemap
@@ -1046,7 +1048,8 @@
     bne :+
         ldx #$00
         Canvas_Loop:
-            lda color_palette_ui_overlay, x
+            ; lda color_palette_ui_overlay, x
+            lda canvas_palette, x
             sta palette, x
             inx
             cpx #PALETTE_SIZE
@@ -1114,7 +1117,7 @@
     Load_Header_Color_Values_Loop:
 
         lda (save_ptr + SAVE_DATA_START_OFFSET), y
-        sta color_palette_ui_overlay, y 
+        sta canvas_palette, y 
 
         iny 
 
@@ -1127,7 +1130,7 @@
     Load_Header_Color_Palette:
 
         lda (save_ptr + SAVE_DATA_START_OFFSET), y
-        sta color_palette_ui_overlay, y 
+        sta canvas_palette, y 
 
         iny 
 
@@ -1224,7 +1227,7 @@
     ldy #$00
     Save_Header_Color_Palette:
 
-        lda color_palette_ui_overlay, y 
+        lda canvas_palette, y 
         sta (save_ptr + SAVE_DATA_START_OFFSET), y
 
         iny 
@@ -1285,6 +1288,44 @@
         iny 
         cpy #SAVE_COLOR_DATA_SIZE
         bne Save_Colors_Indexes
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc ResetCanvasPalette
+
+    ldx #$00
+    Canvas_Loop:
+        lda color_palette_ui_overlay, x
+        sta canvas_palette, x
+
+        inx 
+
+        cpx #PALETTE_SIZE
+        bcc Canvas_Loop
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc UpdateCanvasPalette
+
+    ldx #$00
+    Canvas_Loop:
+        lda palette, x
+        sta canvas_palette, x
+
+        inx 
+
+        cpx #PALETTE_SIZE
+        bcc Canvas_Loop
 
     rts 
 

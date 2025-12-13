@@ -114,6 +114,7 @@ oam: .res 256	; sprite OAM data
 ; Remainder of normal RAM area
 .segment "BSS"
 palette: .res 32 ; current palette buffer
+canvas_palette: .res 32 ; current palette buffer
 
 ; Fill queue (ring queue)
 fill_queue: .res 512
@@ -193,6 +194,8 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; Help menu is only needed to load once
     jsr InitializeHelpMenuTilemap
     jsr EnterStartMenuMode
+
+    jsr ResetCanvasPalette
     jsr LoadPalette
 
     jsr PPUUpdate

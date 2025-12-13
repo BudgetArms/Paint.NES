@@ -112,7 +112,9 @@
             sta current_program_mode
             ;jsr EnterStartMenuMode
             TransitionToMode #START_MENU_MODE
-        jmp Stop_Checking
+
+            jsr ResetCanvasPalette
+            jmp Stop_Checking
         :
 
     Check_PAD_A:
@@ -125,7 +127,7 @@
     Check_PAD_B:
         cmp #PAD_B
         bne :+
-jsr LoadCanvasFromWRAM
+; jsr LoadCanvasFromWRAM
             jsr ContinuePreviousMode
         jmp Stop_Checking
         :
@@ -291,6 +293,9 @@ jsr LoadCanvasFromWRAM
         bne :+
             ;jsr EnterHelpMenuMode
             TransitionToMode #HELP_MENU_MODE
+
+            jsr UpdateCanvasPalette
+
         jmp Stop_Checking
         :
 
