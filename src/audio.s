@@ -1,52 +1,3 @@
-; ; Jeronimas
-; ; Call when NOT in main menu: ensures Gymnopédie (song 0) is playing.
-; .proc EnsureCanvasMusic
-;     lda current_bg_song
-;     cmp #0
-;     beq @already_playing
-
-;     ; Switch to Gymnopédie
-;     lda #0
-;     jsr famistudio_music_play
-;     lda #0
-;     sta current_bg_song
-;     lda #0
-;     sta menu_music_started
-;     @already_playing:
-;         rts
-; .endproc
-; ; Jeronimas
-
-; ; Jeronimas
-; ; Call when IN main menu: plays CocoMelon (song 1) one time, does not loop.
-; .proc PlayMenuMusicOnce
-;     lda menu_music_started
-;     bne @done           ; Already started once, don't restart.
-
-;     ; Start CocoMelon
-;     lda #1
-;     jsr famistudio_music_play
-;     lda #1
-;     sta current_bg_song
-;     lda #1
-;     sta menu_music_started
-;     @done:
-;         rts
-; .endproc
-; ; Jeronimas
-
-; ; Jeronimas
-; ; A == 0 => not in menu (canvas), A != 0 => in menu
-; .proc UpdateMusicForMenuState
-;     beq @not_in_menu
-;     jsr PlayMenuMusicOnce
-;     rts
-;     @not_in_menu:
-;         jsr EnsureCanvasMusic
-;         rts
-; .endproc
-; ; Jeronimas
-
 ; Jeronimas
 .proc InitializeAudio
 
@@ -80,8 +31,6 @@
 ; Jeronimas
 .proc PlayToolSoundEffect
     
-        
-
     ; Play drawing sound effect based on tool mode
     lda player + P_SELECTED_TOOL
     cmp #BRUSH_TOOL_SELECTED
@@ -130,7 +79,8 @@
     @Play_SFX:
         jsr famistudio_sfx_play
 
-    rts
+    rts 
+
 .endproc
 ; Jeronimas
 
