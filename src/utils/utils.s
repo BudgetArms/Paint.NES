@@ -735,7 +735,7 @@
     clc
     lda player + P_TILE_Y_POS
     adc player + P_CURSOR_SIZE
-    cmp #DISPLAY_SCREEN_HEIGHT
+    cmp #DISPLAY_SCREEN_HEIGHT - 1
     bcc @No_Y_Move_Needed
         dec player + P_TILE_Y_POS
 

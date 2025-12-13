@@ -377,18 +377,19 @@
         rts
     :
 
-    cmp #BRUSH_TOOL_ON
+    cmp #BRUSH_TOOL_SELECTED
     bne :+
         jsr CycleCursorSize
         rts
     :
 
-    cmp #ERASER_TOOL_ON
+    cmp #ERASER_TOOL_SELECTED
     bne :+
         jsr CycleCursorSize
         rts
     :
 
+    rts
 .endproc
 ; Khine / BudgetArms
 
