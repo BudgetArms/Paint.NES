@@ -232,7 +232,7 @@
         sta drawing_color_tile_index
     :
 
-    jsr PlayBrushSoundEffect
+    jsr PlayToolSoundEffect
 
     ; Store the tile position in a different var
     ; This is done so that the cursor position can stay on the original spot
@@ -273,6 +273,9 @@
 
 ; BudgetArms
 .proc UseShapeTool
+
+    jsr PlayToolSoundEffect
+
     ; Change things
     lda player + P_SHAPE_TOOL_FIRST_SET
     bne Second_Position
@@ -434,6 +437,8 @@
     sta fill_current_addr + 1
     lda player + P_TILE_ADDR
     sta fill_current_addr
+
+    jsr PlayToolSoundEffect
 
     ; Resets the scroll, so the window
     ; doesn't x doesn't change when doing stuff 
