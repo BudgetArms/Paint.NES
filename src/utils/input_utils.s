@@ -118,12 +118,14 @@
     Check_PAD_A:
         cmp #PAD_A
         bne :+
-        jmp Stop_Checking
+            jsr SaveCanvasToWRAM
+            jmp Stop_Checking
         :
 
     Check_PAD_B:
         cmp #PAD_B
         bne :+
+jsr LoadCanvasFromWRAM
             jsr ContinuePreviousMode
         jmp Stop_Checking
         :
