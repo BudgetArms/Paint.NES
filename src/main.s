@@ -162,8 +162,8 @@ irq:
 
 ; FamiStudio config
 FAMISTUDIO_CFG_EXTERNAL         = 1
-FAMISTUDIO_CFG_DPCM_SUPPORT     = 0  ; We do not have DPCM samples in our music or sfx
-FAMISTUDIO_CFG_SFX_SUPPORT      = 1  ; Set to 1 if you want sound effects
+FAMISTUDIO_CFG_DPCM_SUPPORT     = 1
+FAMISTUDIO_CFG_SFX_SUPPORT      = 1  
 FAMISTUDIO_CFG_SFX_STREAMS      = 2
 FAMISTUDIO_USE_VOLUME_TRACK     = 1
 FAMISTUDIO_USE_PITCH_TRACK      = 1
