@@ -36,69 +36,6 @@
 .endproc
 
 
-.proc LoadPlayerShapeToolProperties
-    lda current_player_index
-
-    cmp #PLAYER_1
-    bne :+
-        lda player_1_properties + P_X_POS
-        sta player + P_X_POS
-        lda player_1_properties + P_Y_POS
-        sta player + P_Y_POS
-        lda player_1_properties + P_SHAPE_TOOL_TYPE
-        sta player + P_SHAPE_TOOL_TYPE
-        lda player_1_properties + P_SELECTED_COLOR_INDEX
-        sta player + P_SELECTED_COLOR_INDEX
-        lda player_1_properties + P_SHAPE_TOOL_FIRST_SET
-        sta player + P_SHAPE_TOOL_FIRST_SET
-        lda player_1_properties + P_SHAPE_TOOL_FIRST_POS
-        sta player + P_SHAPE_TOOL_FIRST_POS
-        lda player_1_properties + P_SHAPE_TOOL_FIRST_POS + 1
-        sta player + P_SHAPE_TOOL_FIRST_POS + 1
-        lda player_1_properties + P_SHAPE_TOOL_SECOND_POS
-        sta player + P_SHAPE_TOOL_SECOND_POS
-        lda player_1_properties + P_SHAPE_TOOL_SECOND_POS + 1
-        sta player + P_SHAPE_TOOL_SECOND_POS + 1
-
-        lda player_1_properties + P_SELECTED_TOOL
-        sta player + P_SELECTED_TOOL
-
-        rts 
-    :
-
-    cmp #PLAYER_2
-    bne :+
-        lda player_2_properties + P_X_POS
-        sta player + P_X_POS
-        lda player_2_properties + P_Y_POS
-        sta player + P_Y_POS
-        lda player_2_properties + P_SHAPE_TOOL_TYPE
-        sta player + P_SHAPE_TOOL_TYPE
-        lda player_2_properties + P_SELECTED_COLOR_INDEX
-        sta player + P_SELECTED_COLOR_INDEX
-        lda player_2_properties + P_SHAPE_TOOL_FIRST_SET
-        sta player + P_SHAPE_TOOL_FIRST_SET
-        lda player_2_properties + P_SHAPE_TOOL_FIRST_POS
-        sta player + P_SHAPE_TOOL_FIRST_POS
-        lda player_2_properties + P_SHAPE_TOOL_FIRST_POS + 1
-        sta player + P_SHAPE_TOOL_FIRST_POS + 1
-        lda player_1_properties + P_SHAPE_TOOL_SECOND_POS
-        sta player + P_SHAPE_TOOL_SECOND_POS
-        lda player_1_properties + P_SHAPE_TOOL_SECOND_POS + 1
-        sta player + P_SHAPE_TOOL_SECOND_POS + 1
-
-        lda player_2_properties + P_SELECTED_TOOL
-        sta player + P_SELECTED_TOOL
-
-        rts 
-    :
-
-    rts 
-
-.endproc
-
-
-
 .macro LoadCurrentPlayerProperty property
     ldx current_player_index
     cpx #PLAYER_1
@@ -271,35 +208,16 @@
         LoadCurrentPlayerProperty P_TOOL_USE_FLAG
 
         and #BRUSH_TOOL_ON
-        bne Brush_Used
-            jmp Brush_Not_Used
-        
-        Brush_Used:
+        beq Brush_Not_Used
             jsr LoadPlayerBrushProperties
             jsr UseBrushTool
-
             SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
         Brush_Not_Used:
-
-        LoadCurrentPlayerProperty P_TOOL_USE_FLAG
-
-        and #SHAPE_TOOL_ON
-        beq Shape_Not_Used
-            jsr LoadPlayerShapeToolProperties
-            jsr UseShapeTool
-
-            SaveCurrentPlayerProperty P_SHAPE_TOOL_FIRST_POS
-            SaveCurrentPlayerProperty P_SHAPE_TOOL_FIRST_POS + 1
-            SaveCurrentPlayerProperty P_SHAPE_TOOL_FIRST_SET
-            SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
-        Shape_Not_Used:
 
     inc current_player_index
     lda current_player_index
     cmp player_count
-    beq :+
-        jmp Loop_Players
-    :
+    beq Loop_Players
 
     Overlay:
     jsr DrawCursorPositionOverlay

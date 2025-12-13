@@ -50,13 +50,14 @@ tile_position_output: .res 2
 ;player + P_SHAPE_TOOL_FIRST_POS: .res 2
 ;player + P_SHAPE_TOOL_SECOND_POS: .res 2
 
+; Shape Tool
+shape_tool_same_pos: .res 1
 shape_tool_starting_pos: .res 2
 shape_tool_temp_pos: .res 2
 
 ; shape tool: retangle
 shape_tool_rectangle_width: .res 1
 shape_tool_rectangle_height: .res 1
-
 
 ; shape tool: circle
 shape_tool_circle_radius: .res 1
@@ -299,15 +300,6 @@ CURSOR_BIG_DATA:
     .byte   $08,  TILEINDEX_CURSOR_BIG_LEFT,       %01000000,     $10     ; RIGHT: mirrored x
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP_LEFT,   %11000000,     $10     ; BOTTOM-RIGHT: mirrored x & y
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
-
-
-CURSOR_SHAPE_TOOL_RECTANGLE_DATA:
-    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_RECTANGLE_FIRST,    %00000000,     $00
-    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_RECTANGLE_SECOND,   %00000000,     $00
-
-CURSOR_SHAPE_TOOL_CIRCLE_DATA:
-    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE_FIRST,    %00000000,     $00
-    .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE_SECOND,   %00000000,     $00
 
 Start_Menu_Tilemap:
     .incbin "./tilemaps/start_menu.nam"

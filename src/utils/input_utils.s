@@ -356,30 +356,7 @@
     Check_PAD_B:
         cmp #PAD_B
         bne Stop_Checking
-
-        lda player + P_SELECTED_TOOL
-        cmp #SHAPE_TOOL_SELECTED
-        bne @Not_Shape_Tool 
-            
-            lda player + P_SHAPE_TOOL_TYPE
-            cmp #SHAPE_TOOL_TYPE_RECTANGLE
-            bne @Change_To_Rectangle
-
-                lda #SHAPE_TOOL_TYPE_CIRCLE
-                sta player + P_SHAPE_TOOL_TYPE
-
-                jmp Stop_Checking
-
-            @Change_To_Rectangle:
-
-                lda #SHAPE_TOOL_TYPE_RECTANGLE
-                sta player + P_SHAPE_TOOL_TYPE
-
-                jmp Stop_Checking
-
-        @Not_Shape_Tool:
-
-        jsr CycleCursorSize
+            jsr ChangeCursorProperty
         jmp Stop_Checking
 
     Stop_Checking:
@@ -389,43 +366,73 @@
 ; Joren / Khine
 
 
+; Khine / BudgetArms
+.proc ChangeCursorProperty
+
+    lda player + P_SELECTED_TOOL
+
+    cmp #SHAPE_TOOL_SELECTED
+    bne :+
+        jsr ChangeShapeToolType
+        rts
+    :
+
+    cmp #BRUSH_TOOL_ON
+    bne :+
+        jsr CycleCursorSize
+        rts
+    :
+
+    cmp #ERASER_TOOL_ON
+    bne :+
+        jsr CycleCursorSize
+        rts
+    :
+
+.endproc
+; Khine / BudgetArms
+
+
 ; BudgetArms
 .proc UseSelectedTool
     lda player + P_SELECTED_TOOL
 
     Check_Brush_Tool:
     cmp #BRUSH_TOOL_SELECTED
-    bne Check_Eraser_Tool
+    bne :+
         ChangeToolFlag #BRUSH_TOOL_ON
-        rts 
+        rts
+    :
 
     Check_Eraser_Tool:
     cmp #ERASER_TOOL_SELECTED
-    bne Check_Fill_Tool
+    bne :+
         ChangeToolFlag #BRUSH_TOOL_ON
         ChangeToolFlag #ERASER_TOOL_ON
         rts 
+    :
 
     Check_Fill_Tool:
     cmp #FILL_TOOL_SELECTED
-    bne Check_Shape_Tool
+    bne :+
         jsr UseFillTool
-        rts 
+        rts
+    :
 
     Check_Shape_Tool:
     cmp #SHAPE_TOOL_SELECTED
-    bne Check_Clear_Tool
-        ChangeToolFlag #SHAPE_TOOL_ON
+    bne :+
+        jsr UseShapeTool
         rts 
+    :
 
     Check_Clear_Tool:
     cmp #CLEAR_TOOL_SELECTED
-    bne @End
+    bne :+
         jsr UseClearCanvasTool
         rts 
+    :
 
-    @End:
-    rts 
-
+    rts
 .endproc
 ; BudgetArms

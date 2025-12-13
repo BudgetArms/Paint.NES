@@ -749,6 +749,30 @@
 ; Khine
 
 
+; Khine / BudgetArms
+.proc ChangeShapeToolType
+
+    lda player + P_SHAPE_TOOL_TYPE
+
+    cmp #SHAPE_TOOL_TYPE_RECTANGLE
+    bne :+
+        ldx #SHAPE_TOOL_TYPE_CIRCLE
+        stx player + P_SHAPE_TOOL_TYPE
+    :
+
+    cmp #SHAPE_TOOL_TYPE_CIRCLE
+    bne :+
+        ldx #SHAPE_TOOL_TYPE_RECTANGLE
+        stx player + P_SHAPE_TOOL_TYPE
+    :
+
+    jsr LoadShapeToolCursorSprite
+    rts
+
+.endproc
+; Khine / BudgetArms
+
+
 ; BudgetArms
 .proc ResetScroll
 
@@ -859,6 +883,34 @@
 ; Joren
 
 
+; Khine
+.proc UpdateCursorAfterToolSelection
+    lda player + P_SELECTED_TOOL
+    
+    ldx #MINIMUM_CURSOR_SIZE
+
+    cmp #BRUSH_TOOL_SELECTED
+    bne :+
+        ldx player + P_CURSOR_SIZE
+    :
+
+    cmp #ERASER_TOOL_SELECTED
+    bne :+
+        ldx player + P_CURSOR_SIZE
+    :
+
+    stx player + P_CURSOR_SIZE
+
+    jsr LoadCursorSprite
+
+    lda update_flag
+    ora #UPDATE_TOOL_TEXT_OVERLAY
+    sta update_flag
+    rts
+.endproc
+; Khine
+
+
 ; Joren / Khine
 .proc IncreaseToolSelection
     lda player + P_SELECTED_TOOL
@@ -873,10 +925,7 @@
     Value_Was_Okay:
     sta player + P_SELECTED_TOOL
 
-    lda update_flag
-    ora #UPDATE_TOOL_TEXT_OVERLAY
-    sta update_flag
-
+    jsr UpdateCursorAfterToolSelection
     jsr UpdateToolSelectionOverlayPosition
     rts 
 
@@ -896,10 +945,7 @@
     Value_Was_Okay:
     sta player + P_SELECTED_TOOL
 
-    lda update_flag
-    ora #UPDATE_TOOL_TEXT_OVERLAY
-    sta update_flag
-
+    jsr UpdateCursorAfterToolSelection
     jsr UpdateToolSelectionOverlayPosition
     rts
 

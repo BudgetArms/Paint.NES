@@ -8,34 +8,42 @@
     lda player + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
-    bne :+
+    bne Not_Normal_Cursor
+        lda player + P_SELECTED_TOOL
+
+        cmp #SHAPE_TOOL_SELECTED
+        bne :+
+            jsr LoadShapeToolCursorSprite
+            rts
+        :
+
         lda #<CURSOR_NORMAL_DATA
         sta abs_address_to_access
         lda #>CURSOR_NORMAL_DATA
         sta abs_address_to_access + 1
         ldx #OAM_BYTE_SIZE_CURSOR_NORMAL
         jmp Start_Load
-    :
+    Not_Normal_Cursor:
 
     cmp #TYPE_CURSOR_MEDIUM
-    bne :+
+    bne Not_Medium_Cursor
         lda #<CURSOR_MEDIUM_DATA
         sta abs_address_to_access
         lda #>CURSOR_MEDIUM_DATA
         sta abs_address_to_access + 1
         ldx #OAM_BYTE_SIZE_CURSOR_MEDIUM
         jmp Start_Load
-    :
+    Not_Medium_Cursor:
 
     cmp #TYPE_CURSOR_BIG
-    bne :+
+    bne Not_Big_Cursor
         lda #<CURSOR_BIG_DATA
         sta abs_address_to_access
         lda #>CURSOR_BIG_DATA
         sta abs_address_to_access + 1
         ldx #OAM_BYTE_SIZE_CURSOR_BIG
         jmp Start_Load
-    :
+    Not_Big_Cursor:
 
     Start_Load:
     ldy player + P_INDEX
@@ -65,158 +73,40 @@
 ; BudgetArms / Khine
 
 
-; BudgetArms
-.proc LoadCursorShapeTool
+; BudgetArms / Khine
+.proc LoadShapeToolCursorSprite
+    ldy player + P_SHAPE_TOOL_TYPE
 
-    ; check what cursor should be loaded
-    lda player + P_SHAPE_TOOL_FIRST_SET
-    bne Second_Cursor
+    cpy #SHAPE_TOOL_TYPE_CIRCLE
+    bne :+
+        lda #TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE
+    :
 
-    ; Load first shape cursor
-    ldx #$00
+    cpy #SHAPE_TOOL_TYPE_RECTANGLE
+    bne :+
+        lda #TILEINDEX_CURSOR_SHAPE_TOOL_RECT
+    :
 
-    @Loop:
-        lda player + P_SHAPE_TOOL_TYPE
-        
-        @Check_Rectangle:
-            cmp #SHAPE_TOOL_TYPE_RECTANGLE
-            bne @Check_Circle
+    clc
+    adc player + P_SHAPE_TOOL_FIRST_SET
+    tax
 
-                lda CURSOR_SHAPE_TOOL_RECTANGLE_DATA, X
-                jmp @Store_Shape
-        
-        @Check_Circle:
-            cmp #SHAPE_TOOL_TYPE_CIRCLE
-            bne @Check_Others
+    lda player + P_INDEX
 
-                lda CURSOR_SHAPE_TOOL_CIRCLE_DATA, X
-                jmp @Store_Shape
-        
-        @Check_Others:
-            ; this should never be reached
-            rts 
+    cmp #PLAYER_1
+    bne :+
+        stx oam + OAM_OFFSET_P1_CURSOR + OAM_TILE
+        rts
+    :
 
-        @Store_Shape:
-        
-        ldy player + P_INDEX
-        cpy #PLAYER_1
-        bne @Player2
-
-            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR, X
-            jmp @Continue_Loop
-        
-        @Player2:
-
-            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR, X
-            jmp @Continue_Loop
-
-
-        @Continue_Loop:
-        inx 
-
-        cpx #OAM_BYTE_SIZE_CURSOR_SHAPE
-        bne @Loop
-
-    jmp Update_Cursor_Shape_Position
-
-
-    Second_Cursor:
-    ; Load second shape cursor
-    ldx #$00
-
-    @Loop:
-
-        lda player + P_SHAPE_TOOL_TYPE
-        
-        @Check_Rectangle:
-            cmp #SHAPE_TOOL_TYPE_RECTANGLE
-            bne @Check_Circle
-
-                lda CURSOR_SHAPE_TOOL_RECTANGLE_DATA + 4, X
-                jmp @Store_Shape
-        
-        @Check_Circle:
-            cmp #SHAPE_TOOL_TYPE_CIRCLE
-            bne @Check_Others
-
-                lda CURSOR_SHAPE_TOOL_CIRCLE_DATA + 4, X
-                jmp @Store_Shape
-        
-        @Check_Others:
-            ; this should never be reached
-            rts 
-        
-        @Store_Shape:
-        
-        ldy player + P_INDEX
-        cpy #PLAYER_1
-        bne @Player2
-
-            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR, X
-            jmp @Continue_Loop
-        
-        @Player2:
-
-            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR, X
-            jmp @Continue_Loop
-
-
-        @Continue_Loop:
-
-        inx 
-
-        cpx #OAM_BYTE_SIZE_CURSOR_SHAPE
-        bne @Loop
-
-    jmp Update_Cursor_Shape_Position
-
-
-    Update_Cursor_Shape_Position:
-
-        ; Store data to OAM
-        ; Increase cursor_x with oam data's x-pos
-        ldy player + P_INDEX
-        cpy #PLAYER_1
-        bne @Player2
-
-            ; Y pos
-            ; Increase cursor_y with oam data's y-pos
-            clc 
-            lda player + P_Y_POS
-            ; not addition to OAM Y bc it's set to offscreen        
-            ; subtract A (y pos) by one bc it's draw on the next scanline  
-            clc 
-            sbc #$00
-            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR + OAM_Y
-
-            ; X pos
-            clc 
-            lda player + P_X_POS
-            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR + OAM_X
-
-            rts 
-
-        @Player2:
-
-            ; Y pos
-            ; Increase cursor_y with oam data's y-pos
-            clc 
-            lda player + P_Y_POS
-            ; not addition to OAM Y bc it's set to offscreen        
-            ; subtract A (y pos) by one bc it's draw on the next scanline  
-            clc 
-            sbc #$00
-            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR + OAM_Y
-
-            ; X pos
-            clc 
-            lda player + P_X_POS
-            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR + OAM_X
-
-            rts 
+    cmp #PLAYER_2
+    bne :+
+        stx oam + OAM_OFFSET_P2_CURSOR + OAM_TILE
+        rts
+    :
 
 .endproc
-; BudgetArms
+; BudgetArms / Khine
 
 
 ; Khine / BudgetArms / Jeronimas
@@ -273,7 +163,6 @@
 
 ; BudgetArms
 .proc UseShapeTool
-
     jsr PlayToolSoundEffect
 
     ; Change things
@@ -282,63 +171,49 @@
     
     First_Position:
         ; First position set
-
-        ; if current pos same as previous shape's tool second pos
-        ; eg. bc called on held, fix it by checking if it's still in the same location
-        ;lda cursor_x
-        lda player + P_X_POS
-        cmp player + P_SHAPE_TOOL_SECOND_POS
-        bne @Use_First_Position
-
-        ;lda cursor_y
-        lda player + P_Y_POS
-        cmp player + P_SHAPE_TOOL_SECOND_POS + 1
-        bne @Use_First_Position
-
-        ; if current pos == previous pos
-        jmp Finish
-
-
-        @Use_First_Position:
-
-        lda #$01
-        sta player + P_SHAPE_TOOL_FIRST_SET
-    
         ; store x/y
-        ;lda cursor_x
         lda player + P_X_POS
         sta player + P_SHAPE_TOOL_FIRST_POS
 
         ;lda cursor_y
         lda player + P_Y_POS
         sta player + P_SHAPE_TOOL_FIRST_POS + 1
-        
-        rts 
 
+        lda #$01
+        sta player + P_SHAPE_TOOL_FIRST_SET
+        jsr LoadShapeToolCursorSprite
+
+        rts 
 
     Second_Position:
         ; Second position set
 
         ; if first pos and second pos the same, rts, else @Use_Second_Position
         ;lda cursor_x
-        lda player + P_X_POS
-        cmp player + P_SHAPE_TOOL_FIRST_POS 
-        bne @Use_Second_Position
+        lda #$00
+        sta shape_tool_same_pos
 
-        ;lda cursor_y
+        lda player + P_X_POS
+        cmp player + P_SHAPE_TOOL_FIRST_POS
+        bne :+
+            inc shape_tool_same_pos
+        :
+
         lda player + P_Y_POS
         cmp player + P_SHAPE_TOOL_FIRST_POS + 1
-        bne @Use_Second_Position
+        bne :+
+            inc shape_tool_same_pos
+        :
 
-
-        ; if First pos == Second pos, rts
-        rts 
-
-
-        @Use_Second_Position:
+        lda shape_tool_same_pos
+        cmp #$02
+        bne :+
+            rts
+        :
 
         lda #$00
         sta player + P_SHAPE_TOOL_FIRST_SET
+        jsr LoadShapeToolCursorSprite
 
         ; store x/y
         ;lda cursor_x
@@ -348,10 +223,10 @@
         ;lda cursor_y
         lda player + P_Y_POS
         sta player + P_SHAPE_TOOL_SECOND_POS + 1
-        
 
         ; Rectangle
         lda player + P_SHAPE_TOOL_TYPE
+
         cmp #SHAPE_TOOL_TYPE_RECTANGLE
         bne @Not_Rectangle_Type
 
@@ -362,7 +237,6 @@
         @Not_Rectangle_Type:
 
         ; Circle
-        lda player + P_SHAPE_TOOL_TYPE
         cmp #SHAPE_TOOL_TYPE_CIRCLE
         bne @Not_Circle_Type
 
@@ -373,46 +247,7 @@
         @Not_Circle_Type:
 
         ; this should never be reached
-        rts 
-
-
-    Finish:
-    rts 
-
-.endproc
-; BudgetArms
-
-
-; BudgetArms
-.proc DrawShapeToolCursor
-
-    lda player + P_SELECTED_TOOL
-    cmp #SHAPE_TOOL_SELECTED
-    beq Use_Shape
-
-
-        ; hide shape cursor
-        lda player + P_INDEX
-        cmp #PLAYER_1
-        bne Player2
-
-            lda #OAM_OFFSCREEN
-            sta oam + OAM_OFFSET_P1_SHAPE_TOOL_CURSOR
-            rts 
-
-        Player2:
-
-            lda #OAM_OFFSCREEN
-            sta oam + OAM_OFFSET_P2_SHAPE_TOOL_CURSOR
-            rts 
-    
-    Use_Shape:
-
-    jsr HideCursorSprite
-    jsr LoadCursorShapeTool
-
-    rts 
-
+        rts
 .endproc
 ; BudgetArms
 
