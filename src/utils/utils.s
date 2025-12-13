@@ -1120,8 +1120,7 @@
         bcc @Loop
 
     lda palette + PALETTE_COLOR_BG
-    sta palette + PALETTE_COLOR_BG_COPY_01
-    sta palette + PALETTE_COLOR_BG_COPY_02
+    sta palette + PALETTE_COLOR_BG_COPY
 
     lda palette + PALETTE_COLOR_00
     sta palette + PALETTE_COLOR_00_COPY
