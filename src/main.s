@@ -108,6 +108,7 @@ menu_music_started: .res 1
 ; Save system
 save_temp_byte: .res 1
 save_ptr: .res 2
+save_index: .res 1
 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
@@ -200,6 +201,9 @@ FAMISTUDIO_DPCM_OFF             = $c000
 
     jsr ResetCanvasPalette
     jsr LoadPalette
+
+    lda #SAVE_INVALID_INDEX
+    sta save_index 
 
     jsr PPUUpdate
 
@@ -314,6 +318,15 @@ Start_Menu_Tilemap:
 
 Help_Menu_Tilemap:
     .incbin "./tilemaps/help_menu.nam"
+
+Load_Save_Selection_Tilemap:
+    .incbin "./tilemaps/start_menu_load_save.nam"
+
+Save_Save_Selection_Tilemap:
+    .incbin "./tilemaps/start_menu_save_save.nam"
+
+Select_Player_Selection_Tilemap:
+    .incbin "./tilemaps/start_menu_player_selection.nam"
 
 Canvas_Tilemap:
     .incbin "./tilemaps/canvas.nam"
