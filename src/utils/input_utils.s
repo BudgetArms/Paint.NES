@@ -56,8 +56,8 @@
     Start_Checking_Input:
     lda player + P_INPUT
 
-    Check_PAD_SELECT:
-        cmp #PAD_SELECT
+    Check_PAD_A:
+        cmp #PAD_A
         bne :+
             jsr ConfirmStartMenuSelection
         jmp Stop_Checking

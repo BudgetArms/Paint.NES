@@ -118,7 +118,6 @@
     lda #<CANVAS_START_ADDRESS
     sta PPU_ADDR
 
-    ; todo: a clear sound effect
     jsr PlayToolSoundEffect
 
     ; empty nametable A
