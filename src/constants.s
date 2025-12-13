@@ -293,6 +293,7 @@ ERASER_TOOL_SELECTED   = $01
 FILL_TOOL_SELECTED     = $02
 SHAPE_TOOL_SELECTED    = $03
 CLEAR_TOOL_SELECTED    = $04
+TEXT_TOOL_SELECTED     = $05 ; this tool is not used yet but I put it here so the cmp works in my PlayToolSoundEffect subroutine
 
 
 ;Color values

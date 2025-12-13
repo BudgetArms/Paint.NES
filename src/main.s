@@ -162,8 +162,8 @@ irq:
 
 ; FamiStudio config
 FAMISTUDIO_CFG_EXTERNAL         = 1
-FAMISTUDIO_CFG_DPCM_SUPPORT     = 0  ; We do not have DPCM samples in our music or sfx
-FAMISTUDIO_CFG_SFX_SUPPORT      = 1  ; Set to 1 if you want sound effects
+FAMISTUDIO_CFG_DPCM_SUPPORT     = 1
+FAMISTUDIO_CFG_SFX_SUPPORT      = 1  
 FAMISTUDIO_CFG_SFX_STREAMS      = 2
 FAMISTUDIO_USE_VOLUME_TRACK     = 1
 FAMISTUDIO_USE_PITCH_TRACK      = 1
@@ -239,10 +239,10 @@ color_palette_ui_overlay:
     .byte OFFWHITE, $0f, $24, RED
     .byte OFFWHITE, $0f, $24, $2c
     .byte OFFWHITE, $0f, GREEN, BLUE
-    .byte OFFWHITE, BLUE, WHITE, $10
-    .byte OFFWHITE, $00, WHITE,$30
-    .byte OFFWHITE, $05,$16,$27
-    .byte OFFWHITE, $0b,$1a,$29
+    .byte OFFWHITE, BLUE, BLUE, RED
+    .byte OFFWHITE,$00,$10,$30
+    .byte OFFWHITE,$05,$16,$27
+    .byte OFFWHITE,$0b,$1a,$29
 
 color_palette_help_menu:
     .byte $00, $3c, $2c, $01

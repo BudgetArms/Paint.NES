@@ -44,6 +44,12 @@
 
     cmp #SHAPE_TOOL_SELECTED
     beq @Play_Shape
+
+    cmp #CLEAR_TOOL_SELECTED
+    beq @Play_Clear
+
+    cmp #TEXT_TOOL_SELECTED
+    beq @Play_Text
     
     ; Default - no sound
     rts 
@@ -65,16 +71,28 @@
         ldx #FAMISTUDIO_SFX_CH0  ; Square channel
         jmp @Play_SFX
     
+    @Play_Clear:
+        ; Clear tool - play clear sound (index 2)
+        lda #$02
+        ldx #FAMISTUDIO_SFX_CH0  ; Square channel
+        jmp @Play_SFX
+
     @Play_Fill:
         ; Fill tool - play fill sound (index 2)
-        lda #$02
+        lda #$03
         ldx #FAMISTUDIO_SFX_CH1  ; Noise channel
         jmp @Play_SFX
         
     @Play_Draw:
         ; Draw/Brush tool - play draw sound (index 3)
-        lda #$03
+        lda #$04
         ldx #FAMISTUDIO_SFX_CH1  ; Noise channel
+        jmp @Play_SFX
+
+    @Play_Text:
+        ; Text tool - play keypress DPCM sample
+        lda #$05
+        jsr famistudio_sfx_sample_play
         
     @Play_SFX:
         jsr famistudio_sfx_play
