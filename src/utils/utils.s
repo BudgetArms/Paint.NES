@@ -965,7 +965,7 @@
     sta update_flag
 
     ; Clear the tiles before drawing again
-    ChangePPUNameTableAddr OVERLAY_TOOL_TEXT_OFFSET
+    ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
     ldx #$06
     lda #COLOR_1_TILE_INDEX
     @Clear_Loop:
@@ -974,7 +974,7 @@
         bne @Clear_Loop
 
     ; Reset the PPU location after the clear
-    ChangePPUNameTableAddr OVERLAY_TOOL_TEXT_OFFSET
+    ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
 
     lda player_1_properties + P_SELECTED_TOOL
 
