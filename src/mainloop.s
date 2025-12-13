@@ -161,9 +161,6 @@ mainloop:
 
 ; Khine
 .proc CanvasLoop
-    lda #$00
-    sta current_player_index
-
     ; Play Gymnopédie (song 0) when entering canvas
     lda current_bg_song
     cmp #0
@@ -178,6 +175,8 @@ mainloop:
     ; lda #0
     ; sta menu_music_started
 
+    lda #$00
+    sta current_player_index
     Loop_Players:
         jsr LoadPlayerProperties
         ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )

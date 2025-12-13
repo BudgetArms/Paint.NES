@@ -1,3 +1,51 @@
+.macro LoadCurrentPlayerProperty property
+    ldx current_player_index
+    cpx #PLAYER_1
+    bne :+
+        lda player_1_properties + property
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        lda player_2_properties + property
+    :
+
+    sta player + property
+.endmacro
+
+
+.macro SaveCurrentPlayerProperty property
+    lda player + property
+
+    ldx current_player_index
+    cpx #PLAYER_1
+    bne :+
+        sta player_1_properties + property
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        sta player_2_properties + property
+    :
+.endmacro
+
+
+.macro SaveValueToPlayerProperty property, value
+    lda value
+
+    ldx current_player_index
+    cpx #PLAYER_1
+    bne :+
+        sta player_1_properties + property
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        sta player_2_properties + property
+    :
+.endmacro
+
+
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
     lda source_tile
@@ -416,9 +464,6 @@
     lda #NORMAL_SCROLL_Y
     sta scroll_y_position
 
-    lda #UPDATE_ALL_OFF
-    sta update_flag
-
     jsr InitializeEachPlayer
 
     lda #$00
@@ -504,6 +549,9 @@
 
         lda #CURSOR_MIN_Y + 12
         sta player + P_TILE_Y_POS
+
+        lda #UPDATE_ALL_OFF
+        sta player + P_UPDATE_FLAG
 
     rts
 
@@ -903,9 +951,10 @@
 
     jsr LoadCursorSprite
 
-    lda update_flag
+    lda player + P_UPDATE_FLAG
     ora #UPDATE_TOOL_TEXT_OVERLAY
-    sta update_flag
+    sta player + P_UPDATE_FLAG
+
     rts
 .endproc
 ; Khine
@@ -955,17 +1004,23 @@
 
 ; Khine
 .proc RefreshToolTextOverlay
-    lda update_flag
-    and #UPDATE_TOOL_TEXT_OVERLAY
-    bne @Update_Text
-        rts
-    @Update_Text:
-    lda update_flag
+    lda player + P_UPDATE_FLAG
     eor #UPDATE_TOOL_TEXT_OVERLAY
-    sta update_flag
+    sta player + P_UPDATE_FLAG
+
+    ldx player + P_INDEX
+
+    cpx #PLAYER_1
+    bne Not_Player_1
+        ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
+    Not_Player_1:
+
+    cpx #PLAYER_2
+    bne Not_Player_2
+        ChangePPUNameTableAddr OVERLAY_P2_TOOL_TEXT_OFFSET
+    Not_Player_2:
 
     ; Clear the tiles before drawing again
-    ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
     ldx #$06
     lda #COLOR_1_TILE_INDEX
     @Clear_Loop:
@@ -973,10 +1028,19 @@
         dex
         bne @Clear_Loop
 
-    ; Reset the PPU location after the clear
-    ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
+    ldx player + P_INDEX
 
-    lda player_1_properties + P_SELECTED_TOOL
+    cpx #PLAYER_1
+    bne Not_Player__1
+        ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
+    Not_Player__1:
+
+    cpx #PLAYER_2
+    bne Not_Player__2
+        ChangePPUNameTableAddr OVERLAY_P2_TOOL_TEXT_OFFSET
+    Not_Player__2:
+
+    lda player + P_SELECTED_TOOL
 
     cmp #BRUSH_TOOL_SELECTED
     bne :+

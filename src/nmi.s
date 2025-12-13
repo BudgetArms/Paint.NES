@@ -13,7 +13,7 @@
         sta player + P_TILE_ADDR
         lda player_1_properties + P_TILE_ADDR + 1
         sta player + P_TILE_ADDR + 1
-    rts
+        rts
     :
 
     cmp #PLAYER_2
@@ -31,58 +31,35 @@
         rts 
     :
     
-    rts 
-
+    rts
 .endproc
 
 
-.macro LoadCurrentPlayerProperty property
-    ldx current_player_index
-    cpx #PLAYER_1
+.proc LoadPlayerToolTypeProperties
+
+    lda current_player_index
+
+    cmp #PLAYER_1
     bne :+
-        lda player_1_properties + property
+        lda player_1_properties + P_INDEX
+        sta player + P_INDEX
+        lda player_1_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
+        rts
     :
 
-    cpx #PLAYER_2
+    cmp #PLAYER_2
     bne :+
-        lda player_2_properties + property
+        lda player_2_properties + P_INDEX
+        sta player + P_INDEX
+        lda player_2_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
+        rts 
     :
+    
+    rts
 
-    sta player + property
-.endmacro
-
-
-.macro SaveCurrentPlayerProperty property
-    lda player + property
-
-    ldx current_player_index
-    cpx #PLAYER_1
-    bne :+
-        sta player_1_properties + property
-    :
-
-    cpx #PLAYER_2
-    bne :+
-        sta player_2_properties + property
-    :
-.endmacro
-
-
-.macro SaveValueToPlayerProperty property, value
-    lda value
-
-    ldx current_player_index
-    cpx #PLAYER_1
-    bne :+
-        sta player_1_properties + property
-    :
-
-    cpx #PLAYER_2
-    bne :+
-        sta player_2_properties + property
-    :
-.endmacro
-
+.endproc
 
 .proc nmi
     ; save registers
@@ -214,13 +191,21 @@
             SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
         Brush_Not_Used:
 
+        LoadCurrentPlayerProperty P_UPDATE_FLAG
+
+        cmp #UPDATE_ALL_OFF
+        beq No_Update_Needed
+            jsr LoadPlayerToolTypeProperties
+            jsr RefreshToolTextOverlay
+            SaveCurrentPlayerProperty P_UPDATE_FLAG
+        No_Update_Needed:
+
     inc current_player_index
     lda current_player_index
     cmp player_count
-    beq Loop_Players
+    bne Loop_Players
 
     Overlay:
     jsr DrawCursorPositionOverlay
-    jsr RefreshToolTextOverlay
     rts
 .endproc
