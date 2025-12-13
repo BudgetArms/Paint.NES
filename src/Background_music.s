@@ -4,7 +4,7 @@
 .export _music_data_untitled:=music_data_untitled
 
 music_data_untitled:
-	.byte 1
+	.byte 2
 	.word @instruments
 	.word @samples-4
 ; 00 : Gymnopedie
@@ -13,6 +13,13 @@ music_data_untitled:
 	.word @song0ch2
 	.word @song0ch3
 	.word @song0ch4
+	.byte .lobyte(@tempo_env_1_mid), .hibyte(@tempo_env_1_mid), 0, 0
+; 01 : CocoMelon
+	.word @song1ch0
+	.word @song1ch1
+	.word @song1ch2
+	.word @song1ch3
+	.word @song1ch4
 	.byte .lobyte(@tempo_env_1_mid), .hibyte(@tempo_env_1_mid), 0, 0
 
 .export music_data_untitled
@@ -89,19 +96,24 @@ music_data_untitled:
 	.word @song0ref184
 	.byte $13
 @song0ref223:
-	.byte $ff, $9d, $00, $cd, $0f, $ff, $9d, $00, $cd, $11, $ff, $9d, $00, $cd, $18
+	.byte $ff, $9d, $00, $cd, $0f
+@song0ref228:
+	.byte $ff, $9d, $00, $cd, $11, $ff, $9d, $00, $cd, $18
 	.byte $41, $09
 	.word @song0ref204
-	.byte $1d, $ff, $9d, $00, $cd, $18, $ff, $9d, $00, $cd, $1d
+	.byte $11, $ff, $9d, $00, $cd, $18
 	.byte $41, $09
-	.word @song0ref204
-	.byte $0f, $ff, $9d, $00, $cd, $19, $ff, $9d, $00, $cd, $22
-	.byte $41, $09
-	.word @song0ref223
+	.word @song0ref228
 	.byte $16
 	.byte $41, $09
+	.word @song0ref223
+	.byte $19
+	.byte $41, $09
 	.word @song0ref204
-	.byte $14, $ff, $9d, $00, $cd, $1a
+	.byte $0f
+	.byte $41, $09
+	.word @song0ref204
+	.byte $16, $ff, $9d, $00, $cd, $14, $ff, $9d, $00, $cd, $1a
 	.byte $41, $0e
 	.word @song0ref223
 	.byte $16, $ff, $9d, $00, $cd, $0a, $cd, $0c, $cd, $16, $ff, $ed, $1b, $ff, $e9, $00, $81, $42
@@ -109,52 +121,70 @@ music_data_untitled:
 @song0ch2:
 @song0ch2loop:
 	.byte $80
-@song0ref304:
+@song0ref298:
 	.byte $20, $cd, $27, $ff, $9d, $1b, $cd, $22, $ff, $9d
 	.byte $41, $0a
-	.word @song0ref304
+	.word @song0ref298
 	.byte $41, $0a
-	.word @song0ref304
+	.word @song0ref298
 	.byte $41, $0a
-	.word @song0ref304
-@song0ref323:
+	.word @song0ref298
+@song0ref317:
 	.byte $20, $cd, $27, $ff, $9d, $1b, $cd, $26, $ff, $9d
 	.byte $41, $0a
-	.word @song0ref323
+	.word @song0ref317
 	.byte $41, $0a
-	.word @song0ref304
+	.word @song0ref298
 	.byte $41, $0a
-	.word @song0ref304
+	.word @song0ref298
 	.byte $20, $cd, $27, $ff, $9d, $18, $cd, $1f, $ff, $9d, $1d, $cd, $24, $ff, $9d, $1d, $cd, $1b, $ff, $9d, $1b, $cd, $1b, $ff
 	.byte $9d, $16, $cd, $22
-@song0ref370:
+@song0ref364:
 	.byte $ff, $9d, $1b, $cd, $20, $ff, $9d, $1b, $cd, $20, $ff, $9d, $1b, $cd, $25, $ff, $9d, $1b, $cd, $25, $ff, $9d, $1b, $cd
 	.byte $22, $ff, $9d, $1b, $cd, $29
 	.byte $41, $09
-	.word @song0ref370
+	.word @song0ref364
 	.byte $19, $ff, $9d, $1b, $cd, $2b, $ff, $9d, $1d, $cd, $24, $ff, $9d, $13, $cd, $22, $ff, $9d, $0c, $cd, $1f, $ff, $9d, $11
 	.byte $cd, $1a, $ff, $9d, $11, $cd, $1f, $ff, $9d, $11, $cd, $18, $cd, $1d, $cd, $20, $ff, $ed, $22, $ff, $e9, $00, $81, $42
 	.word @song0ch2loop
 @song0ch4:
 @song0ch3:
 @song0ch3loop:
-@song0ref455:
+@song0ref449:
 	.byte $ff, $ef, $ff, $ef, $ff, $ef, $ff, $ef
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $41, $08
-	.word @song0ref455
+	.word @song0ref449
 	.byte $ff, $ef, $ff, $ef, $ff, $ef, $42
 	.word @song0ch3loop
+@song1ch0:
+	.byte $f7, $80, $20, $81, $25, $83, $29, $83, $00, $ff, $b5, $48, $25, $87, $29, $87, $2c, $87, $00, $b9, $29, $81, $2c, $83
+	.byte $31, $87, $00, $ff, $3d, $91, $38, $91, $35, $91, $31, $91, $48, $2c, $91, $29, $91, $25, $91, $20, $91, $1d, $91, $19
+	.byte $91, $14, $91, $11, $91, $0d, $91, $08, $a5, $00, $e1, $48, $20, $b7, $00, $20, $91, $22, $a5, $24, $a5, $25, $cd, $19
+	.byte $cd, $44, $00
+@song1ch1:
+@song1ref77:
+	.byte $ff, $ff, $bf, $ff, $ff, $bf, $ff, $ff, $bf, $80, $14, $b7, $00, $14, $91, $16, $a5, $18, $a5, $19, $cd, $0d, $cd, $44
+	.byte $00
+@song1ch2:
+	.byte $41, $09
+	.word @song1ref77
+	.byte $80, $2c, $b7, $00, $2c, $91, $2e, $a5, $30, $a5, $31, $cd, $25, $cd, $44, $00
+@song1ch4:
+@song1ch3:
+	.byte $41, $09
+	.word @song1ref77
+	.byte $ff, $ff, $bf, $44, $00
