@@ -1068,3 +1068,226 @@
     rts
 .endproc
 ; Khine
+
+
+; BudgetArms
+.proc LoadCanvasFromWRAM
+    
+    jsr PPUOff
+
+    ; Store save ptr
+    lda #<SAVE_ADDR_START
+    sta save_ptr
+    
+    lda #>SAVE_ADDR_START
+    sta save_ptr + 1
+
+    ; Check if canvas is saved or not
+    ldy #$00
+
+    lda (save_ptr), y
+    cmp #SAVE_HEADER_BYTE_1
+    bne Canvas_Is_Not_Saved
+
+    iny 
+    lda (save_ptr), y
+    cmp #SAVE_HEADER_BYTE_2
+    bne Canvas_Is_Not_Saved
+
+    jmp Canvas_Is_Saved
+
+    Canvas_Is_Not_Saved:
+        rts 
+
+    Canvas_Is_Saved:
+
+    ; Store save ptr
+    lda #<SAVE_ADDR_START
+    sta save_ptr
+    
+    lda #>SAVE_ADDR_START
+    sta save_ptr + 1
+
+
+    ; Load color values   
+    ldy #$00
+    Load_Header_Color_Values_Loop:
+
+        lda (save_ptr + SAVE_DATA_START_OFFSET), y
+        sta color_palette_ui_overlay, y 
+
+        iny 
+
+        cpy #SAVE_HEADER_COLOR_VALUE_SIZE
+        bne Load_Header_Color_Values_Loop
+
+
+    ; Load color palette   
+    ldy #$00
+    Load_Header_Color_Palette:
+
+        lda (save_ptr + SAVE_DATA_START_OFFSET), y
+        sta color_palette_ui_overlay, y 
+
+        iny 
+
+        cpy #SAVE_HEADER_COLOR_VALUE_SIZE
+        bne Load_Header_Color_Palette
+
+
+    Prepare_PPU:
+
+        ; Reset latch
+        lda PPU_STATUS
+
+        lda #>CANVAS_START_ADDRESS
+        sta PPU_ADDR
+
+        lda #<CANVAS_START_ADDRESS
+        sta PPU_ADDR
+
+        ; dummy read
+
+
+    ; used for offset from save_ptr
+    ldy #SAVE_COLOR_OFFSET
+
+    Load_Colors_Indexes:
+
+        ; load temp byte
+        lda (save_ptr), y
+        sta save_temp_byte
+
+        ldx #$00
+
+    @Load_Color_Index_Loop:
+        
+        lda save_temp_byte
+        and #SAVE_COLOR_INDEX_LOAD_MASK
+
+        ; rotate right, the save bytes (containing color index)
+        ; bit 6-7 to bit 0-1
+        rol 
+        rol 
+        rol 
+
+        ; Wrtite color index to VRAM
+        sta PPU_DATA
+
+        ; Shift left twice, to set for next two bits 
+        lda save_temp_byte
+        asl 
+        asl 
+        sta save_temp_byte
+
+        ; if byte not fully loaded, keep looping
+        inx 
+        cpx #SAVE_COLOR_INDEXES_PER_BYTE
+        bne @Load_Color_Index_Loop 
+
+
+    @Load_Color_Index:
+
+        iny 
+        cpy #SAVE_COLOR_DATA_SIZE
+        bne Load_Colors_Indexes
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc SaveCanvasToWRAM
+
+    jsr PPUOff
+
+    ; Store save ptr
+    lda #<SAVE_ADDR_START
+    sta save_ptr
+    
+    lda #>SAVE_ADDR_START
+    sta save_ptr + 1
+
+    ; Save header
+    ldy #$00
+    lda #SAVE_HEADER_BYTE_1
+    sta (save_ptr), y
+
+    iny 
+    lda #SAVE_HEADER_BYTE_2
+    sta (save_ptr), y
+
+
+    ; Save color palette   
+    ldy #$00
+    Save_Header_Color_Palette:
+
+        lda color_palette_ui_overlay, y 
+        sta (save_ptr + SAVE_DATA_START_OFFSET), y
+
+        iny 
+
+        cpy #SAVE_HEADER_COLOR_VALUE_SIZE
+        bne Save_Header_Color_Palette
+
+
+    Prepare_PPU:    
+
+        ; Reset latch
+        lda PPU_STATUS
+
+        lda #>CANVAS_START_ADDRESS
+        sta PPU_ADDR
+
+        lda #<CANVAS_START_ADDRESS
+        sta PPU_ADDR
+
+        ; dummy read
+        lda PPU_DATA
+
+    
+    ; used for offset from save_ptr
+    ldy #SAVE_COLOR_OFFSET
+
+    Save_Colors_Indexes:
+
+        ; Clear temp byte
+        lda #$00
+        sta save_temp_byte
+
+        ldx #$00
+
+    @Save_Color_Index_Loop:
+        
+        ; left shift the save bytes (containing color index)
+        asl save_temp_byte
+        asl save_temp_byte
+
+        ; get color index
+        lda PPU_DATA
+        and  #SAVE_COLOR_INDEX_SAVE_MASK
+        
+        ; add color index to save_temp_byte
+        ora save_temp_byte
+        sta save_temp_byte
+
+        ; if byte not fully loaded, keep looping
+        inx 
+        cpx #SAVE_COLOR_INDEXES_PER_BYTE
+        bne @Save_Color_Index_Loop 
+
+    @Save_Color_Index:
+        lda save_temp_byte
+        sta (save_ptr), y
+
+        iny 
+        cpy #SAVE_COLOR_DATA_SIZE
+        bne Save_Colors_Indexes
+
+    rts 
+
+.endproc
+; BudgetArms
+
