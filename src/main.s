@@ -102,6 +102,11 @@ sfx_channel: .res 1     ; SFX channel to use
 music_paused: .res 1    ; this is a flag changing this does not actually pause the music
 
 
+; Save system
+save_temp_byte: .res 1
+save_ptr: .res 2
+
+
 ; Sprite OAM Data area - copied to VRAM in NMI routine
 .segment "OAM"
 oam: .res 256	; sprite OAM data
