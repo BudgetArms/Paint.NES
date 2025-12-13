@@ -261,7 +261,7 @@ color_palette_startup_menu:
     .byte $2d,$1c,$3c,$1c
     .byte GRAY, BLACK, BLUE, RED
     .byte $0f,$00,$10,$30
-    .byte $0f,$05,$16,$27
+    .byte $2d,$3c,$1c,$31
     .byte $0f,$0b,$1a,$29
 
 ; EXAMPLE_DATA:
@@ -277,7 +277,7 @@ color_palette_startup_menu:
         ;+-------- Flip sprite vertically
 
 CURSOR_START_MENU:
-    .byte START_MENU_CURSOR_Y_OFFSET, TILEINDEX_STAR, %00000000, START_MENU_CURSOR_X_OFFSET
+    .byte START_MENU_CURSOR_Y_OFFSET, TILEINDEX_STAR, %00000010, START_MENU_CURSOR_X_OFFSET
 
 CURSOR_NORMAL_DATA:
     .byte $00, TILEINDEX_CURSOR_NORMAL, %00000000, $00
