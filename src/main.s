@@ -255,10 +255,10 @@ color_palette_help_menu:
     .byte $0f,$0b,$1a,$29
 
 color_palette_startup_menu:
-    .byte $16, $00, $29, $0f
-    .byte $16, $19, $29, $0f
-    .byte $16, $05, $16, $27
-    .byte $16, $0b, $19, $29
+    .byte $2d,$05,$09,$01
+    .byte $2d,$3d,$05,$0f
+    .byte $2d,$3c,$1c,$31
+    .byte $2d,$1c,$3c,$1c
     .byte GRAY, BLACK, BLUE, RED
     .byte $0f,$00,$10,$30
     .byte $0f,$05,$16,$27
