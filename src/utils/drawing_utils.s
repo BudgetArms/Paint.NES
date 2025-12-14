@@ -332,7 +332,9 @@
 
     jsr UpdateColorSelectionOverlayPosition
     jsr UpdateToolSelectionOverlayPosition
-    rts
+
+    rts 
+
 .endproc
 ; Khine
 
@@ -355,7 +357,9 @@
 
         Skip_Color_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_X
-        rts
+
+        rts 
+
 
     Color_Indicator_P2:
         lda #OVERLAY_P2_COLOR_OFFSET_X
@@ -370,7 +374,9 @@
 
         Skip_Color_Loop_P2:
         sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_X
-        rts
+
+        rts 
+
 .endproc
 
 
@@ -392,7 +398,11 @@
 
         Skip_Tool_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
-        rts
+
+        lda #OVERLAY_P1_COLOR_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_Y
+
+        rts 
 
     Tool_Indicator_P2:
         lda #OVERLAY_P2_TOOL_OFFSET_X
@@ -407,6 +417,10 @@
 
         Skip_Tool_Loop_P2:
         sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_X
+
+        lda #OVERLAY_P2_COLOR_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_Y
+
         rts
 .endproc
 ; Khine
@@ -638,3 +652,75 @@
 
 .endproc
 ; BudgetArms
+
+
+; BudgetArms
+.proc FillGrabageInSRamForTesting
+
+    lda #<WRAM_START
+    sta save_ptr 
+
+    lda #>WRAM_START
+    sta save_ptr + 1
+
+
+    ldy #$00
+
+    Clear_Loop:
+
+        lda #$FF
+        sta (save_ptr), y
+
+        iny 
+        bne Clear_Loop
+
+    inc save_ptr + 1
+
+    ; loop until at end
+    lda save_ptr + 1
+    cmp #>WRAM_END + 1
+    bne Clear_Loop
+
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc ClearSRamForTesting
+
+    lda #<WRAM_START
+    sta save_ptr 
+
+    lda #>WRAM_START
+    sta save_ptr + 1
+
+
+    ldy #$00
+
+    Clear_Loop:
+
+        lda #$00
+        sta (save_ptr), y
+
+        iny 
+
+        ; loop until overflow
+        bne Clear_Loop
+
+    Overflow:
+        inc save_ptr + 1
+
+        ; loop until at end of WRAM
+        lda save_ptr + 1
+        cmp #>WRAM_END + 1
+        bne Clear_Loop
+
+
+    rts 
+
+.endproc
+; BudgetArms
+

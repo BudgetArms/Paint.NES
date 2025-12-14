@@ -56,29 +56,25 @@
 
 ; Khine
 .macro TransitionToMode     new_mode
+
     lda current_program_mode
     sta previous_program_mode
+
     lda #TRANSITION_MODE
     sta current_program_mode
+
     lda new_mode
     sta next_program_mode
 
     jsr StartTransitionAnimation
+
 .endmacro
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc StartTransitionAnimation
     lda next_program_mode
-
-    cmp #CANVAS_MODE
-    bne :+
-        lda #<Canvas_Tilemap
-        sta abs_address_to_access
-        lda #>Canvas_Tilemap
-        sta abs_address_to_access + 1
-    :
 
     cmp #START_MENU_MODE
     bne :+
@@ -88,32 +84,87 @@
         sta abs_address_to_access + 1
     :
 
+    cmp #CANVAS_MODE
+    bne :+
+    
+        ; lda #<Canvas_Tilemap
+        ; sta abs_address_to_access
+        ; lda #>Canvas_Tilemap
+        ; sta abs_address_to_access + 1
+
+
+        lda save_index
+        cmp #SAVE_INVALID_INDEX
+        bne Load_From_WRAM
+            lda #<Canvas_Tilemap
+            sta abs_address_to_access
+            lda #>Canvas_Tilemap
+            sta abs_address_to_access + 1
+            jmp :+
+
+        Load_From_WRAM:
+
+            lda #<SAVE_TILEMAP
+            sta abs_address_to_access
+            lda #>SAVE_TILEMAP
+            sta abs_address_to_access + 1
+        
+
+    :
+
+    cmp #LOAD_SAVE_MODE
+    bne :+
+        lda #<Load_Save_Tilemap
+        sta abs_address_to_access
+        lda #>Load_Save_Tilemap
+        sta abs_address_to_access + 1
+    :
+
+    cmp #SELECT_PLAYER_MODE
+    bne :+
+        lda #<Select_Player_Tilemap
+        sta abs_address_to_access
+        lda #>Select_Player_Tilemap
+        sta abs_address_to_access + 1
+    :
+
+
     lda #<NAME_TABLE_1
     sta current_transition_addr
     lda #>NAME_TABLE_1
     sta current_transition_addr + 1
-    rts
+
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 ; Khine
 .macro ChangePPUNameTableAddr address_to_change
+
     lda PPU_STATUS ; reset address latch
+
     lda #>address_to_change ; > takes highbyte of 16 bit value
     sta PPU_ADDR
+
     lda #<address_to_change ; < takes lowbyte of 16 bit value
     sta PPU_ADDR
+
 .endmacro
 ; Khine
 
 
 ; Khine
 .macro ChangePPUNameTableAddr2 high_byte, low_byte
+
     lda PPU_STATUS ; reset address latch
+
     lda #>high_byte ; > takes highbyte of 16 bit value
     sta PPU_ADDR
+
     lda #<low_byte ; < takes lowbyte of 16 bit value
     sta PPU_ADDR
+
 .endmacro
 ; Khine
 
@@ -339,49 +390,225 @@
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc ConfirmStartMenuSelection
     lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
-    cmp #START_MENU_1_PLAYER_SELECTION
+    cmp #START_MENU_START_NEW_SELECTION
     bne :+
-        lda #01
-        sta player_count
-        TransitionToMode #CANVAS_MODE
-        rts
+        TransitionToMode #SELECT_PLAYER_MODE
+        rts 
     :
 
-    cmp #START_MENU_2_PLAYERS_SELECTION
+    cmp #START_MENU_LOAD_SAVE_SELECTION
     bne :+
-        lda #02
-        sta player_count
-        TransitionToMode #CANVAS_MODE
-        rts
+        TransitionToMode #LOAD_SAVE_MODE
+        rts 
     :
 
     cmp #START_MENU_CONTROLS_SELECTION
     bne :+
         TransitionToMode #HELP_MENU_MODE
-        rts
+        rts 
     :
-    rts
+
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
+
+
+; BudgetArms
+.proc ConfirmLoadSaveMenuSelection
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #LOAD_SAVE_MENU_SAVE_0_SELECTION
+    bne :+
+        lda #$00
+        sta save_index
+
+        TransitionToMode #SELECT_PLAYER_MODE
+
+        rts 
+    :
+
+    cmp #LOAD_SAVE_MENU_SAVE_1_SELECTION
+    bne :+
+        lda #$01
+        sta save_index
+
+        TransitionToMode #SELECT_PLAYER_MODE
+
+        rts 
+    :
+
+    cmp #LOAD_SAVE_MENU_SAVE_2_SELECTION
+    bne :+
+        lda #$02
+        sta save_index
+
+        TransitionToMode #SELECT_PLAYER_MODE
+
+        rts 
+    :
+
+    cmp #LOAD_SAVE_MENU_SAVE_3_SELECTION
+    bne :+
+        lda #$03
+        sta save_index
+
+        TransitionToMode #SELECT_PLAYER_MODE
+
+        rts 
+    :
+
+    cmp #LOAD_SAVE_MENU_GO_BACK_SELECTION
+    bne :+
+        lda SAVE_INVALID_INDEX
+        sta save_index
+
+        TransitionToMode #START_MENU_MODE
+
+        rts 
+    :
+
+    ; this should never be reached
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc ConfirmSaveSaveMenuSelection
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #SAVE_SAVE_MENU_SAVE_0_SELECTION
+    bne :+
+        lda #$00
+        sta save_index
+
+        jsr SaveCanvasToWRAM
+
+        TransitionToMode #HELP_MENU_MODE
+
+        rts 
+    :
+
+    cmp #SAVE_SAVE_MENU_SAVE_1_SELECTION
+    bne :+
+        lda #$01
+        sta save_index
+
+        jsr SaveCanvasToWRAM
+
+        TransitionToMode #HELP_MENU_MODE
+
+        rts 
+    :
+
+    cmp #SAVE_SAVE_MENU_SAVE_2_SELECTION
+    bne :+
+        lda #$02
+        sta save_index
+
+        jsr SaveCanvasToWRAM
+
+        TransitionToMode #HELP_MENU_MODE
+
+        rts 
+    :
+
+    cmp #SAVE_SAVE_MENU_SAVE_3_SELECTION
+    bne :+
+        lda #$03
+        sta save_index
+
+        jsr SaveCanvasToWRAM
+
+        TransitionToMode #HELP_MENU_MODE
+
+        rts 
+    :
+
+    cmp #SAVE_SAVE_MENU_GO_BACK_SELECTION
+    bne :+
+        lda SAVE_INVALID_INDEX
+        sta save_index
+
+        TransitionToMode #HELP_MENU_MODE
+
+        rts 
+    :
+
+    ; this should never be reached
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc ConfirmSelectPlayerMenuSelection
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #SELECT_PLAYER_MENU_1_PLAYER_SELECTION
+    bne :+
+        lda #01
+        sta player_count
+
+        lda save_index
+        cmp #SAVE_INVALID_INDEX
+        beq @Not_Loading_Save_1
+            jsr LoadCanvasFromWRAM
+        @Not_Loading_Save_1:
+
+        TransitionToMode #CANVAS_MODE
+        rts 
+    :
+
+    cmp #SELECT_PLAYER_MENU_2_PLAYERS_SELECTION
+    bne :+
+        lda #02
+        sta player_count
+
+        lda save_index
+        cmp #SAVE_INVALID_INDEX
+        beq @Not_Loading_Save_2
+            jsr LoadCanvasFromWRAM
+        @Not_Loading_Save_2:
+
+        TransitionToMode #CANVAS_MODE
+        rts 
+    :
+
+    cmp #SELECT_PLAYER_MENU_GO_BACK_SELECTION
+    bne :+
+        jsr ContinuePreviousMode
+        rts 
+    :
+    rts 
+
+.endproc
+; BudgetArms
+
 
 
 ; Khine
 .proc MoveStartMenuCursorUp
     lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
-    cmp #START_MENU_1_PLAYER_SELECTION
+    cmp #START_MENU_START_NEW_SELECTION
     bne :+
-        rts
+        rts 
     :
 
-    sec
+    sec 
     sbc #TILE_PIXEL_SIZE * 2
     sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
-    rts
+
+    rts 
+
 .endproc
 ; Khine
 
@@ -392,15 +619,132 @@
 
     cmp #START_MENU_CONTROLS_SELECTION
     bne :+
-        rts
+        rts 
     :
 
-    clc
+    clc 
     adc #TILE_PIXEL_SIZE * 2
     sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
-    rts
+
+    rts 
+
 .endproc
 ; Khine
+
+
+; BudgetArms
+.proc MoveLoadSaveMenuCursorUp
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #LOAD_SAVE_MENU_SAVE_0_SELECTION
+    bne :+
+        rts 
+    :
+
+    sec 
+    sbc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc MoveLoadSaveMenuCursorDown
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #LOAD_SAVE_MENU_GO_BACK_SELECTION
+    bne :+
+        rts 
+    :
+
+    clc 
+    adc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc MoveSaveSaveMenuCursorUp
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #SAVE_SAVE_MENU_SAVE_0_SELECTION
+    bne :+
+        rts 
+    :
+
+    sec 
+    sbc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc MoveSaveSaveMenuCursorDown
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #SAVE_SAVE_MENU_GO_BACK_SELECTION
+    bne :+
+        rts 
+    :
+
+    clc 
+    adc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc MoveSelectPlayerMenuCursorUp
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #SELECT_PLAYER_MENU_1_PLAYER_SELECTION
+    bne :+
+        rts 
+    :
+
+    sec 
+    sbc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc MoveSelectPlayerMenuCursorDown
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    cmp #SELECT_PLAYER_MENU_GO_BACK_SELECTION
+    bne :+
+        rts 
+    :
+
+    clc 
+    adc #TILE_PIXEL_SIZE * 2
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+    rts 
+
+.endproc
+; BudgetArms
+
 
 
 ; Khine
@@ -417,6 +761,7 @@
 
 ; Khine
 .proc EnterStartMenuMode
+
     jsr HideAllSprites
 
     lda #START_MENU_MODE
@@ -438,21 +783,116 @@
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc EnterHelpMenuMode
+
     lda #HELP_MENU_MODE
     sta current_program_mode
 
     lda #HELP_MENU_SCROLL_Y
     sta scroll_y_position
 
+    lda #SAVE_INVALID_INDEX
+    sta save_index
+
+    ; save save -> help will not update nametable 3
+    ; so, force it
+    
+    lda #<Help_Menu_Tilemap
+    sta abs_address_to_access
+    lda #>Help_Menu_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable3
+
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
+
+
+; BudgetArms
+.proc EnterLoadSaveSelectionMenuMode
+
+    lda #LOAD_SAVE_MODE
+    sta current_program_mode
+
+    lda #$00
+    sta scroll_y_position
+
+    lda #LOAD_SAVE_MENU_SAVE_0_SELECTION
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+    
+    lda #<Load_Save_Tilemap
+    sta abs_address_to_access
+    lda #>Load_Save_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable1
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc EnterSaveSaveSelectionMenuMode
+
+    jsr HideAllSprites
+
+    lda #LOAD_SAVE_MENU_SAVE_0_SELECTION 
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+    
+    lda #SAVE_SAVE_MODE
+    sta current_program_mode
+
+    lda #HELP_MENU_SCROLL_Y
+    sta scroll_y_position
+
+    lda #<Save_Save_Tilemap
+    sta abs_address_to_access
+    lda #>Save_Save_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable3
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc EnterSelectPlayerSelectionMenuMode
+
+    lda #SELECT_PLAYER_MODE
+    sta current_program_mode
+
+    lda #$00
+    sta scroll_y_position
+
+    lda #SELECT_PLAYER_MENU_1_PLAYER_SELECTION
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+    
+    
+    lda #<Select_Player_Tilemap
+    sta abs_address_to_access
+    lda #>Select_Player_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable1
+
+    rts 
+
+.endproc
+; BudgetArms
+
 
 
 ; Khine
 .proc EnterCanvasMode
+
+    jsr HideAllSprites
+
+    lda #OAM_OFFSCREEN
+    sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
     lda #CANVAS_MODE
     sta current_program_mode
 
@@ -475,12 +915,26 @@
 
         jsr SavePlayerProperties
 
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
+        inc current_player_index
+        
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
 
-    ; jsr LoadCanvasFromWRAM
+
+    lda save_index
+    cmp #SAVE_INVALID_INDEX
+    beq :+
+
+        lda #<SAVE_TILEMAP
+        sta abs_address_to_access
+        lda #>SAVE_TILEMAP
+        sta abs_address_to_access + 1
+        jsr LoadTilemapToNameTable1
+
+        rts 
+
+    :
 
     lda #<Canvas_Tilemap
     sta abs_address_to_access
@@ -488,7 +942,8 @@
     sta abs_address_to_access + 1
     jsr LoadTilemapToNameTable1
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
@@ -505,6 +960,11 @@
     cmp #CANVAS_MODE
     bne :+
         TransitionToMode #CANVAS_MODE
+    :
+
+    cmp #LOAD_SAVE_MODE
+    bne :+
+        TransitionToMode #LOAD_SAVE_MODE
     :
 
     rts
@@ -584,6 +1044,7 @@
             bne P2_Loop
         rts
     :
+    rts 
 
 .endproc
 ; Khine
@@ -617,6 +1078,7 @@
             bne P2_Loop
         rts
     :
+    rts 
 
 .endproc
 ; Khine
@@ -843,8 +1305,7 @@
     clc 
     adc #$01
 
-    ; TODO: use constant
-    cmp #$04 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    cmp #COLOR_3_TILE_INDEX + 1 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
     bmi Value_Was_Okay ; branch if not negative
         lda #BACKGROUND_TILE_INDEX ; set value back to 0
 
@@ -866,7 +1327,6 @@
 
     bpl Value_Was_Okay ; branch if not negative
     lda #COLOR_3_TILE_INDEX ; set value back to max index
-    ; TODO: USE CONSTANT
 
     Value_Was_Okay:
         sta player + P_SELECTED_COLOR_INDEX
@@ -1142,7 +1602,7 @@
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc LoadPalette
     lda current_program_mode
     
@@ -1182,9 +1642,28 @@
             bcc Help_Menu_Loop
         rts
     :
-    rts
+
+    cmp #SAVE_SAVE_MODE
+    bne :+
+
+        ldx #$00
+        Save_Save_Menu_Loop:
+
+            lda color_palette_start_menu, x
+            sta palette, x
+
+            inx 
+
+            cpx #PALETTE_SIZE
+            bcc Save_Save_Menu_Loop
+
+        rts 
+    :
+
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
 ; BudgetArms
@@ -1198,6 +1677,10 @@
     
     lda #>SAVE_ADDR_START
     sta save_ptr + 1
+
+
+    jsr AddOffsetSavePtr 
+
 
     ; Check if canvas is saved or not
     ldy #$00
@@ -1221,7 +1704,7 @@
 
     ; Load color palette   
     ldx #$00
-    ldy #SAVE_DATA_START_OFFSET
+    ldy #SAVE_HEADER_COLOR_VALUE_OFFSET
     Load_Header_Color_Palette:
 
         lda (save_ptr), y
@@ -1233,27 +1716,23 @@
         cpx #SAVE_HEADER_COLOR_VALUE_SIZE
         bne Load_Header_Color_Palette
 
+    Prepare_VRAM:
 
-    Prepare_PPU:
+        ; store location
+        lda #<SAVE_START_TILEMAP
+        sta save_canvas_ptr
 
-        ; Reset latch
-        lda PPU_STATUS
+        lda #>SAVE_START_TILEMAP
+        sta save_canvas_ptr + 1
 
-        lda #>CANVAS_START_ADDRESS
-        sta PPU_ADDR
-
-        lda #<CANVAS_START_ADDRESS
-        sta PPU_ADDR
-
-        ; dummy read
-
-
-    ; used for offset from save_ptr
-    ldy #SAVE_DATA_START_OFFSET
+        ; used for offset from save_ptr
+        ldy #SAVE_DATA_START_OFFSET
+        sty save_ptr_offset
 
     Load_Colors_Indexes:
 
         ; load temp byte
+        ldy save_ptr_offset
         lda (save_ptr), y
         sta save_temp_byte
 
@@ -1264,14 +1743,30 @@
         lda save_temp_byte
         and #SAVE_COLOR_INDEX_LOAD_MASK
 
-        ; rotate right, the save bytes (containing color index)
+        ; shift right, bit 6-7 to 0-1
         ; bit 6-7 to bit 0-1
-        rol 
-        rol 
-        rol 
+        lsr 
+        lsr 
+        lsr 
+        lsr 
+        lsr 
+        lsr 
 
-        ; Wrtite color index to VRAM
-        sta PPU_DATA
+        ; store pixel in tilemap
+        ldy #$00
+        sta (save_canvas_ptr), y
+
+        ; increment save_canvas_ptr
+        clc 
+        lda save_canvas_ptr
+        adc #$01
+        sta save_canvas_ptr
+
+        bcc :+ 
+            lda save_canvas_ptr + 1
+            adc #$00
+            sta save_canvas_ptr + 1
+        :
 
         ; Shift left twice, to set for next two bits 
         lda save_temp_byte
@@ -1287,7 +1782,9 @@
 
     @Load_Color_Index:
 
-        iny 
+        inc save_ptr_offset 
+        ldy save_ptr_offset
+
         cpy #(SAVE_COLOR_DATA_SIZE + SAVE_DATA_START_OFFSET)
         bne Load_Colors_Indexes
 
@@ -1309,8 +1806,12 @@
     lda #>SAVE_ADDR_START
     sta save_ptr + 1
 
+    jsr AddOffsetSavePtr 
+
+
     ; Save header
     ldy #$00
+
     lda #SAVE_HEADER_BYTE_1
     sta (save_ptr), y
 
@@ -1321,11 +1822,9 @@
 
     ; Save color palette   
     ldx #$00
-    ldy #SAVE_DATA_START_OFFSET
+    ldy #SAVE_HEADER_COLOR_VALUE_OFFSET
     Save_Header_Color_Palette:
 
-        ; lda canvas_palette, y 
-        ; sta (save_ptr + SAVE_DATA_START_OFFSET), y
         lda canvas_palette, x
         sta (save_ptr), y
 
@@ -1465,3 +1964,154 @@
 .endproc
 ; Khine
 
+; BudgetArms
+.proc UpdateSelectionOverlaysYPos
+
+    lda player + P_INDEX
+    cmp #PLAYER_1
+    bne Player_2
+    
+    Player_1:        
+
+    lda #OVERLAY_P1_COLOR_OFFSET_Y
+    sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_Y
+
+    lda #OVERLAY_P1_TOOL_OFFSET_Y
+    sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_Y
+
+    rts 
+
+
+    Player_2:
+
+    lda #OVERLAY_P2_COLOR_OFFSET_Y
+    sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_Y
+
+    lda #OVERLAY_P2_TOOL_OFFSET_Y
+    sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_Y
+
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc SaveCanvasTileMapToSRAM
+
+    ; store canvas pos
+    lda #<Canvas_Tilemap
+    sta save_canvas_ptr
+
+    lda #>Canvas_Tilemap
+    sta save_canvas_ptr + 1
+
+    ; set 'save/store' pointer
+    lda #<SAVE_TILEMAP
+    sta save_ptr
+
+    lda #>SAVE_TILEMAP
+    sta save_ptr + 1
+
+    ldx #$00    
+    ldy #$00
+
+    Save_Loop:
+
+        lda (save_canvas_ptr), y
+        sta (save_ptr), y
+
+        iny 
+
+        ; loop until overflow
+        bne Save_Loop
+
+        inc save_canvas_ptr + 1
+        inc save_ptr + 1
+
+        inx 
+
+        cpx #SAVE_TILEMAP_OVERFLOW_LOOPS
+        bne Save_Loop 
+
+    lda #$00
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc AddOffsetSavePtr
+
+    lda save_index
+    cmp #SAVE_INVALID_INDEX
+    bne :+
+        rts 
+    :
+
+    lda save_index
+    cmp #$00
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_0
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_0
+        sta save_ptr + 1
+
+        rts 
+    :
+    cmp #$01
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_1
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_1
+        sta save_ptr + 1
+
+        rts 
+
+    :
+    cmp #$02
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_2
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_2
+        sta save_ptr + 1
+
+        rts 
+    :
+    cmp #$03
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_3
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_3
+        sta save_ptr + 1
+
+        rts 
+    :
+
+    rts 
+
+.endproc
+; BudgetArms

@@ -24,6 +24,24 @@ mainloop:
         jmp End_Of_Loop
     :
 
+    cmp #LOAD_SAVE_MODE
+    bne :+
+        jsr LoadSaveMenuLoop
+        jmp End_Of_Loop
+    :
+
+    cmp #SAVE_SAVE_MODE
+    bne :+
+        jsr SaveSaveMenuLoop
+        jmp End_Of_Loop
+    :
+
+    cmp #SELECT_PLAYER_MODE
+    bne :+
+        jsr SelectPlayerMenuLoop
+        jmp End_Of_Loop
+    :
+
     cmp #TRANSITION_MODE
     bne :+
         jsr TransitionLoop
@@ -37,6 +55,7 @@ mainloop:
     jmp mainloop
 
 
+; Khine
 .proc StartMenuLoop
     lda #$00
     sta current_player_index
@@ -66,6 +85,7 @@ mainloop:
     bne Loop_Players
     rts
 .endproc
+; Khine
 
 
 ; Khine
@@ -89,7 +109,70 @@ mainloop:
 ; Khine
 
 
-; Khine
+; BudgetArms
+.proc LoadSaveMenuLoop
+    lda #$00
+    sta current_player_index
+
+    Loop_Players:
+        jsr LoadPlayerProperties
+        ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
+        jsr PollGamepad
+        jsr HandleLoadSaveMenuInput
+
+        jsr SavePlayerProperties
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+    rts
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc SaveSaveMenuLoop
+    lda #$00
+    sta current_player_index
+
+    Loop_Players:
+        jsr LoadPlayerProperties
+        ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
+        jsr PollGamepad
+        jsr HandleSaveSaveMenuInput
+
+        jsr SavePlayerProperties
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+    rts
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc SelectPlayerMenuLoop
+    lda #$00
+    sta current_player_index
+
+    Loop_Players:
+        jsr LoadPlayerProperties
+        ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
+        jsr PollGamepad
+        jsr HandleSelectPlayerMenuInput
+
+        jsr SavePlayerProperties
+    inc current_player_index
+    lda current_player_index
+    cmp player_count
+    bne Loop_Players
+    rts
+.endproc
+; BudgetArms
+
+
+; Khine / BudgetArms
 .proc TransitionLoop
     inc mode_transition_time
     bne No_Transition_Yet
@@ -103,6 +186,8 @@ mainloop:
             bne :+
                 lda next_program_mode
                 sta current_program_mode
+
+
                 jmp Transition_Done
             :
 
@@ -131,9 +216,27 @@ mainloop:
             jmp Transition_Done
         Next_Not_Help_Menu:
 
+        cmp #LOAD_SAVE_MODE
+        bne Next_Not_Load_Save_Menu
+            jsr EnterLoadSaveSelectionMenuMode
+            jsr Transition_Done
+        Next_Not_Load_Save_Menu:
+
+        cmp #SAVE_SAVE_MODE
+        bne Next_Not_Save_Save_Menu
+            jsr EnterSaveSaveSelectionMenuMode
+            jsr Transition_Done
+        Next_Not_Save_Save_Menu:
+
+        cmp #SELECT_PLAYER_MODE
+        bne Next_Not_Select_Player_Menu
+            jsr EnterSelectPlayerSelectionMenuMode
+            jsr Transition_Done
+        Next_Not_Select_Player_Menu:
+
         Transition_Done:
-        jsr LoadPalette
-        rts
+            jsr LoadPalette
+            rts 
 
     No_Transition_Yet:
 
@@ -148,18 +251,30 @@ mainloop:
         rts
     Next_Not_Help_Mode:
 
+    lda next_program_mode
+    cmp #SAVE_SAVE_MODE
+    bne Next_Not_Save_Save_Mode
+        lda previous_program_mode
+        cmp #HELP_MENU_MODE
+        bne :+
+            rts 
+        :
+    Next_Not_Save_Save_Mode:
+
+
     lda scroll_y_position
     cmp #NORMAL_SCROLL_Y
     beq :+
         dec scroll_y_position
     :
 
-    rts
+    rts 
+
 .endproc
-; Khine
+; Khine / BudgetArms
 
 
-; Khine
+; Khine / BudgetArms
 .proc CanvasLoop
     ; Play Gymnopédie (song 0) when entering canvas
     lda current_bg_song
@@ -184,6 +299,12 @@ mainloop:
         jsr PollGamepad
         jsr HandleCanvasInput
 
+        lda #OAM_OFFSCREEN
+        sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
+
+        jsr UpdateSelectionOverlaysYPos
+        
+
         jsr ConvertCursorPosToTilePositions
         jsr UpdateCursorSpritePosition
 
@@ -197,4 +318,5 @@ mainloop:
     jsr UpdatePlayersCursorPalette
     rts
 .endproc
-; Khine
+; Khine / BudgetArms
+

@@ -903,8 +903,8 @@
         adc #$00
         sta current_transition_addr + 1
 
-        inx
-        cpx #$04 ; Speed
+        inx 
+        cpx #TRANSITION_SPEED
         bne Loop
     rts
 .endproc

@@ -108,6 +108,12 @@ menu_music_started: .res 1
 ; Save system
 save_temp_byte: .res 1
 save_ptr: .res 2
+save_ptr_offset: .res 1
+save_index: .res 1
+
+; Save canvas pointer, to save canvas to sram
+; needed to make animation work
+save_canvas_ptr: .res 2
 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
@@ -192,14 +198,23 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .segment "CODE"
 .proc main
     ; main application - rendering is currently off
-    
+
+    ; jsr ClearSRamForTesting
+    ; jsr FillGrabageInSRamForTesting
+
+    jsr SaveCanvasTileMapToSRAM    
+
     ; load start menu
     ; Help menu is only needed to load once
+
     jsr InitializeHelpMenuTilemap
     jsr EnterStartMenuMode
 
     jsr ResetCanvasPalette
     jsr LoadPalette
+
+    lda #SAVE_INVALID_INDEX
+    sta save_index 
 
     jsr PPUUpdate
 
@@ -291,13 +306,22 @@ CURSOR_BIG_DATA:
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
 
 Start_Menu_Tilemap:
-    .incbin "./tilemaps/start_menu.nam"
+    .incbin "./tilemaps/StartMenu_01.nam"
 
 Help_Menu_Tilemap:
-    .incbin "./tilemaps/help_menu.nam"
+    .incbin "./tilemaps/HelpMenu_01.nam"
+
+Load_Save_Tilemap:
+    .incbin "./tilemaps/load_save_menu.nam"
+
+Save_Save_Tilemap:
+    .incbin "./tilemaps/ChooseSaveMenu.nam"
+
+Select_Player_Tilemap:
+    .incbin "./tilemaps/PlayerAmountMenu_01.nam"
 
 Canvas_Tilemap:
-    .incbin "./tilemaps/canvas.nam"
+    .incbin "./tilemaps/idkTbh/canvas.nam"
 
 
 Overlay_Tool_Text:
