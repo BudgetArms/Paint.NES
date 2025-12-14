@@ -85,7 +85,7 @@
 ; Khine
 
 
-; Khine
+; Khine / BudgetArms
 .proc HandleHelpMenuInput
 
     lda player + P_INPUT
@@ -110,7 +110,6 @@
             ; Override current mode as canvas
             lda #CANVAS_MODE
             sta current_program_mode
-            ;jsr EnterStartMenuMode
             TransitionToMode #START_MENU_MODE
 
             jsr ResetCanvasPalette
@@ -120,24 +119,193 @@
     Check_PAD_A:
         cmp #PAD_A
         bne :+
-            jsr SaveCanvasToWRAM
+
+            ; if you came from the main menu, you cannot store a canvas
+            lda previous_program_mode
+            cmp #START_MENU_MODE
+            beq No_Canvas_To_Save
+
+                TransitionToMode #SAVE_SAVE_SELECTION_MODE
+                jmp Stop_Checking
+
+            No_Canvas_To_Save:
             jmp Stop_Checking
         :
 
     Check_PAD_B:
         cmp #PAD_B
         bne :+
-; jsr LoadCanvasFromWRAM
-            jsr ContinuePreviousMode
-        jmp Stop_Checking
+            ; cannot use continueprevious mode bc
+            ; if help menu -> save menu -> help menu, then previous mode would be save menu
+            ; and not canvas_mode
+            ; jsr ContinuePreviousMode
+
+            ; if previous mode is start menu, then go to start_menu_mode
+            ; else, go to canvas_mode
+            lda previous_program_mode
+            cmp #START_MENU_MODE
+            bne Previous_Mode_Not_Start_Mode
+                TransitionToMode #START_MENU_MODE
+                jmp Stop_Checking
+
+            Previous_Mode_Not_Start_Mode:
+
+            TransitionToMode #CANVAS_MODE
+            jmp Stop_Checking
+
         :
 
     Stop_Checking:
-            jsr IncreaseButtonHeldFrameCount
-        rts
+    jsr IncreaseButtonHeldFrameCount
+
+    rts 
 
 .endproc
-; Khine
+; Khine / BudgetArms
+
+
+; BudgetArms
+.proc HandleLoadSaveMenuInput
+
+    lda player + P_INPUT
+    bne Input_Detected
+
+    lda #$00 ; reset frame count to 0
+    sta player + P_INPUT_FRAME_COUNT
+    rts 
+
+    Input_Detected:
+    ; Check if the frame count is 0
+    lda player + P_INPUT_FRAME_COUNT
+    beq Start_Checking_Input
+        jmp Stop_Checking
+
+    Start_Checking_Input:
+    lda player + P_INPUT
+
+    Check_PAD_SELECT:
+        cmp #PAD_SELECT
+        bne :+
+            jsr ConfirmLoadSaveMenuSelection
+            jmp Stop_Checking
+        :
+
+    Check_PAD_UP:
+        cmp #PAD_UP
+        bne :+
+            jsr MoveLoadSaveMenuCursorUp
+            jmp Stop_Checking
+        :
+
+    Check_PAD_DOWN:
+        cmp #PAD_DOWN
+        bne :+
+            jsr MoveLoadSaveMenuCursorDown
+            jmp Stop_Checking
+        :
+
+    Stop_Checking:
+        jsr IncreaseButtonHeldFrameCount
+        rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc HandleSaveSaveMenuInput
+
+    lda player + P_INPUT
+    bne Input_Detected
+
+    lda #$00 ; reset frame count to 0
+    sta player + P_INPUT_FRAME_COUNT
+    rts 
+
+    Input_Detected:
+    ; Check if the frame count is 0
+    lda player + P_INPUT_FRAME_COUNT
+    beq Start_Checking_Input
+        jmp Stop_Checking
+
+    Start_Checking_Input:
+    lda player + P_INPUT
+
+    Check_PAD_SELECT:
+        cmp #PAD_SELECT
+        bne :+
+            jsr ConfirmSaveSaveMenuSelection
+            jmp Stop_Checking
+        :
+
+    Check_PAD_UP:
+        cmp #PAD_UP
+        bne :+
+            jsr MoveSaveSaveMenuCursorUp
+            jmp Stop_Checking
+        :
+
+    Check_PAD_DOWN:
+        cmp #PAD_DOWN
+        bne :+
+            jsr MoveSaveSaveMenuCursorDown
+            jmp Stop_Checking
+        :
+
+    Stop_Checking:
+        jsr IncreaseButtonHeldFrameCount
+        rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc HandleSelectPlayerMenuInput
+
+    lda player + P_INPUT
+    bne Input_Detected
+
+    lda #$00 ; reset frame count to 0
+    sta player + P_INPUT_FRAME_COUNT
+    rts 
+
+    Input_Detected:
+    ; Check if the frame count is 0
+    lda player + P_INPUT_FRAME_COUNT
+    beq Start_Checking_Input
+        jmp Stop_Checking
+
+    Start_Checking_Input:
+    lda player + P_INPUT
+
+    Check_PAD_SELECT:
+        cmp #PAD_SELECT
+        bne :+
+            jsr ConfirmSelectPlayerMenuSelection
+            jmp Stop_Checking
+        :
+
+    Check_PAD_UP:
+        cmp #PAD_UP
+        bne :+
+            jsr MoveSelectPlayerMenuCursorUp
+            jmp Stop_Checking
+        :
+
+    Check_PAD_DOWN:
+        cmp #PAD_DOWN
+        bne :+
+            jsr MoveSelectPlayerMenuCursorDown
+            jmp Stop_Checking
+        :
+
+    Stop_Checking:
+        jsr IncreaseButtonHeldFrameCount
+        rts 
+
+.endproc
+; BudgetArms
 
 
 ; Joren / Khine
