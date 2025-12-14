@@ -38,10 +38,30 @@
 
     cmp #CANVAS_MODE
     bne :+
-        lda #<Canvas_Tilemap
-        sta abs_address_to_access
-        lda #>Canvas_Tilemap
-        sta abs_address_to_access + 1
+    
+        ; lda #<Canvas_Tilemap
+        ; sta abs_address_to_access
+        ; lda #>Canvas_Tilemap
+        ; sta abs_address_to_access + 1
+
+
+        lda save_index
+        cmp #SAVE_INVALID_INDEX
+        bne Load_From_WRAM
+            lda #<Canvas_Tilemap
+            sta abs_address_to_access
+            lda #>Canvas_Tilemap
+            sta abs_address_to_access + 1
+            jmp :+
+
+        Load_From_WRAM:
+
+            lda #<SAVE_TILEMAP
+            sta abs_address_to_access
+            lda #>SAVE_TILEMAP
+            sta abs_address_to_access + 1
+        
+
     :
 
     cmp #LOAD_SAVE_MODE
@@ -420,8 +440,7 @@
         lda #$00
         sta save_index
 
-        ; todo: call save canvas
-        ; jsr SaveCanvasToWRAM
+        jsr SaveCanvasToWRAM
 
         TransitionToMode #HELP_MENU_MODE
 
@@ -433,8 +452,7 @@
         lda #$01
         sta save_index
 
-        ; todo: call save canvas
-        ; jsr SaveCanvasToWRAM
+        jsr SaveCanvasToWRAM
 
         TransitionToMode #HELP_MENU_MODE
 
@@ -446,8 +464,7 @@
         lda #$02
         sta save_index
 
-        ; todo: call save canvas
-        ; jsr SaveCanvasToWRAM
+        jsr SaveCanvasToWRAM
 
         TransitionToMode #HELP_MENU_MODE
 
@@ -459,8 +476,7 @@
         lda #$03
         sta save_index
 
-        ; todo: call save canvas
-        ; jsr SaveCanvasToWRAM
+        jsr SaveCanvasToWRAM
 
         TransitionToMode #HELP_MENU_MODE
 
@@ -492,6 +508,13 @@
     bne :+
         lda #01
         sta player_count
+
+        lda save_index
+        cmp #SAVE_INVALID_INDEX
+        beq @Not_Loading_Save_1
+            jsr LoadCanvasFromWRAM
+        @Not_Loading_Save_1:
+
         TransitionToMode #CANVAS_MODE
         rts 
     :
@@ -500,6 +523,13 @@
     bne :+
         lda #02
         sta player_count
+
+        lda save_index
+        cmp #SAVE_INVALID_INDEX
+        beq @Not_Loading_Save_2
+            jsr LoadCanvasFromWRAM
+        @Not_Loading_Save_2:
+
         TransitionToMode #CANVAS_MODE
         rts 
     :
@@ -714,6 +744,9 @@
     lda #HELP_MENU_SCROLL_Y
     sta scroll_y_position
 
+    lda #SAVE_INVALID_INDEX
+    sta save_index
+
     ; save save -> help will not update nametable 3
     ; so, force it
     
@@ -842,13 +875,27 @@
         bne Loop_Players
 
 
-    lda #<Canvas_Tilemap
-    sta abs_address_to_access
-    lda #>Canvas_Tilemap
-    sta abs_address_to_access + 1
-    jsr LoadTilemapToNameTable1
+    lda save_index
+    cmp #SAVE_INVALID_INDEX
+    bne :+
+        lda #<Canvas_Tilemap
+        sta abs_address_to_access
+        lda #>Canvas_Tilemap
+        sta abs_address_to_access + 1
+        jsr LoadTilemapToNameTable1
+        rts 
+    :
+        lda #<SAVE_TILEMAP
+        sta abs_address_to_access
+        lda #>SAVE_TILEMAP
+        sta abs_address_to_access + 1
+        jsr LoadTilemapToNameTable1
+        rts 
+    ; jsr LoadCanvasFromWRAM
 
-    rts
+
+    rts 
+
 .endproc
 ; Khine
 
@@ -1511,6 +1558,10 @@
     lda #>SAVE_ADDR_START
     sta save_ptr + 1
 
+
+    jsr AddOffsetSavePtr 
+
+
     ; Check if canvas is saved or not
     ldy #$00
 
@@ -1533,7 +1584,7 @@
 
     ; Load color palette   
     ldx #$00
-    ldy #SAVE_DATA_START_OFFSET
+    ldy #SAVE_HEADER_COLOR_VALUE_OFFSET
     Load_Header_Color_Palette:
 
         lda (save_ptr), y
@@ -1545,27 +1596,23 @@
         cpx #SAVE_HEADER_COLOR_VALUE_SIZE
         bne Load_Header_Color_Palette
 
+    Prepare_VRAM:
 
-    Prepare_PPU:
+        ; store location
+        lda #<SAVE_START_TILEMAP
+        sta save_canvas_ptr
 
-        ; Reset latch
-        lda PPU_STATUS
+        lda #>SAVE_START_TILEMAP
+        sta save_canvas_ptr + 1
 
-        lda #>CANVAS_START_ADDRESS
-        sta PPU_ADDR
-
-        lda #<CANVAS_START_ADDRESS
-        sta PPU_ADDR
-
-        ; dummy read
-
-
-    ; used for offset from save_ptr
-    ldy #SAVE_DATA_START_OFFSET
+        ; used for offset from save_ptr
+        ldy #SAVE_DATA_START_OFFSET
+        sty save_ptr_offset
 
     Load_Colors_Indexes:
 
         ; load temp byte
+        ldy save_ptr_offset
         lda (save_ptr), y
         sta save_temp_byte
 
@@ -1582,8 +1629,21 @@
         rol 
         rol 
 
-        ; Wrtite color index to VRAM
-        sta PPU_DATA
+        ; store pixel in tilemap
+        ldy #$00
+        sta (save_canvas_ptr), y
+
+        ; increment save_canvas_ptr
+        clc 
+        lda save_canvas_ptr
+        adc #$01
+        sta save_canvas_ptr
+
+        bcc :+ 
+            lda save_canvas_ptr + 1
+            adc #$00
+            sta save_canvas_ptr + 1
+        :
 
         ; Shift left twice, to set for next two bits 
         lda save_temp_byte
@@ -1599,7 +1659,9 @@
 
     @Load_Color_Index:
 
-        iny 
+        inc save_ptr_offset 
+        ldy save_ptr_offset
+
         cpy #(SAVE_COLOR_DATA_SIZE + SAVE_DATA_START_OFFSET)
         bne Load_Colors_Indexes
 
@@ -1621,8 +1683,12 @@
     lda #>SAVE_ADDR_START
     sta save_ptr + 1
 
+    jsr AddOffsetSavePtr 
+
+
     ; Save header
     ldy #$00
+
     lda #SAVE_HEADER_BYTE_1
     sta (save_ptr), y
 
@@ -1633,11 +1699,9 @@
 
     ; Save color palette   
     ldx #$00
-    ldy #SAVE_DATA_START_OFFSET
+    ldy #SAVE_HEADER_COLOR_VALUE_OFFSET
     Save_Header_Color_Palette:
 
-        ; lda canvas_palette, y 
-        ; sta (save_ptr + SAVE_DATA_START_OFFSET), y
         lda canvas_palette, x
         sta (save_ptr), y
 
@@ -1771,6 +1835,127 @@
     lda #OVERLAY_P2_TOOL_OFFSET_Y
     sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_Y
 
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc SaveCanvasTileMapToSRAM
+
+    ; store canvas pos
+    lda #<Canvas_Tilemap
+    sta save_canvas_ptr
+
+    lda #>Canvas_Tilemap
+    sta save_canvas_ptr + 1
+
+    ; set 'save/store' pointer
+    lda #<SAVE_TILEMAP
+    sta save_ptr
+
+    lda #>SAVE_TILEMAP
+    sta save_ptr + 1
+
+    ldx #$00    
+    ldy #$00
+
+    Save_Loop:
+
+        lda (save_canvas_ptr), y
+        sta (save_ptr), y
+
+        iny 
+
+        ; loop until overflow
+        bne Save_Loop
+
+        inc save_canvas_ptr + 1
+        inc save_ptr + 1
+
+        inx 
+
+        ; tilemap size: 1k -> 1kB / 256B = 4
+        cpx #$04 + 1
+        bne Save_Loop 
+
+    lda #$00
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc AddOffsetSavePtr
+
+    lda save_index
+    cmp #SAVE_INVALID_INDEX
+    bne :+
+        rts 
+    :
+
+    lda save_index
+    cmp #$00
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_0
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_0
+        sta save_ptr + 1
+
+        rts 
+    :
+    cmp #$01
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_1
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_1
+        sta save_ptr + 1
+
+        rts 
+
+    :
+    cmp #$02
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_2
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_2
+        sta save_ptr + 1
+
+        rts 
+    :
+    cmp #$03
+    bne :+
+        clc 
+        lda save_ptr
+        adc #<SAVE_ADDR_SAVES_OFFSET_3
+        sta save_ptr
+
+        clc 
+        lda save_ptr + 1
+        adc #>SAVE_ADDR_SAVES_OFFSET_3
+        sta save_ptr + 1
+
+        rts 
+    :
 
     rts 
 
