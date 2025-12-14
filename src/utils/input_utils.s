@@ -111,6 +111,7 @@
             lda #CANVAS_MODE
             sta current_program_mode
             ;jsr EnterStartMenuMode
+            jsr PlayMenuSelectSFX
             TransitionToMode #START_MENU_MODE
 
             jsr ResetCanvasPalette
@@ -121,6 +122,7 @@
         cmp #PAD_A
         bne :+
             jsr SaveCanvasToWRAM
+            jsr PlayMenuSelectSFX
             jmp Stop_Checking
         :
 
@@ -129,6 +131,7 @@
         bne :+
 ; jsr LoadCanvasFromWRAM
             jsr ContinuePreviousMode
+            jsr PlayMenuSelectSFX
         jmp Stop_Checking
         :
 

@@ -102,3 +102,11 @@
 .endproc
 ; Jeronimas
 
+; Jeronimas
+.proc PlayMenuSelectSFX
+    ; Play the same DPCM sample used by the Text tool on menu selection
+    lda #$05
+    jsr famistudio_sfx_sample_play
+    rts
+.endproc
+; Jeronimas
