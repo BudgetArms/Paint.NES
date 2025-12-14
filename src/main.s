@@ -306,22 +306,22 @@ CURSOR_BIG_DATA:
     .byte   $10,  TILEINDEX_CURSOR_BIG_TOP,        %10000000,     $08     ; BOTTOM: mirrored y
 
 Start_Menu_Tilemap:
-    .incbin "./tilemaps/StartMenu_01.nam"
+    .incbin "./tilemaps/start_menu.nam"
 
 Help_Menu_Tilemap:
-    .incbin "./tilemaps/HelpMenu_01.nam"
+    .incbin "./tilemaps/help_menu.nam"
 
 Load_Save_Tilemap:
     .incbin "./tilemaps/load_save_menu.nam"
 
 Save_Save_Tilemap:
-    .incbin "./tilemaps/ChooseSaveMenu.nam"
+    .incbin "./tilemaps/choose_save_menu.nam"
 
 Select_Player_Tilemap:
-    .incbin "./tilemaps/PlayerAmountMenu_01.nam"
+    .incbin "./tilemaps/player_select_menu.nam"
 
 Canvas_Tilemap:
-    .incbin "./tilemaps/idkTbh/canvas.nam"
+    .incbin "./tilemaps/canvas.nam"
 
 
 Overlay_Tool_Text:
