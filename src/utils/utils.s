@@ -1084,6 +1084,15 @@
         jmp @Change_Text
     :
 
+    cmp #TEXT_TOOL_SELECTED
+    bne :+
+        lda #<Text_Text
+        sta abs_address_to_access
+        lda #>Text_Text
+        sta abs_address_to_access + 1
+        jmp @Change_Text
+    :
+
     @Change_Text:
     ldy #$00
         @Write_Loop:

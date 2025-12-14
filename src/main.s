@@ -309,6 +309,11 @@ Help_Menu_Tilemap:
 Canvas_Tilemap:
     .incbin "./tilemaps/canvas.nam"
 
+Canvas_Bottom_UI:
+    .incbin "./tilemaps/canvas_bottom_ui.map"
+
+Text_Tool_Keyboard:
+    .incbin "./tilemaps/text_popup.map"
 
 Overlay_Tool_Text:
     Brush_Text:
@@ -326,3 +331,5 @@ Overlay_Tool_Text:
     Clear_Text:
     .byte 'c' + LETTER_OFFSET, 'l' + LETTER_OFFSET, 'e' + LETTER_OFFSET, 'a' + LETTER_OFFSET, 'r' + LETTER_OFFSET, $00
 
+    Text_Text:
+    .byte 't' + LETTER_OFFSET, 'e' + LETTER_OFFSET, 'x' + LETTER_OFFSET, 't' + LETTER_OFFSET, $00
