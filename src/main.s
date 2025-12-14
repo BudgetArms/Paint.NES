@@ -1,4 +1,5 @@
 .include "constants.s"
+.include "constants/tools.s"
 
 ; NES Cartridge header
 .segment "HEADER"
@@ -84,6 +85,11 @@ divide_by_x_divisor: .res 1 ; divisor for division routine in drawing_utils.s
 drawing_color_tile_index: .res 1
 
 
+; text tool
+text_mode: .res 1
+animation_state: .res 1
+animation_elapsed_frames: .res 1
+
 ; misc
 next_program_mode: .res 1
 current_program_mode: .res 1
@@ -134,6 +140,7 @@ fill_queue: .res 512
 .include "utils/drawing_utils.s"
 .include "utils/input_utils.s"
 .include "draw.s"
+.include "utils/tools.s"
 .include "audio.s"
 
 ;***************************************

@@ -439,6 +439,13 @@
         rts 
     :
 
+    Check_Text_Tool:
+    cmp #TEXT_TOOL_SELECTED
+    bne :+
+        jsr UseTextTool
+        rts
+    :
+
     rts
 .endproc
 ; BudgetArms

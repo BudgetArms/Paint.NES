@@ -170,6 +170,14 @@
 
 ; BudgetArms
 .proc UpdateCursorSpritePosition
+    lda player + P_SELECTED_TOOL
+
+    cmp #TEXT_TOOL_SELECTED
+    bne :+
+        jsr UpdateTextToolCursorSpritePosition
+        rts
+    :
+
     lda player + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
@@ -264,6 +272,69 @@
     rts
 .endproc
 ; BudgetArms
+
+
+; Khine
+.proc UpdateTextToolCursorSpritePosition
+
+    ldx player + P_INDEX
+    ldy animation_state
+
+    cpy #TEXT_TOOL_ANIMATION_ON
+    bne :+
+        lda player + P_Y_POS
+    :
+
+    cpy #TEXT_TOOL_ANIMATION_OFF
+    bne :+
+        lda #OAM_OFFSCREEN
+    :
+
+    cpx #PLAYER_1
+    bne :+
+        sta oam + OAM_OFFSET_P1_CURSOR + OAM_Y
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        sta oam + OAM_OFFSET_P2_CURSOR + OAM_Y
+    :
+
+    lda player + P_X_POS
+
+    cpx #PLAYER_1
+    bne :+
+        sta oam + OAM_OFFSET_P1_CURSOR + OAM_X
+    :
+
+    cpx #PLAYER_2
+    bne :+
+        sta oam + OAM_OFFSET_P2_CURSOR + OAM_X
+    :
+
+    lda animation_elapsed_frames
+
+    cmp #TEXT_TOOL_ANIMATION_FRAMES
+    bne Keep_Current_Animation
+        lda #$00
+        sta animation_elapsed_frames
+
+        lda animation_state
+        cmp #TEXT_TOOL_ANIMATION_ON
+        bne :+
+            lda #TEXT_TOOL_ANIMATION_OFF
+            sta animation_state
+            rts
+        :
+        lda #TEXT_TOOL_ANIMATION_ON
+        sta animation_state
+        rts
+    Keep_Current_Animation:
+
+    inc animation_elapsed_frames
+    rts
+.endproc
+; Khine
 
 
 ; Khine
