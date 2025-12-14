@@ -839,6 +839,12 @@
 
 ; Joren
 .proc IncreaseChrTileIndex
+    lda player + P_SELECTED_TOOL
+    cmp #TEXT_TOOL_SELECTED
+    bne :+
+        rts
+    :
+
     lda player + P_SELECTED_COLOR_INDEX
     clc 
     adc #$01
@@ -860,6 +866,12 @@
 
 ;Joren
 .proc DecreaseChrTileIndex
+    lda player + P_SELECTED_TOOL
+    cmp #TEXT_TOOL_SELECTED
+    bne :+
+        rts
+    :
+
     lda player + P_SELECTED_COLOR_INDEX
     sec 
     sbc #$01

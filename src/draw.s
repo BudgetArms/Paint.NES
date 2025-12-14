@@ -17,6 +17,12 @@
             rts
         :
 
+        cmp #TEXT_TOOL_SELECTED
+        bne :+
+            jsr LoadTextToolCursorSprite
+            rts
+        :
+
         lda #<CURSOR_NORMAL_DATA
         sta abs_address_to_access
         lda #>CURSOR_NORMAL_DATA
@@ -69,6 +75,34 @@
             bne P2_Loop  ; loop until all bytes are loaded
         rts
 
+.endproc
+; BudgetArms / Khine
+
+
+; BudgetArms / Khine
+.proc LoadTextToolCursorSprite
+    ; Change the cursor color to color 2
+    lda #COLOR_2_TILE_INDEX
+    sta player + P_SELECTED_COLOR_INDEX
+
+    jsr UpdateColorSelectionOverlayPosition
+
+    ldx #TILEINDEX_TEXT_CURSOR
+    lda player + P_INDEX
+
+    cmp #PLAYER_1
+    bne :+
+        stx oam + OAM_OFFSET_P1_CURSOR + OAM_TILE
+        rts
+    :
+
+    cmp #PLAYER_2
+    bne :+
+        stx oam + OAM_OFFSET_P2_CURSOR + OAM_TILE
+        rts
+    :
+
+    rts
 .endproc
 ; BudgetArms / Khine
 
