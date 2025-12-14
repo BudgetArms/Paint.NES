@@ -239,8 +239,8 @@ color_palette_ui_overlay:
     .byte OFFWHITE, $0f, $24, RED
     .byte OFFWHITE, $0f, $24, $2c
     .byte OFFWHITE, $0f, GREEN, BLUE
-    .byte OFFWHITE, BLUE, BLUE, RED
-    .byte OFFWHITE,$00,$10,$30
+    .byte OFFWHITE, WHITE, WHITE, RED
+    .byte OFFWHITE, WHITE, WHITE,$30
     .byte OFFWHITE,$05,$16,$27
     .byte OFFWHITE,$0b,$1a,$29
 
