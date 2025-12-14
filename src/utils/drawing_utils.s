@@ -138,8 +138,8 @@
 ; Khine
 
 
-; BudgetArms
-.proc UpdateCursorSpritePosition
+; Khine
+.proc ConvertTileToSpritePosition
     ; Multiply TILE_X/TILE_Y POS by 8 to get X/Y POS
     lda #$00
     ldx player + P_TILE_X_POS
@@ -163,6 +163,13 @@
     :
     sta player + P_Y_POS
 
+    rts
+.endproc
+; Khine
+
+
+; BudgetArms
+.proc UpdateCursorSpritePosition
     lda player + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL

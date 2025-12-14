@@ -185,6 +185,7 @@ mainloop:
         jsr HandleCanvasInput
 
         jsr ConvertCursorPosToTilePositions
+        jsr ConvertTileToSpritePosition
         jsr UpdateCursorSpritePosition
 
         jsr SavePlayerProperties
