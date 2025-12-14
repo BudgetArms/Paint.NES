@@ -314,10 +314,10 @@ CURSOR_SHAPE_TOOL_CIRCLE_DATA:
     .byte   OAM_OFFSCREEN,  TILEINDEX_CURSOR_SHAPE_TOOL_CIRCLE_SECOND,   %00000000,     $00
 
 Start_Menu_Tilemap:
-    .incbin "./tilemaps/start_menu.nam"
+    .incbin "./tilemaps/StartMenu_01.nam"
 
 Help_Menu_Tilemap:
-    .incbin "./tilemaps/help_menu.nam"
+    .incbin "./tilemaps/HelpMenu_01.nam"
 
 Load_Save_Selection_Tilemap:
     .incbin "./tilemaps/load_save_menu.nam"
@@ -329,7 +329,7 @@ Select_Player_Selection_Tilemap:
     .incbin "./tilemaps/select_player_menu.nam"
 
 Canvas_Tilemap:
-    .incbin "./tilemaps/canvas.nam"
+    .incbin "./tilemaps/idkTbh/canvas.nam"
 
 
 Overlay_Tool_Text:
