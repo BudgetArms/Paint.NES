@@ -305,7 +305,10 @@ GREEN       = $0a
 BLUE        = $01
 LIGHT_BLUE  = $31
 BLACK       = $3F
-
+PINK        = $24
+CYAN        = $31
+LIGHT_TEAL  = $3C
+DARK_TEAL   = $1C
 
 ; Palette Magic
 PALETTE_COLOR_BG      = 0
