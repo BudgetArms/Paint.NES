@@ -152,6 +152,8 @@ CURSOR_MAX_X = 32
 CURSOR_MIN_Y = 2
 CURSOR_MAX_Y = 28
 
+; Transition speed
+TRANSITION_SPEED = $04
 
 ; cursor types
 TYPE_CURSOR_NORMAL  = $01
