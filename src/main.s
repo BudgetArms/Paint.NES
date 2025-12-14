@@ -320,13 +320,13 @@ Help_Menu_Tilemap:
     .incbin "./tilemaps/help_menu.nam"
 
 Load_Save_Selection_Tilemap:
-    .incbin "./tilemaps/start_menu_load_save.nam"
+    .incbin "./tilemaps/load_save_menu.nam"
 
 Save_Save_Selection_Tilemap:
-    .incbin "./tilemaps/start_menu_save_save.nam"
+    .incbin "./tilemaps/save_save_menu.nam"
 
 Select_Player_Selection_Tilemap:
-    .incbin "./tilemaps/start_menu_player_selection.nam"
+    .incbin "./tilemaps/select_player_menu.nam"
 
 Canvas_Tilemap:
     .incbin "./tilemaps/canvas.nam"
