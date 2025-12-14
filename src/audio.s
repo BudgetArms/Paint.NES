@@ -37,7 +37,7 @@
     beq @Play_Draw
 
     cmp #ERASER_TOOL_SELECTED
-    beq @Play_Text ; sounds better than the actual eraser sound 
+    beq @Play_Eraser
 
     cmp #FILL_TOOL_SELECTED
     beq @Play_Fill
