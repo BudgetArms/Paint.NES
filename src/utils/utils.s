@@ -348,6 +348,7 @@
         lda #01
         sta player_count
         ;jsr EnterCanvasMode
+        jsr PlayMenuSelectSFX
         TransitionToMode #CANVAS_MODE
         rts
     :
@@ -357,6 +358,7 @@
         lda #02
         sta player_count
         ;jsr EnterCanvasMode
+        jsr PlayMenuSelectSFX
         TransitionToMode #CANVAS_MODE
         rts
     :
@@ -364,6 +366,7 @@
     cmp #START_MENU_CONTROLS_SELECTION
     bne :+
         ;jsr EnterHelpMenuMode
+        jsr PlayMenuSelectSFX
         TransitionToMode #HELP_MENU_MODE
         rts
     :
