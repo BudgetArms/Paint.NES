@@ -1,4 +1,5 @@
 .include "constants.s"
+.include "constants/player.s"
 .include "constants/tools.s"
 
 ; NES Cartridge header
@@ -86,7 +87,8 @@ drawing_color_tile_index: .res 1
 
 
 ; text tool
-text_mode: .res 1
+bottom_canvas_ui_mode: .res 1
+text_tool_used: .res 1
 animation_state: .res 1
 animation_elapsed_frames: .res 1
 

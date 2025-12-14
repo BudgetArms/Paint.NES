@@ -38,30 +38,6 @@ JOYPAD1 = $4016 ; Joypad 1 (Read/Write)
 JOYPAD2 = $4017 ; Joypad 2 (Read/Write)
 JOYPAD_COUNT = 2
 
-; Players
-PLAYER_1 = 0
-PLAYER_2 = 1
-
-; Player property offsets
-P_INDEX                 = 0      ; 1 byte
-P_INPUT                 = 1      ; 1 byte
-P_INPUT_FRAME_COUNT     = 2      ; 1 byte
-P_X_POS                 = 3      ; 1 byte
-P_Y_POS                 = 4      ; 1 byte
-P_TILE_X_POS            = 5      ; 1 byte
-P_TILE_Y_POS            = 6      ; 1 byte
-P_CURSOR_SIZE           = 7      ; 1 byte
-P_TILE_ADDR             = 8      ; 2 bytes
-P_SELECTED_TOOL         = 10     ; 1 byte
-P_SELECTED_COLOR_INDEX  = 11     ; 1 byte
-P_TOOL_USE_FLAG         = 12     ; 1 byte
-P_SHAPE_TOOL_TYPE       = 13     ; 1 byte
-P_SHAPE_TOOL_FIRST_SET  = 14     ; 1 byte
-P_SHAPE_TOOL_FIRST_POS  = 15     ; 2 bytes
-P_SHAPE_TOOL_SECOND_POS = 17     ; 2 bytes
-P_UPDATE_FLAG           = 19     ; 1 byte
-P_PROPERTY_SIZE         = 20     ; ALWAYS UPDATE THIS AFTER MAKING CHANGES TO THE PROPERTIES
-
 ; Gamepad bit values
 PAD_A      = $80
 PAD_B      = $40
@@ -218,10 +194,6 @@ OAM_OFFSET_CURSOR_BIG_RIGHT         = $14
 OAM_OFFSET_CURSOR_BIG_BOTTOM_RIGHT  = $18
 OAM_OFFSET_CURSOR_BIG_BOTTOM        = $1C
 
-; Players
-PLAYER_1_OVERLAY_ATTR = $00000000
-PLAYER_2_OVERLAY_ATTR = $00000001
-
 ; Shape
 MINIMUM_SHAPE_SIZE   = $01
 
@@ -229,7 +201,6 @@ SHAPE_TOOL_TYPE_RECTANGLE   = %00000001
 SHAPE_TOOL_TYPE_CIRCLE      = %00000010
 
 SHAPE_TOOL_TYPE_DEFAULT     = SHAPE_TOOL_TYPE_RECTANGLE
-
 
 ; Tools
 ALL_TOOLS_OFF        = %00000000
