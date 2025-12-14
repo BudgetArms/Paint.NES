@@ -144,8 +144,8 @@ mainloop:
         cmp #HELP_MENU_SCROLL_Y
         beq :+
             inc scroll_y_position
-            rts
         :
+        rts
     Next_Not_Help_Mode:
 
     lda scroll_y_position
