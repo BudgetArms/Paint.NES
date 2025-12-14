@@ -1,6 +1,7 @@
 .include "constants.s"
 .include "constants/player.s"
 .include "constants/tools.s"
+.include "constants/oam.s"
 
 ; NES Cartridge header
 .segment "HEADER"
