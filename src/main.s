@@ -323,10 +323,10 @@ Load_Save_Tilemap:
     .incbin "./tilemaps/load_save_menu.nam"
 
 Save_Save_Tilemap:
-    .incbin "./tilemaps/save_save_menu.nam"
+    .incbin "./tilemaps/ChooseSaveMenu.nam"
 
 Select_Player_Tilemap:
-    .incbin "./tilemaps/select_player_menu.nam"
+    .incbin "./tilemaps/PlayerAmountMenu_01.nam"
 
 Canvas_Tilemap:
     .incbin "./tilemaps/idkTbh/canvas.nam"
