@@ -417,7 +417,7 @@
 
     ; Convert cursor_x to three decimal digits
     ;lda cursor_x
-    lda player_1_properties + P_TILE_X_POS
+    lda player_1_properties + P_X_POS
     ldx #100
     jsr DivideByX           ; hundreds in A, remainder in X
     sta cursor_x_digits     ; hundreds digit (0-2)
@@ -428,9 +428,9 @@
     stx cursor_x_digits + 2 ; ones digit (0-9)
     
     ; Convert cursor_y to three decimal digits
-    lda player_1_properties + P_TILE_Y_POS
+    lda player_1_properties + P_Y_POS
     sec
-    sbc #CURSOR_MIN_Y
+    sbc #CURSOR_MIN_Y * TILE_PIXEL_SIZE
     ldx #100
     jsr DivideByX
     sta cursor_y_digits     ; hundreds digit (0-2)
