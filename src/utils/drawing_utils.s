@@ -656,7 +656,7 @@
 
 
 ; BudgetArms
-.proc ClearSRamForTesting
+.proc FillGrabageInSRamForTesting
 
     lda #<WRAM_START
     sta save_ptr 
@@ -665,11 +665,11 @@
     sta save_ptr + 1
 
 
-    lda #$00
     ldy #$00
 
     Clear_Loop:
 
+        lda #$FF
         sta (save_ptr), y
 
         iny 
@@ -681,6 +681,43 @@
     lda save_ptr + 1
     cmp #>WRAM_END + 1
     bne Clear_Loop
+
+
+    rts 
+
+.endproc
+; BudgetArms
+
+
+; BudgetArms
+.proc ClearSRamForTesting
+
+    lda #<WRAM_START
+    sta save_ptr 
+
+    lda #>WRAM_START
+    sta save_ptr + 1
+
+
+    ldy #$00
+
+    Clear_Loop:
+
+        lda #$00
+        sta (save_ptr), y
+
+        iny 
+
+        ; loop until overflow
+        bne Clear_Loop
+
+    Overflow:
+        inc save_ptr + 1
+
+        ; loop until at end of WRAM
+        lda save_ptr + 1
+        cmp #>WRAM_END + 1
+        bne Clear_Loop
 
 
     rts 

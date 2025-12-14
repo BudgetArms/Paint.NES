@@ -877,22 +877,23 @@
 
     lda save_index
     cmp #SAVE_INVALID_INDEX
-    bne :+
-        lda #<Canvas_Tilemap
-        sta abs_address_to_access
-        lda #>Canvas_Tilemap
-        sta abs_address_to_access + 1
-        jsr LoadTilemapToNameTable1
-        rts 
-    :
+    beq :+
+
         lda #<SAVE_TILEMAP
         sta abs_address_to_access
         lda #>SAVE_TILEMAP
         sta abs_address_to_access + 1
         jsr LoadTilemapToNameTable1
-        rts 
-    ; jsr LoadCanvasFromWRAM
 
+        rts 
+
+    :
+
+    lda #<Canvas_Tilemap
+    sta abs_address_to_access
+    lda #>Canvas_Tilemap
+    sta abs_address_to_access + 1
+    jsr LoadTilemapToNameTable1
 
     rts 
 
@@ -1623,11 +1624,14 @@
         lda save_temp_byte
         and #SAVE_COLOR_INDEX_LOAD_MASK
 
-        ; rotate right, the save bytes (containing color index)
+        ; shift right, bit 6-7 to 0-1
         ; bit 6-7 to bit 0-1
-        rol 
-        rol 
-        rol 
+        lsr 
+        lsr 
+        lsr 
+        lsr 
+        lsr 
+        lsr 
 
         ; store pixel in tilemap
         ldy #$00
@@ -1877,8 +1881,7 @@
 
         inx 
 
-        ; tilemap size: 1k -> 1kB / 256B = 4
-        cpx #$04 + 1
+        cpx #SAVE_TILEMAP_OVERFLOW_LOOPS
         bne Save_Loop 
 
     lda #$00

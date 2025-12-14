@@ -200,6 +200,7 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; main application - rendering is currently off
 
     ; jsr ClearSRamForTesting
+    ; jsr FillGrabageInSRamForTesting
 
     jsr SaveCanvasTileMapToSRAM    
 
