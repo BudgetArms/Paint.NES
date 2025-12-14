@@ -1150,7 +1150,7 @@
     bne :+
         ldx #$00
         Start_Menu_Loop:
-            lda color_palette_startup_menu, x
+            lda color_palette_start_menu, x
             sta palette, x
             inx
             cpx #PALETTE_SIZE
@@ -1175,7 +1175,7 @@
     bne :+
         ldx #$00
         Help_Menu_Loop:
-            lda color_palette_help_menu, x
+            lda color_palette_start_menu, x
             sta palette, x
             inx
             cpx #PALETTE_SIZE

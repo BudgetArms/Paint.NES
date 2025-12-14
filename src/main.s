@@ -244,17 +244,7 @@ color_palette_ui_overlay:
     .byte OFFWHITE,$05,$16,$27
     .byte OFFWHITE,$0b,$1a,$29
 
-color_palette_help_menu:
-    .byte $00, LIGHT_TEAL, $2c, $01
-    .byte $00, $3d, $05, $0f
-    .byte $00, $0d, $24, $31
-    .byte $00, DARK_TEAL, LIGHT_TEAL, $0f
-    .byte GRAY, BLACK, BLUE, RED
-    .byte $0f,$00,$10,$30
-    .byte $0f,$05,$16,$27
-    .byte $0f,$0b,$1a,$29
-
-color_palette_startup_menu:
+color_palette_start_menu:
     .byte $2d,$05,$09,$01
     .byte $2d,$3d,$05,$0f
     .byte $2d,LIGHT_TEAL,DARK_TEAL,$31
