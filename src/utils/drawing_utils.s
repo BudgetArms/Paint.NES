@@ -555,6 +555,12 @@
     ; Reset PPU address latch
     ; Set PPU address to nametable location
 
+    lda text_tool_state
+    cmp #TEXT_TOOL_NOT_USED
+    beq :+
+        rts
+    :
+
     ChangePPUNameTableAddr OVERLAY_XPOS_OFFSET
 
     ; Write X digits as decimal (000-255)

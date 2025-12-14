@@ -88,7 +88,7 @@ drawing_color_tile_index: .res 1
 
 ; text tool
 bottom_canvas_ui_mode: .res 1
-text_tool_used: .res 1
+text_tool_state: .res 1
 animation_state: .res 1
 animation_elapsed_frames: .res 1
 

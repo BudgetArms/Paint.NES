@@ -183,23 +183,20 @@
     Loop_Players:
 
         LoadCurrentPlayerProperty P_TOOL_USE_FLAG
-
-        and #BRUSH_TOOL_ON
-        beq Brush_Not_Used
+        cmp #ALL_TOOLS_OFF
+        beq No_Tool_Used
             jsr LoadPlayerBrushProperties
             jsr UseBrushTool
             SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
-        Brush_Not_Used:
+        No_Tool_Used:
 
         LoadCurrentPlayerProperty P_UPDATE_FLAG
-
         cmp #UPDATE_ALL_OFF
         beq No_Update_Needed
             jsr LoadPlayerToolTypeProperties
             jsr RefreshToolTextOverlay
             SaveCurrentPlayerProperty P_UPDATE_FLAG
         No_Update_Needed:
-
     inc current_player_index
     lda current_player_index
     cmp player_count

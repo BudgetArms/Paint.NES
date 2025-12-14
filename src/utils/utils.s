@@ -1013,6 +1013,12 @@
 
 ; Khine
 .proc RefreshToolTextOverlay
+    lda text_tool_state
+    cmp #TEXT_TOOL_NOT_USED
+    beq :+
+        rts
+    :
+
     lda player + P_UPDATE_FLAG
     eor #UPDATE_TOOL_TEXT_OVERLAY
     sta player + P_UPDATE_FLAG
