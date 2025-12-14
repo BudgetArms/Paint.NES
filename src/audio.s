@@ -105,6 +105,11 @@
 ; Jeronimas
 .proc PlayMenuSelectSFX
     ; Play the same DPCM sample used by the Text tool on menu selection
+    ; Also play on the square channel
+    lda #$05
+    ldx #FAMISTUDIO_SFX_CH0  ; Square channel
+    jsr famistudio_sfx_play
+    
     lda #$05
     jsr famistudio_sfx_sample_play
     rts
