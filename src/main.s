@@ -108,7 +108,12 @@ menu_music_started: .res 1
 ; Save system
 save_temp_byte: .res 1
 save_ptr: .res 2
+save_ptr_offset: .res 1
 save_index: .res 1
+
+; Save canvas pointer, to save canvas to sram
+; needed to make animation work
+save_canvas_ptr: .res 2
 
 
 ; Sprite OAM Data area - copied to VRAM in NMI routine
@@ -193,9 +198,14 @@ FAMISTUDIO_DPCM_OFF             = $c000
 .segment "CODE"
 .proc main
     ; main application - rendering is currently off
-    
+
+    ; jsr ClearSRamForTesting
+
+    jsr SaveCanvasTileMapToSRAM    
+
     ; load start menu
     ; Help menu is only needed to load once
+
     jsr InitializeHelpMenuTilemap
     jsr EnterStartMenuMode
 
