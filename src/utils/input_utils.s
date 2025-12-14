@@ -59,6 +59,7 @@
     Check_PAD_A:
         cmp #PAD_A
         bne :+
+            jsr PlayMenuSelectSFX
             jsr ConfirmStartMenuSelection
         jmp Stop_Checking
         :
@@ -66,6 +67,7 @@
     Check_PAD_UP:
         cmp #PAD_UP
         bne :+
+            jsr PlayMenuSelectSFX
             jsr MoveStartMenuCursorUp
         jmp Stop_Checking
         :
@@ -73,6 +75,7 @@
     Check_PAD_DOWN:
         cmp #PAD_DOWN
         bne :+
+            jsr PlayMenuSelectSFX
             jsr MoveStartMenuCursorDown
         jmp Stop_Checking
         :
@@ -110,7 +113,6 @@
             ; Override current mode as canvas
             lda #CANVAS_MODE
             sta current_program_mode
-            ;jsr EnterStartMenuMode
             jsr PlayMenuSelectSFX
             TransitionToMode #START_MENU_MODE
 
