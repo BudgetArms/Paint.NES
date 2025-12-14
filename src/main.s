@@ -319,13 +319,13 @@ Start_Menu_Tilemap:
 Help_Menu_Tilemap:
     .incbin "./tilemaps/HelpMenu_01.nam"
 
-Load_Save_Selection_Tilemap:
+Load_Save_Tilemap:
     .incbin "./tilemaps/load_save_menu.nam"
 
-Save_Save_Selection_Tilemap:
+Save_Save_Tilemap:
     .incbin "./tilemaps/save_save_menu.nam"
 
-Select_Player_Selection_Tilemap:
+Select_Player_Tilemap:
     .incbin "./tilemaps/select_player_menu.nam"
 
 Canvas_Tilemap:

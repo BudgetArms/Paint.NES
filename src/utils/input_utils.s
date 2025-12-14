@@ -125,7 +125,7 @@
             cmp #START_MENU_MODE
             beq No_Canvas_To_Save
 
-                TransitionToMode #SAVE_SAVE_SELECTION_MODE
+                TransitionToMode #SAVE_SAVE_MODE
                 jmp Stop_Checking
 
             No_Canvas_To_Save:

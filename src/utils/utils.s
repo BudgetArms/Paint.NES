@@ -44,19 +44,19 @@
         sta abs_address_to_access + 1
     :
 
-    cmp #LOAD_SAVE_SELECTION_MODE
+    cmp #LOAD_SAVE_MODE
     bne :+
-        lda #<Load_Save_Selection_Tilemap
+        lda #<Load_Save_Tilemap
         sta abs_address_to_access
-        lda #>Load_Save_Selection_Tilemap
+        lda #>Load_Save_Tilemap
         sta abs_address_to_access + 1
     :
 
-    cmp #SELECT_PLAYER_SELECTION_MODE
+    cmp #SELECT_PLAYER_MODE
     bne :+
-        lda #<Select_Player_Selection_Tilemap
+        lda #<Select_Player_Tilemap
         sta abs_address_to_access
-        lda #>Select_Player_Selection_Tilemap
+        lda #>Select_Player_Tilemap
         sta abs_address_to_access + 1
     :
 
@@ -328,13 +328,13 @@
 
     cmp #START_MENU_START_NEW_SELECTION
     bne :+
-        TransitionToMode #SELECT_PLAYER_SELECTION_MODE
+        TransitionToMode #SELECT_PLAYER_MODE
         rts 
     :
 
     cmp #START_MENU_LOAD_SAVE_SELECTION
     bne :+
-        TransitionToMode #LOAD_SAVE_SELECTION_MODE
+        TransitionToMode #LOAD_SAVE_MODE
         rts 
     :
 
@@ -359,7 +359,7 @@
         lda #$00
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_SELECTION_MODE
+        TransitionToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -369,7 +369,7 @@
         lda #$01
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_SELECTION_MODE
+        TransitionToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -379,7 +379,7 @@
         lda #$02
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_SELECTION_MODE
+        TransitionToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -389,7 +389,7 @@
         lda #$03
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_SELECTION_MODE
+        TransitionToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -731,7 +731,7 @@
 ; BudgetArms
 .proc EnterLoadSaveSelectionMenuMode
 
-    lda #LOAD_SAVE_SELECTION_MODE
+    lda #LOAD_SAVE_MODE
     sta current_program_mode
 
     lda #$00
@@ -740,9 +740,9 @@
     lda #LOAD_SAVE_MENU_SAVE_0_SELECTION
     sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     
-    lda #<Load_Save_Selection_Tilemap
+    lda #<Load_Save_Tilemap
     sta abs_address_to_access
-    lda #>Load_Save_Selection_Tilemap
+    lda #>Load_Save_Tilemap
     sta abs_address_to_access + 1
     jsr LoadTilemapToNameTable1
 
@@ -760,15 +760,15 @@
     lda #LOAD_SAVE_MENU_SAVE_0_SELECTION 
     sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     
-    lda #SAVE_SAVE_SELECTION_MODE
+    lda #SAVE_SAVE_MODE
     sta current_program_mode
 
     lda #HELP_MENU_SCROLL_Y
     sta scroll_y_position
 
-    lda #<Save_Save_Selection_Tilemap
+    lda #<Save_Save_Tilemap
     sta abs_address_to_access
-    lda #>Save_Save_Selection_Tilemap
+    lda #>Save_Save_Tilemap
     sta abs_address_to_access + 1
     jsr LoadTilemapToNameTable3
 
@@ -781,7 +781,7 @@
 ; BudgetArms
 .proc EnterSelectPlayerSelectionMenuMode
 
-    lda #SELECT_PLAYER_SELECTION_MODE
+    lda #SELECT_PLAYER_MODE
     sta current_program_mode
 
     lda #$00
@@ -791,9 +791,9 @@
     sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     
     
-    lda #<Select_Player_Selection_Tilemap
+    lda #<Select_Player_Tilemap
     sta abs_address_to_access
-    lda #>Select_Player_Selection_Tilemap
+    lda #>Select_Player_Tilemap
     sta abs_address_to_access + 1
     jsr LoadTilemapToNameTable1
 
@@ -867,9 +867,9 @@
         TransitionToMode #CANVAS_MODE
     :
 
-    cmp #LOAD_SAVE_SELECTION_MODE
+    cmp #LOAD_SAVE_MODE
     bne :+
-        TransitionToMode #LOAD_SAVE_SELECTION_MODE
+        TransitionToMode #LOAD_SAVE_MODE
     :
 
     rts
@@ -1476,7 +1476,7 @@
         rts
     :
 
-    cmp #SAVE_SAVE_SELECTION_MODE
+    cmp #SAVE_SAVE_MODE
     bne :+
 
         ldx #$00

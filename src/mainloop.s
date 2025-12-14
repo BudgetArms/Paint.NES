@@ -24,19 +24,19 @@ mainloop:
         jmp End_Of_Loop
     :
 
-    cmp #LOAD_SAVE_SELECTION_MODE
+    cmp #LOAD_SAVE_MODE
     bne :+
         jsr LoadSaveMenuLoop
         jmp End_Of_Loop
     :
 
-    cmp #SAVE_SAVE_SELECTION_MODE
+    cmp #SAVE_SAVE_MODE
     bne :+
         jsr SaveSaveMenuLoop
         jmp End_Of_Loop
     :
 
-    cmp #SELECT_PLAYER_SELECTION_MODE
+    cmp #SELECT_PLAYER_MODE
     bne :+
         jsr SelectPlayerMenuLoop
         jmp End_Of_Loop
@@ -216,23 +216,23 @@ mainloop:
             jmp Transition_Done
         Next_Not_Help_Menu:
 
-        cmp #LOAD_SAVE_SELECTION_MODE
-        bne Next_Not_Load_Save_Selection_Menu
+        cmp #LOAD_SAVE_MODE
+        bne Next_Not_Load_Save_Menu
             jsr EnterLoadSaveSelectionMenuMode
             jsr Transition_Done
-        Next_Not_Load_Save_Selection_Menu:
+        Next_Not_Load_Save_Menu:
 
-        cmp #SAVE_SAVE_SELECTION_MODE
-        bne Next_Not_Save_Save_Selection_Menu
+        cmp #SAVE_SAVE_MODE
+        bne Next_Not_Save_Save_Menu
             jsr EnterSaveSaveSelectionMenuMode
             jsr Transition_Done
-        Next_Not_Save_Save_Selection_Menu:
+        Next_Not_Save_Save_Menu:
 
-        cmp #SELECT_PLAYER_SELECTION_MODE
-        bne Next_Not_Select_Player_Selection_Menu
+        cmp #SELECT_PLAYER_MODE
+        bne Next_Not_Select_Player_Menu
             jsr EnterSelectPlayerSelectionMenuMode
             jsr Transition_Done
-        Next_Not_Select_Player_Selection_Menu:
+        Next_Not_Select_Player_Menu:
 
         Transition_Done:
             jsr LoadPalette
@@ -252,7 +252,7 @@ mainloop:
     Next_Not_Help_Mode:
 
     lda next_program_mode
-    cmp #SAVE_SAVE_SELECTION_MODE
+    cmp #SAVE_SAVE_MODE
     bne Next_Not_Save_Save_Mode
         lda previous_program_mode
         cmp #HELP_MENU_MODE
