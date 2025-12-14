@@ -72,6 +72,27 @@
 ; Khine
 
 
+; Khine
+.macro TransitionInstantlyToMode     new_mode
+
+    lda current_program_mode
+    sta previous_program_mode
+
+    lda #TRANSITION_MODE
+    sta current_program_mode
+
+    lda new_mode
+    sta next_program_mode
+
+    lda #SKIP_TRANSITION_MODE
+    sta mode_transition_time
+
+    jsr StartTransitionAnimation
+
+.endmacro
+; Khine
+
+
 ; Khine / BudgetArms
 .proc StartTransitionAnimation
     lda next_program_mode
@@ -396,13 +417,13 @@
 
     cmp #START_MENU_START_NEW_SELECTION
     bne :+
-        TransitionToMode #SELECT_PLAYER_MODE
+        TransitionInstantlyToMode #SELECT_PLAYER_MODE
         rts 
     :
 
     cmp #START_MENU_LOAD_SAVE_SELECTION
     bne :+
-        TransitionToMode #LOAD_SAVE_MODE
+        TransitionInstantlyToMode #LOAD_SAVE_MODE
         rts 
     :
 
@@ -427,7 +448,7 @@
         lda #$00
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_MODE
+        TransitionInstantlyToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -437,7 +458,7 @@
         lda #$01
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_MODE
+        TransitionInstantlyToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -447,7 +468,7 @@
         lda #$02
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_MODE
+        TransitionInstantlyToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -457,7 +478,7 @@
         lda #$03
         sta save_index
 
-        TransitionToMode #SELECT_PLAYER_MODE
+        TransitionInstantlyToMode #SELECT_PLAYER_MODE
 
         rts 
     :
@@ -467,7 +488,7 @@
         lda SAVE_INVALID_INDEX
         sta save_index
 
-        TransitionToMode #START_MENU_MODE
+        TransitionInstantlyToMode #START_MENU_MODE
 
         rts 
     :
@@ -490,7 +511,7 @@
 
         jsr SaveCanvasToWRAM
 
-        TransitionToMode #HELP_MENU_MODE
+        TransitionInstantlyToMode #HELP_MENU_MODE
 
         rts 
     :
@@ -502,7 +523,7 @@
 
         jsr SaveCanvasToWRAM
 
-        TransitionToMode #HELP_MENU_MODE
+        TransitionInstantlyToMode #HELP_MENU_MODE
 
         rts 
     :
@@ -514,7 +535,7 @@
 
         jsr SaveCanvasToWRAM
 
-        TransitionToMode #HELP_MENU_MODE
+        TransitionInstantlyToMode #HELP_MENU_MODE
 
         rts 
     :
@@ -526,7 +547,7 @@
 
         jsr SaveCanvasToWRAM
 
-        TransitionToMode #HELP_MENU_MODE
+        TransitionInstantlyToMode #HELP_MENU_MODE
 
         rts 
     :
@@ -536,7 +557,7 @@
         lda SAVE_INVALID_INDEX
         sta save_index
 
-        TransitionToMode #HELP_MENU_MODE
+        TransitionInstantlyToMode #HELP_MENU_MODE
 
         rts 
     :

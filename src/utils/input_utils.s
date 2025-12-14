@@ -130,7 +130,7 @@
             cmp #START_MENU_MODE
             beq No_Canvas_To_Save
 
-                TransitionToMode #SAVE_SAVE_MODE
+                TransitionInstantlyToMode #SAVE_SAVE_MODE
                 jmp Stop_Checking
 
             No_Canvas_To_Save:
@@ -189,8 +189,8 @@
     Start_Checking_Input:
     lda player + P_INPUT
 
-    Check_PAD_SELECT:
-        cmp #PAD_SELECT
+    Check_PAD_A:
+        cmp #PAD_A
         bne :+
             jsr ConfirmLoadSaveMenuSelection
             jmp Stop_Checking
@@ -237,8 +237,8 @@
     Start_Checking_Input:
     lda player + P_INPUT
 
-    Check_PAD_SELECT:
-        cmp #PAD_SELECT
+    Check_PAD_A:
+        cmp #PAD_A
         bne :+
             jsr ConfirmSaveSaveMenuSelection
             jmp Stop_Checking
@@ -285,8 +285,8 @@
     Start_Checking_Input:
     lda player + P_INPUT
 
-    Check_PAD_SELECT:
-        cmp #PAD_SELECT
+    Check_PAD_A:
+        cmp #PAD_A
         bne :+
             jsr ConfirmSelectPlayerMenuSelection
             jmp Stop_Checking
