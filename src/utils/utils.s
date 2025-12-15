@@ -605,7 +605,7 @@
 
     cmp #SELECT_PLAYER_MENU_GO_BACK_SELECTION
     bne :+
-        jsr ContinuePreviousMode
+        jsr ContinuePreviousModeInstantely
         rts 
     :
     rts 
@@ -991,6 +991,32 @@
     rts
 .endproc
 ; Khine
+
+
+; Khine / BudgetArms
+.proc ContinuePreviousModeInstantely
+
+    lda previous_program_mode
+    cmp #START_MENU_MODE
+    bne :+
+        ;jsr EnterStartMenuMode
+        TransitionInstantlyToMode #START_MENU_MODE
+    :
+
+    cmp #CANVAS_MODE
+    bne :+
+        TransitionInstantlyToMode #CANVAS_MODE
+    :
+
+    cmp #LOAD_SAVE_MODE
+    bne :+
+        TransitionInstantlyToMode #LOAD_SAVE_MODE
+    :
+
+    rts
+.endproc
+; Khine / BudgetArms
+
 
 ; Khine
 .proc InitializeEachPlayer
