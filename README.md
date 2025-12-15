@@ -7,7 +7,7 @@ Paint.NES is painting program, developped for the NES console. It was developped
 In this game, you get an empty canvas to fill with your own creativity. You can use a bunch of different tools, such as the fill tool, or the shape tool to really bring the canvas to life. There are about 55 colors to pick from, and you can use up to 4 of them at the same time.
 
 
-## Buttons
+## Buttons / User manual
 Because of the various menus that are implemented. The input can sometimes vary slightly based on what menu the player is in.
 
 When in canvas:
