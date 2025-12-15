@@ -202,7 +202,7 @@ FAMISTUDIO_DPCM_OFF             = $c000
     ; jsr ClearSRamForTesting
     ; jsr FillGrabageInSRamForTesting
 
-    jsr SaveCanvasTileMapToSRAM    
+    ; jsr SaveCanvasTileMapToSRAM    
 
     ; load start menu
     ; Help menu is only needed to load once

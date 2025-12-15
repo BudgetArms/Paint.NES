@@ -506,10 +506,10 @@
 
     cmp #SAVE_SAVE_MENU_SAVE_0_SELECTION
     bne :+
-        lda #$00
-        sta save_index
+        ; lda #$FF
+        ; sta save_index
 
-        jsr SaveCanvasToWRAM
+        ; jsr SaveCanvasToWRAM
 
         TransitionInstantlyToMode #HELP_MENU_MODE
 
@@ -518,10 +518,10 @@
 
     cmp #SAVE_SAVE_MENU_SAVE_1_SELECTION
     bne :+
-        lda #$01
-        sta save_index
+        ; lda #$01
+        ; sta save_index
 
-        jsr SaveCanvasToWRAM
+        ; jsr SaveCanvasToWRAM
 
         TransitionInstantlyToMode #HELP_MENU_MODE
 
@@ -530,10 +530,10 @@
 
     cmp #SAVE_SAVE_MENU_SAVE_2_SELECTION
     bne :+
-        lda #$02
-        sta save_index
+        ; lda #$02
+        ; sta save_index
 
-        jsr SaveCanvasToWRAM
+        ; jsr SaveCanvasToWRAM
 
         TransitionInstantlyToMode #HELP_MENU_MODE
 
@@ -542,10 +542,10 @@
 
     cmp #SAVE_SAVE_MENU_SAVE_3_SELECTION
     bne :+
-        lda #$03
-        sta save_index
+        ; lda #$03
+        ; sta save_index
 
-        jsr SaveCanvasToWRAM
+        ; jsr SaveCanvasToWRAM
 
         TransitionInstantlyToMode #HELP_MENU_MODE
 
@@ -581,7 +581,7 @@
         lda save_index
         cmp #SAVE_INVALID_INDEX
         beq @Not_Loading_Save_1
-            jsr LoadCanvasFromWRAM
+            ; jsr LoadCanvasFromWRAM
         @Not_Loading_Save_1:
 
         TransitionToMode #CANVAS_MODE
@@ -596,7 +596,7 @@
         lda save_index
         cmp #SAVE_INVALID_INDEX
         beq @Not_Loading_Save_2
-            jsr LoadCanvasFromWRAM
+            ; jsr LoadCanvasFromWRAM
         @Not_Loading_Save_2:
 
         TransitionToMode #CANVAS_MODE
