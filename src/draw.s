@@ -1,4 +1,4 @@
-;file for all drawing functions
+; File for all drawing functions
 
 ; BudgetArms / Khine
 .proc LoadCursorSprite
@@ -10,64 +10,81 @@
     cmp #TYPE_CURSOR_NORMAL
     bne Not_Normal_Cursor
         lda player + P_SELECTED_TOOL
-
         cmp #SHAPE_TOOL_SELECTED
         bne :+
             jsr LoadShapeToolCursorSprite
-            rts
+
+            rts 
         :
 
         lda #<CURSOR_NORMAL_DATA
         sta abs_address_to_access
+
         lda #>CURSOR_NORMAL_DATA
         sta abs_address_to_access + 1
+
         ldx #OAM_BYTE_SIZE_CURSOR_NORMAL
         jmp Start_Load
+
     Not_Normal_Cursor:
 
     cmp #TYPE_CURSOR_MEDIUM
     bne Not_Medium_Cursor
+
         lda #<CURSOR_MEDIUM_DATA
         sta abs_address_to_access
+
         lda #>CURSOR_MEDIUM_DATA
         sta abs_address_to_access + 1
+
         ldx #OAM_BYTE_SIZE_CURSOR_MEDIUM
         jmp Start_Load
+
     Not_Medium_Cursor:
 
     cmp #TYPE_CURSOR_BIG
     bne Not_Big_Cursor
+
         lda #<CURSOR_BIG_DATA
         sta abs_address_to_access
+
         lda #>CURSOR_BIG_DATA
         sta abs_address_to_access + 1
+
         ldx #OAM_BYTE_SIZE_CURSOR_BIG
         jmp Start_Load
+
     Not_Big_Cursor:
 
     Start_Load:
+
     ldy player + P_INDEX
     cpy #PLAYER_1
-    bne P2
+    bne Player_2
 
-    P1:
+    Player_1:
         ldy #$00
-        P1_Loop:
+        Player_1_Loop:
             lda (abs_address_to_access), Y
             sta oam + OAM_OFFSET_P1_CURSOR, Y
-            iny
-            dex
-            bne P1_Loop  ; loop until all bytes are loaded
-        rts
-    P2:
+
+            iny 
+            dex 
+            bne Player_1_Loop  ; loop until all bytes are loaded
+
+        rts 
+
+    Player_2:
         ldy #$00
-        P2_Loop:
+        Player_2_Loop:
             lda (abs_address_to_access), Y
             sta oam + OAM_OFFSET_P2_CURSOR, Y
-            iny
-            dex
-            bne P2_Loop  ; loop until all bytes are loaded
-        rts
+            
+            iny 
+            dex 
+            bne Player_2_Loop  ; loop until all bytes are loaded
+
+        rts 
 
 .endproc
 ; BudgetArms / Khine
@@ -75,6 +92,7 @@
 
 ; BudgetArms / Khine
 .proc LoadShapeToolCursorSprite
+
     ldy player + P_SHAPE_TOOL_TYPE
 
     cpy #SHAPE_TOOL_TYPE_CIRCLE
@@ -87,23 +105,26 @@
         lda #TILEINDEX_CURSOR_SHAPE_TOOL_RECT
     :
 
-    clc
+    clc 
     adc player + P_SHAPE_TOOL_FIRST_SET
-    tax
+    tax 
+
 
     lda player + P_INDEX
 
     cmp #PLAYER_1
     bne :+
         stx oam + OAM_OFFSET_P1_CURSOR + OAM_TILE
-        rts
+        rts 
     :
 
     cmp #PLAYER_2
     bne :+
         stx oam + OAM_OFFSET_P2_CURSOR + OAM_TILE
-        rts
+        rts 
     :
+
+    rts 
 
 .endproc
 ; BudgetArms / Khine
@@ -111,6 +132,7 @@
 
 ; Khine / BudgetArms / Jeronimas
 .proc UseBrushTool
+
     lda player + P_SELECTED_TOOL
     cmp #ERASER_TOOL_SELECTED
     bne :+
@@ -129,31 +151,38 @@
     ; after drawing has completed.
 
     ldy #$00
-    @column_loop:
-        lda PPU_STATUS ; reset address latch
+    @Column_Loop:
+        ; Reset address latch
+        lda PPU_STATUS 
+
         lda player + P_TILE_ADDR + 1 ; High bit of the location
         sta PPU_ADDR
+
         lda player + P_TILE_ADDR ; Low bit of the location
         sta PPU_ADDR
 
         lda drawing_color_tile_index
         ldx #$00
-        @row_loop:
+        @Row_Loop:
             sta PPU_DATA
-            inx
-            cpx player + P_CURSOR_SIZE
-            bne @row_loop
 
-        clc
+            inx 
+            cpx player + P_CURSOR_SIZE
+            bne @Row_Loop
+
+        clc 
         lda player + P_TILE_ADDR
         adc #32
         sta player + P_TILE_ADDR
+
         lda player + P_TILE_ADDR + 1
         adc #$00
         sta player + P_TILE_ADDR + 1
-        iny
+
+        iny 
+
         cpy player + P_CURSOR_SIZE
-        bne @column_loop
+        bne @Column_Loop
 
     rts 
 
@@ -163,6 +192,7 @@
 
 ; BudgetArms
 .proc UseShapeTool
+
     jsr PlayToolSoundEffect
 
     ; Change things
@@ -216,11 +246,9 @@
         jsr LoadShapeToolCursorSprite
 
         ; store x/y
-        ;lda cursor_x
         lda player + P_X_POS
         sta player + P_SHAPE_TOOL_SECOND_POS
 
-        ;lda cursor_y
         lda player + P_Y_POS
         sta player + P_SHAPE_TOOL_SECOND_POS + 1
 
@@ -247,7 +275,8 @@
         @Not_Circle_Type:
 
         ; this should never be reached
-        rts
+        rts 
+
 .endproc
 ; BudgetArms
 
@@ -261,15 +290,12 @@
     ;    HIGH       LOW
     ; 7654 3210   7654 3210
     ; ---- --YY   YYYX XXXX
-    ;lda tool_use_flag, x
-    ;lda player + P_TOOL_USE_FLAG
-    ;and #FILL_TOOL_ON
-    ;bne @Use_Fill
-        ;rts
+
 
     ; Store the current tile position to the cursor_pos
     lda player + P_TILE_ADDR + 1
     sta fill_current_addr + 1
+
     lda player + P_TILE_ADDR
     sta fill_current_addr
 
@@ -327,13 +353,11 @@
         ; Draw current tile
         jsr WriteBrushToCurrentAddr
 
-    Start_Algorithm:
-
+    ; Checking neighbors:
     ; Checks if it can fill current tile, then
     ; tries to check neighbors in order:
     ; Up, Down, Left, Right
     ; if tile is good, add tile to queue 
-
 
     Try_Up:
     
@@ -701,15 +725,14 @@
     ; Starting pos is center
     lda player + P_SHAPE_TOOL_FIRST_POS
     sta shape_tool_starting_pos
+
     lda player + P_SHAPE_TOOL_FIRST_POS + 1
     sta shape_tool_starting_pos + 1
 
 
     ; Calculate abosolute X
     sec 
-    ;lda player + P_SHAPE_TOOL_SECOND_POS
     lda player + P_SHAPE_TOOL_SECOND_POS
-    ;sbc player + P_SHAPE_TOOL_FIRST_POS
     sbc player + P_SHAPE_TOOL_FIRST_POS
     bpl @Dx_Pos
 
@@ -722,9 +745,7 @@
 
     ; calculate abosolute Y
     sec 
-    ;lda player + P_SHAPE_TOOL_SECOND_POS + 1
     lda player + P_SHAPE_TOOL_SECOND_POS + 1
-    ;sbc player + P_SHAPE_TOOL_FIRST_POS + 1
     sbc player + P_SHAPE_TOOL_FIRST_POS + 1
     bpl @Dy_Pos
 
@@ -833,7 +854,7 @@
             jmp Circle_Loop
 
     Done_Drawing:
-    rts 
+        rts 
 
 .endproc
 ; BudgetArms
@@ -841,31 +862,38 @@
 
 ; Khine
 .proc LoadTilemapToNameTable1
+
     jsr PPUOff
 
     ldx PPU_STATUS ; reset address latch
+
     ldx #>NAME_TABLE_1 ; High bit of the location
     stx PPU_ADDR
+
     ldx #<NAME_TABLE_1 ; Low bit of the location
     stx PPU_ADDR
 
     ldx #$00
-    @outer_loop:
-    ldy #$00
-        @inner_loop:
-        lda (abs_address_to_access), y
-        sta PPU_DATA
-        iny
-        bne @inner_loop
-    lda abs_address_to_access + 1
-    clc
-    adc #$01
-    sta abs_address_to_access + 1
-    inx
-    cpx #$04
-    bne @outer_loop
+    @Outer_Loop:
+        ldy #$00
 
-    rts
+        @Inner_Loop:
+            lda (abs_address_to_access), y
+            sta PPU_DATA
+
+            iny 
+            bne @inner_loop
+
+        lda abs_address_to_access + 1
+        clc 
+        adc #$01
+        sta abs_address_to_access + 1
+
+        inx 
+        cpx #$04 ; todo: change to variable
+        bne @outer_loop
+
+    rts 
 
 .endproc
 ; Khine
@@ -873,9 +901,12 @@
 
 ; Khine
 .proc LoadTilemapWithTransition
+
     ldx PPU_STATUS ; reset address latch
+
     ldx current_transition_addr + 1
     stx PPU_ADDR
+
     ldx current_transition_addr ; Low bit of the location
     stx PPU_ADDR
 
@@ -886,7 +917,7 @@
         sta PPU_DATA
 
         lda abs_address_to_access
-        clc
+        clc 
         adc #$01
         sta abs_address_to_access
 
@@ -895,7 +926,7 @@
         sta abs_address_to_access + 1
 
         lda current_transition_addr
-        clc
+        clc 
         adc #$01
         sta current_transition_addr
 
@@ -906,38 +937,47 @@
         inx 
         cpx #TRANSITION_SPEED
         bne Loop
-    rts
+
+    rts 
+
 .endproc
 ; Khine
 
 
 ; Khine
 .proc LoadTilemapToNameTable3
+
     jsr PPUOff
 
     ldx PPU_STATUS ; reset address latch
+
     ldx #>NAME_TABLE_3 ; High bit of the location
     stx PPU_ADDR
+
     ldx #<NAME_TABLE_3 ; Low bit of the location
     stx PPU_ADDR
 
     ldx #$00
-    @outer_loop:
-    ldy #$00
-        @inner_loop:
-        lda (abs_address_to_access), y
-        sta PPU_DATA
-        iny
-        bne @inner_loop
-    lda abs_address_to_access + 1
-    clc
-    adc #$01
-    sta abs_address_to_access + 1
-    inx
-    cpx #$04
-    bne @outer_loop
+    @Outer_Loop:
+        ldy #$00
 
-    rts
+        @Inner_Loop:
+            lda (abs_address_to_access), y
+            sta PPU_DATA
+        
+            iny 
+            bne @Inner_Loop
+
+        lda abs_address_to_access + 1
+        clc 
+        adc #$01
+        sta abs_address_to_access + 1
+
+        inx 
+        cpx #$04 ; todo: change to variable
+        bne @Outer_Loop
+
+    rts 
 
 .endproc
 ; Khine

@@ -1,4 +1,7 @@
+
+; Khine
 .macro LoadCurrentPlayerProperty property
+
     ldx current_player_index
     cpx #PLAYER_1
     bne :+
@@ -11,10 +14,14 @@
     :
 
     sta player + property
+
 .endmacro
+; Khine
 
 
+; Khine
 .macro SaveCurrentPlayerProperty property
+
     lda player + property
 
     ldx current_player_index
@@ -27,10 +34,14 @@
     bne :+
         sta player_2_properties + property
     :
+
 .endmacro
+; Khine
 
 
+; Khine
 .macro SaveValueToPlayerProperty property, value
+
     lda value
 
     ldx current_player_index
@@ -43,13 +54,17 @@
     bne :+
         sta player_2_properties + property
     :
+
 .endmacro
+; Khine
 
 
 ; Khine
 .macro ChangeBrushTileIndex    source_tile
+
     lda source_tile
     sta player + P_SELECTED_TOOL
+
 .endmacro
 ; Khine
 
@@ -95,6 +110,7 @@
 
 ; Khine / BudgetArms
 .proc StartTransitionAnimation
+
     lda next_program_mode
 
     cmp #START_MENU_MODE
@@ -160,6 +176,7 @@
 .endproc
 ; Khine / BudgetArms
 
+
 ; Khine
 .macro ChangePPUNameTableAddr address_to_change
 
@@ -192,15 +209,18 @@
 
 ; Khine
 .macro ChangeToolFlag   tool_to_turn_on
+
     lda player + P_TOOL_USE_FLAG
     ora tool_to_turn_on
     sta player + P_TOOL_USE_FLAG
+
 .endmacro
 ; Khine
 
 
 ; BudgetArms
 .macro ResetFrameCounterHolder frameCounterHolder
+
     ; Save register A
     pha 
 
@@ -209,14 +229,17 @@
 
     ; Restore register A
     pla 
+
 .endmacro
 ; BudgetArms
 
 
 ; BudgetArms
 .macro GetNametableTileX addr_low
+
     lda addr_low
     and #PPU_VRAM_MASK_X_POS
+
 .endmacro
 ; BudgetArms
 
@@ -260,10 +283,10 @@
     ; 2 bytes -> LO + HI bytes
     ; parameters: 0 -> position X, 1 -> position Y
 
-    .local @RowLoop
-    .local @SkipLoop
-    .local @SkipHighBitIncrement1
-    .local @SkipHighBitIncrement2
+    .local @Row_Loop
+    .local @Skip_Loop
+    .local @Skip_High_Bit_Increment_1
+    .local @Skip_High_Bit_Increment_2
 
     ; save registers
     pha 
@@ -308,30 +331,31 @@
     lda #$00
     ; ldx tile_cursor_y
     ldx position + 1
-    beq @SkipLoop
+    beq @Skip_Loop
 
-    @RowLoop:
+    @Row_Loop:
         adc #DISPLAY_SCREEN_WIDTH
         ; Check for carry bit and then increment the high bit when carry is set
-        bcc @SkipHighBitIncrement1
+        bcc @Skip_High_Bit_Increment_1
             inc tile_position_output + 1
             clc 
 
-        @SkipHighBitIncrement1:
+        @Skip_High_Bit_Increment_1:
         dex 
-        bne @RowLoop
+        bne @Row_Loop
 
-    @SkipLoop:
+
+    @Skip_Loop:
 
     adc position
     sta tile_position_output ; Low bit of the location
 
     ; Increment the high bit position if there is a remaining carry flag set
-    bcc @SkipHighBitIncrement2
+    bcc @Skip_High_Bit_Increment_2
         inc tile_position_output + 1 ; High bit of the location
         clc 
 
-    @SkipHighBitIncrement2:
+    @Skip_High_Bit_Increment_2:
 
     ; Add the offset of nametable 1 to the tile index
     lda #<NAME_TABLE_1
@@ -357,7 +381,6 @@
     tax 
     pla 
 
-
 .endmacro
 ; BudgetArms
 
@@ -370,9 +393,9 @@
     lda #$01
     sta nmi_ready
 
-    loop:
+    Loop:
         lda nmi_ready
-        bne loop
+        bne Loop
 
     rts 
 
@@ -386,9 +409,9 @@
     lda #$02
     sta nmi_ready
 
-    loop:
+    Loop:
         lda nmi_ready
-        bne loop
+        bne Loop
 
     rts 
 
@@ -397,22 +420,27 @@
 
 ; Khine
 .proc InitializeStartMenuCursor
+
     ldx #$00
     ldy #OAM_BYTE_SIZE_START_MENU_CURSOR
+
     Loop:
         lda CURSOR_START_MENU, x
         sta oam + OAM_OFFSET_START_MENU_CURSOR, x
-        inx
-        dey
+        
+        inx 
+        dey 
         bne Loop
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
 
 ; Khine / BudgetArms
 .proc ConfirmStartMenuSelection
+
     lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
     cmp #START_MENU_START_NEW_SELECTION
@@ -441,6 +469,7 @@
 
 ; BudgetArms
 .proc ConfirmLoadSaveMenuSelection
+
     lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
     cmp #LOAD_SAVE_MENU_SAVE_0_SELECTION
@@ -502,6 +531,7 @@
 
 ; BudgetArms
 .proc ConfirmSaveSaveMenuSelection
+
     lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
     cmp #SAVE_SAVE_MENU_SAVE_0_SELECTION
@@ -571,6 +601,7 @@
 
 ; BudgetArms
 .proc ConfirmSelectPlayerMenuSelection
+
     lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
     cmp #SELECT_PLAYER_MENU_1_PLAYER_SELECTION
@@ -608,6 +639,7 @@
         jsr ContinuePreviousModeInstantely
         rts 
     :
+
     rts 
 
 .endproc
@@ -617,8 +649,8 @@
 
 ; Khine
 .proc MoveStartMenuCursorUp
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #START_MENU_START_NEW_SELECTION
     bne :+
         rts 
@@ -636,8 +668,8 @@
 
 ; Khine
 .proc MoveStartMenuCursorDown
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #START_MENU_CONTROLS_SELECTION
     bne :+
         rts 
@@ -655,8 +687,8 @@
 
 ; BudgetArms
 .proc MoveLoadSaveMenuCursorUp
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #LOAD_SAVE_MENU_SAVE_0_SELECTION
     bne :+
         rts 
@@ -674,8 +706,8 @@
 
 ; BudgetArms
 .proc MoveLoadSaveMenuCursorDown
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #LOAD_SAVE_MENU_GO_BACK_SELECTION
     bne :+
         rts 
@@ -693,8 +725,8 @@
 
 ; BudgetArms
 .proc MoveSaveSaveMenuCursorUp
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #SAVE_SAVE_MENU_SAVE_0_SELECTION
     bne :+
         rts 
@@ -712,8 +744,8 @@
 
 ; BudgetArms
 .proc MoveSaveSaveMenuCursorDown
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #SAVE_SAVE_MENU_GO_BACK_SELECTION
     bne :+
         rts 
@@ -731,8 +763,8 @@
 
 ; BudgetArms
 .proc MoveSelectPlayerMenuCursorUp
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #SELECT_PLAYER_MENU_1_PLAYER_SELECTION
     bne :+
         rts 
@@ -750,8 +782,8 @@
 
 ; BudgetArms
 .proc MoveSelectPlayerMenuCursorDown
-    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
+    lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     cmp #SELECT_PLAYER_MENU_GO_BACK_SELECTION
     bne :+
         rts 
@@ -770,15 +802,20 @@
 
 ; Khine
 .proc InitializeHelpMenuTilemap
+
     lda #<Help_Menu_Tilemap
     sta abs_address_to_access
+
     lda #>Help_Menu_Tilemap
     sta abs_address_to_access + 1
+
     jsr LoadTilemapToNameTable3
 
-    rts
+    rts 
+
 .endproc
 ; Khine
+
 
 ; Khine
 .proc EnterStartMenuMode
@@ -793,13 +830,17 @@
 
     jsr InitializeStartMenuCursor
 
+
     lda #<Start_Menu_Tilemap
     sta abs_address_to_access
+
     lda #>Start_Menu_Tilemap
     sta abs_address_to_access + 1
+
     jsr LoadTilemapToNameTable1
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
@@ -821,11 +862,14 @@
     
     lda #<Help_Menu_Tilemap
     sta abs_address_to_access
+
     lda #>Help_Menu_Tilemap
     sta abs_address_to_access + 1
+
     jsr LoadTilemapToNameTable3
 
-    rts
+    rts 
+
 .endproc
 ; Khine / BudgetArms
 
@@ -842,10 +886,13 @@
     lda #LOAD_SAVE_MENU_SAVE_0_SELECTION
     sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
     
+
     lda #<Load_Save_Tilemap
     sta abs_address_to_access
+
     lda #>Load_Save_Tilemap
     sta abs_address_to_access + 1
+
     jsr LoadTilemapToNameTable1
 
     rts 
@@ -868,10 +915,13 @@
     lda #HELP_MENU_SCROLL_Y
     sta scroll_y_position
 
+
     lda #<Save_Save_Tilemap
     sta abs_address_to_access
+
     lda #>Save_Save_Tilemap
     sta abs_address_to_access + 1
+
     jsr LoadTilemapToNameTable3
 
     rts 
@@ -895,15 +945,16 @@
     
     lda #<Select_Player_Tilemap
     sta abs_address_to_access
+
     lda #>Select_Player_Tilemap
     sta abs_address_to_access + 1
+
     jsr LoadTilemapToNameTable1
 
     rts 
 
 .endproc
 ; BudgetArms
-
 
 
 ; Khine
@@ -926,8 +977,8 @@
 
     lda #$00
     sta current_player_index
-    Loop_Players:
 
+    Loop_Players:
         jsr LoadPlayerProperties
 
         jsr InitializeAllPlayers
@@ -961,6 +1012,7 @@
     sta abs_address_to_access
     lda #>Canvas_Tilemap
     sta abs_address_to_access + 1
+
     jsr LoadTilemapToNameTable1
 
     rts 
@@ -971,10 +1023,10 @@
 
 ; Khine
 .proc ContinuePreviousMode
+
     lda previous_program_mode
     cmp #START_MENU_MODE
     bne :+
-        ;jsr EnterStartMenuMode
         TransitionToMode #START_MENU_MODE
     :
 
@@ -988,7 +1040,8 @@
         TransitionToMode #LOAD_SAVE_MODE
     :
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
@@ -999,7 +1052,6 @@
     lda previous_program_mode
     cmp #START_MENU_MODE
     bne :+
-        ;jsr EnterStartMenuMode
         TransitionInstantlyToMode #START_MENU_MODE
     :
 
@@ -1013,51 +1065,55 @@
         TransitionInstantlyToMode #LOAD_SAVE_MODE
     :
 
-    rts
+    rts 
+
 .endproc
 ; Khine / BudgetArms
 
 
 ; Khine
 .proc InitializeEachPlayer
+
     lda #PLAYER_1
     sta player_1_properties + P_INDEX
 
     lda #PLAYER_2
     sta player_2_properties + P_INDEX
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
 
 ; Khine
 .proc InitializeAllPlayers
-        lda #$02
-        sta player + P_SELECTED_COLOR_INDEX
 
-        lda #UPDATE_ALL_OFF
-        sta player + P_TOOL_USE_FLAG
+    lda #$02
+    sta player + P_SELECTED_COLOR_INDEX
 
-        lda #SHAPE_TOOL_TYPE_DEFAULT
-        sta player + P_SHAPE_TOOL_TYPE
+    lda #UPDATE_ALL_OFF
+    sta player + P_TOOL_USE_FLAG
 
-        lda #BRUSH_TOOL_SELECTED
-        sta player + P_SELECTED_TOOL
+    lda #SHAPE_TOOL_TYPE_DEFAULT
+    sta player + P_SHAPE_TOOL_TYPE
 
-        lda #CURSOR_STARTUP_SIZE
-        sta player + P_CURSOR_SIZE
+    lda #BRUSH_TOOL_SELECTED
+    sta player + P_SELECTED_TOOL
 
-        lda #CURSOR_MIN_X + 16
-        sta player + P_TILE_X_POS
+    lda #CURSOR_STARTUP_SIZE
+    sta player + P_CURSOR_SIZE
 
-        lda #CURSOR_MIN_Y + 12
-        sta player + P_TILE_Y_POS
+    lda #CURSOR_MIN_X + 16
+    sta player + P_TILE_X_POS
 
-        lda #UPDATE_TOOL_TEXT_OVERLAY
-        sta player + P_UPDATE_FLAG
+    lda #CURSOR_MIN_Y + 12
+    sta player + P_TILE_Y_POS
 
-    rts
+    lda #UPDATE_TOOL_TEXT_OVERLAY
+    sta player + P_UPDATE_FLAG
+
+    rts 
 
 .endproc
 ; Khine
@@ -1074,10 +1130,11 @@
         P1_Loop:
             lda player_1_properties, x
             sta player, x
-            inx
+            inx 
             cpx #P_PROPERTY_SIZE
             bne P1_Loop
-        rts
+
+        rts 
     :
 
     cmp #PLAYER_2
@@ -1086,11 +1143,13 @@
         P2_Loop:
             lda player_2_properties, x
             sta player, x
-            inx
+            inx 
             cpx #P_PROPERTY_SIZE
             bne P2_Loop
-        rts
+
+        rts 
     :
+
     rts 
 
 .endproc
@@ -1108,10 +1167,11 @@
         P1_Loop:
             lda player, x
             sta player_1_properties, x
-            inx
+            inx 
             cpx #P_PROPERTY_SIZE
             bne P1_Loop
-        rts
+
+        rts 
     :
 
     cmp #PLAYER_2
@@ -1120,10 +1180,11 @@
         P2_Loop:
             lda player, x
             sta player_2_properties, x
-            inx
+            inx 
             cpx #P_PROPERTY_SIZE
             bne P2_Loop
-        rts
+
+        rts 
     :
     rts 
 
@@ -1133,6 +1194,7 @@
 
 ; Khine
 .proc ConvertCursorPosToTilePositions
+
     ; Convert the X and Y coordinates of the cursor to
     ; the tile index storied in 'cursor_tile_position' variable
     ; 2 bytes -> LO + HI bytes
@@ -1153,36 +1215,40 @@
     beq SkipLoop
 
     RowLoop:
-    adc #DISPLAY_SCREEN_WIDTH
-    ; Check for carry bit and then increment the high bit when carry is set
-    bcc @SkipHighBitIncrement
+        adc #DISPLAY_SCREEN_WIDTH
+        ; Check for carry bit and then increment the high bit when carry is set
+        bcc @SkipHighBitIncrement
+
         inc player + P_TILE_ADDR + 1
         clc 
+
     @SkipHighBitIncrement:
-    dey
-    bne RowLoop
+        dey 
+        bne RowLoop
 
     SkipLoop:
-    adc player + P_TILE_X_POS
-    ;sta temp_tile_position ; Low bit of the location
-    sta player + P_TILE_ADDR
+        adc player + P_TILE_X_POS
+        sta player + P_TILE_ADDR
 
-    ; Increment the high bit position if there is a remaining carry flag set
-    bcc @SkipHighBitIncrement
+        ; Increment the high bit position if there is a remaining carry flag set
+        bcc @SkipHighBitIncrement
+        
         inc player + P_TILE_ADDR + 1 ; High bit of the location
-        clc
+        clc 
+
     @SkipHighBitIncrement:
 
     ; Add the offset of nametable 1 to the tile index
     lda #<NAME_TABLE_1
     adc	player + P_TILE_ADDR
     sta player + P_TILE_ADDR
+
     lda #>NAME_TABLE_1
     adc #$00
     adc player + P_TILE_ADDR + 1
     sta player + P_TILE_ADDR + 1
 
-    rts
+    rts 
 
 .endproc
 ; Khine
@@ -1190,6 +1256,7 @@
 
 ; Khine / BudgetArms
 .proc MoveCursorUp
+
     ; Move to left (cursor_y - 8, tile_cursor_y - 1)
     lda player + P_TILE_Y_POS
 
@@ -1198,7 +1265,7 @@
         rts 
 
     @Apply_Move:
-    dec player + P_TILE_Y_POS
+        dec player + P_TILE_Y_POS
 
     rts 
 
@@ -1208,9 +1275,10 @@
 
 ; Khine / BudgetArms
 .proc MoveCursorDown
+
     ; Move to right (cursor_y + 8, tile_cursor_y + 1)
     lda player + P_TILE_Y_POS
-    clc
+    clc 
     adc player + P_CURSOR_SIZE
 
     cmp #CURSOR_MAX_Y
@@ -1218,9 +1286,9 @@
         rts 
 
     @Apply_Move:
-    inc player + P_TILE_Y_POS
+        inc player + P_TILE_Y_POS
 
-    rts
+    rts 
 
 .endproc
 ; Khine / BudgetArms
@@ -1228,6 +1296,7 @@
 
 ; Khine / BudgetArms
 .proc MoveCursorLeft
+
     ; Move to left (cursor_x - 8, tile_cursor_x - 1)
     lda player + P_TILE_X_POS
     cmp #CURSOR_MIN_X
@@ -1235,7 +1304,7 @@
         rts 
 
     @Apply_Move:
-    dec player + P_TILE_X_POS
+        dec player + P_TILE_X_POS
 
     rts 
 
@@ -1245,9 +1314,10 @@
 
 ; Khine / BudgetArms
 .proc MoveCursorRight
+
     ; Move to right (cursor_x + 8, tile_cursor_x + 1)
     lda player + P_TILE_X_POS
-    clc
+    clc 
     adc player + P_CURSOR_SIZE
 
     cmp #CURSOR_MAX_X
@@ -1255,7 +1325,7 @@
         rts 
 
     @Apply_Move:
-    inc player + P_TILE_X_POS
+        inc player + P_TILE_X_POS
 
     rts 
 
@@ -1265,6 +1335,7 @@
 
 ; Khine
 .proc CycleCursorSize
+
     ; Load the brush size and checks if it's already the maximum size
     ; If MAX -> return back to the minimum size
     ; If not -> increment the brush size
@@ -1278,15 +1349,16 @@
     @Not_Max:
     inc player + P_CURSOR_SIZE
 
-    clc
+    clc 
     lda player + P_TILE_X_POS
     adc player + P_CURSOR_SIZE
     cmp #DISPLAY_SCREEN_WIDTH
     bcc @No_X_Move_Needed
         dec player + P_TILE_X_POS
+
     @No_X_Move_Needed:
 
-    clc
+    clc 
     lda player + P_TILE_Y_POS
     adc player + P_CURSOR_SIZE
     cmp #DISPLAY_SCREEN_HEIGHT - 1
@@ -1296,8 +1368,9 @@
     @No_Y_Move_Needed:
 
     Change_Cursor_Sprite:
-    jsr LoadCursorSprite
-    rts
+        jsr LoadCursorSprite
+
+    rts 
 
 .endproc
 ; Khine
@@ -1321,7 +1394,8 @@
     :
 
     jsr LoadShapeToolCursorSprite
-    rts
+
+    rts 
 
 .endproc
 ; Khine / BudgetArms
@@ -1348,6 +1422,7 @@
 
 ; Joren
 .proc IncreaseChrTileIndex
+
     lda player + P_SELECTED_COLOR_INDEX
     clc 
     adc #$01
@@ -1360,14 +1435,16 @@
         sta player + P_SELECTED_COLOR_INDEX
 
     jsr UpdateColorSelectionOverlayPosition
+
     rts 
 
 .endproc
 ; Joren
 
 
-;Joren
+; Joren
 .proc DecreaseChrTileIndex
+
     lda player + P_SELECTED_COLOR_INDEX
     sec 
     sbc #$01
@@ -1379,10 +1456,11 @@
         sta player + P_SELECTED_COLOR_INDEX
 
     jsr UpdateColorSelectionOverlayPosition
+
     rts 
 
 .endproc
-;Joren
+; Joren
 
 
 ; Joren / Khine
@@ -1419,6 +1497,7 @@
 
 ; Joren
 .proc IncreaseButtonHeldFrameCount
+
     lda player + P_INPUT_FRAME_COUNT
     clc 
     adc #$01
@@ -1427,7 +1506,7 @@
         lda #$00
 
     Value_Is_Okay:
-    sta player + P_INPUT_FRAME_COUNT
+        sta player + P_INPUT_FRAME_COUNT
 
     rts 
 
@@ -1437,6 +1516,7 @@
 
 ; Khine
 .proc UpdateCursorAfterToolSelection
+
     lda player + P_SELECTED_TOOL
     
     ldx #MINIMUM_CURSOR_SIZE
@@ -1459,13 +1539,15 @@
     ora #UPDATE_TOOL_TEXT_OVERLAY
     sta player + P_UPDATE_FLAG
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
 
 ; Joren / Khine
 .proc IncreaseToolSelection
+
     lda player + P_SELECTED_TOOL
     clc 
     adc #$01
@@ -1476,10 +1558,11 @@
         lda #00 ; set value back to 0
 
     Value_Was_Okay:
-    sta player + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
 
-    jsr UpdateCursorAfterToolSelection
-    jsr UpdateToolSelectionOverlayPosition
+        jsr UpdateCursorAfterToolSelection
+        jsr UpdateToolSelectionOverlayPosition
+
     rts 
 
 .endproc
@@ -1488,6 +1571,7 @@
 
 ; Joren / Khine
 .proc DecreaseToolSelection
+
     lda player + P_SELECTED_TOOL
     sec 
     sbc #$01
@@ -1500,7 +1584,8 @@
 
     jsr UpdateCursorAfterToolSelection
     jsr UpdateToolSelectionOverlayPosition
-    rts
+
+    rts 
 
 .endproc
 ; Joren / Khine
@@ -1508,6 +1593,7 @@
 
 ; Khine
 .proc RefreshToolTextOverlay
+
     lda player + P_UPDATE_FLAG
     eor #UPDATE_TOOL_TEXT_OVERLAY
     sta player + P_UPDATE_FLAG
@@ -1591,19 +1677,25 @@
         jmp @Change_Text
     :
 
+
     @Change_Text:
+
     ldy #$00
-        @Write_Loop:
+    @Write_Loop:
         lda (abs_address_to_access), y
         cmp #$00
         bne :+
-            rts
+            rts 
         :
+
         sta PPU_DATA
-        iny
+
+        iny 
+
         jmp @Write_Loop
 
-    rts
+    rts 
+
 .endproc
 ; Khine
 
@@ -1651,6 +1743,7 @@
 
 ; Khine / BudgetArms
 .proc LoadPalette
+
     lda current_program_mode
     
     cmp #START_MENU_MODE
@@ -1981,35 +2074,41 @@
 
 ; Khine
 .proc UpdatePlayersCursorPalette
-    ldx #$00
-    ldy #OAM_SPRITE_SIZE_CURSOR_ALL
-    PLAYER_1:
-    lda oam + OAM_OFFSET_P1_CURSOR + OAM_ATTR, x
-    ora #PLAYER_1_OVERLAY_ATTR
-    sta oam + OAM_OFFSET_P1_CURSOR + OAM_ATTR, x
-    inx
-    inx
-    inx
-    inx
-    dey
-    bne PLAYER_1
 
     ldx #$00
     ldy #OAM_SPRITE_SIZE_CURSOR_ALL
-    PLAYER_2:
-    lda oam + OAM_OFFSET_P2_CURSOR + OAM_ATTR, x
-    ora #PLAYER_2_OVERLAY_ATTR
-    sta oam + OAM_OFFSET_P2_CURSOR + OAM_ATTR, x
-    inx
-    inx
-    inx
-    inx
-    dey
-    bne PLAYER_2
 
-    rts
+    Player_1:
+        lda oam + OAM_OFFSET_P1_CURSOR + OAM_ATTR, x
+        ora #PLAYER_1_OVERLAY_ATTR
+        sta oam + OAM_OFFSET_P1_CURSOR + OAM_ATTR, x
+        inx 
+        inx 
+        inx 
+        inx 
+        dey 
+        bne Player_1
+
+
+    ldx #$00
+    ldy #OAM_SPRITE_SIZE_CURSOR_ALL
+
+    Player_2:
+        lda oam + OAM_OFFSET_P2_CURSOR + OAM_ATTR, x
+        ora #PLAYER_2_OVERLAY_ATTR
+        sta oam + OAM_OFFSET_P2_CURSOR + OAM_ATTR, x
+        inx 
+        inx 
+        inx 
+        inx 
+        dey 
+        bne Player_2
+
+    rts 
+
 .endproc
 ; Khine
+
 
 ; BudgetArms
 .proc UpdateSelectionOverlaysYPos
@@ -2020,23 +2119,22 @@
     
     Player_1:        
 
-    lda #OVERLAY_P1_COLOR_OFFSET_Y
-    sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_Y
+        lda #OVERLAY_P1_COLOR_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_Y
 
-    lda #OVERLAY_P1_TOOL_OFFSET_Y
-    sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_Y
+        lda #OVERLAY_P1_TOOL_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_Y
 
-    rts 
+        rts 
 
 
     Player_2:
 
-    lda #OVERLAY_P2_COLOR_OFFSET_Y
-    sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_Y
+        lda #OVERLAY_P2_COLOR_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_Y
 
-    lda #OVERLAY_P2_TOOL_OFFSET_Y
-    sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_Y
-
+        lda #OVERLAY_P2_TOOL_OFFSET_Y
+        sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_Y
 
     rts 
 
@@ -2162,3 +2260,4 @@
 
 .endproc
 ; BudgetArms
+
