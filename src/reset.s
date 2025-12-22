@@ -18,9 +18,9 @@
     ldx #$FF
     txs			; initialise stack
 
-    wait_vblank:
+    Wait_Vblank:
         bit PPU_STATUS
-        bpl wait_vblank
+        bpl Wait_Vblank
 
     ; clear all RAM to 0
     lda #$00
@@ -51,7 +51,7 @@
     lda #NO_MODE
     sta previous_program_mode
 
-
+    ; todo: remove these comments???
     ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
     ; 	lda cursor_y
     ; 	sta oam+0             ; Byte 0: Y position
@@ -69,9 +69,9 @@
     ; Bit 7: Flip vertical
 
     ; wait for second vBlank
-    wait_vblank2:
+    Wait_Vblank_2:
         bit PPU_STATUS
-        bpl wait_vblank2
+        bpl Wait_Vblank_2
 
     ; NES is initialized and ready to begin
     ; - enable the NMI for graphical updates and jump to our main program
