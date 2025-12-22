@@ -123,13 +123,6 @@
 
     cmp #CANVAS_MODE
     bne :+
-    
-        ; lda #<Canvas_Tilemap
-        ; sta abs_address_to_access
-        ; lda #>Canvas_Tilemap
-        ; sta abs_address_to_access + 1
-
-
         lda save_index
         cmp #SAVE_INVALID_INDEX
         bne Load_From_WRAM
@@ -137,16 +130,14 @@
             sta abs_address_to_access
             lda #>Canvas_Tilemap
             sta abs_address_to_access + 1
+
             jmp :+
 
         Load_From_WRAM:
-
             lda #<SAVE_TILEMAP
             sta abs_address_to_access
             lda #>SAVE_TILEMAP
             sta abs_address_to_access + 1
-        
-
     :
 
     cmp #LOAD_SAVE_MODE
@@ -165,7 +156,7 @@
         sta abs_address_to_access + 1
     :
 
-
+    ; Set current transition pos to name table 1 start
     lda #<NAME_TABLE_1
     sta current_transition_addr
     lda #>NAME_TABLE_1
@@ -274,6 +265,7 @@
 
 .endmacro
 ; BudgetArms
+
 
 ; BudgetArms
 .macro ConvertPositionToTilePosition position
@@ -1257,7 +1249,7 @@
 ; Khine / BudgetArms
 .proc MoveCursorUp
 
-    ; Move to left (cursor_y - 8, tile_cursor_y - 1)
+    ; Move to left (cursor_y - 8, tile_y - 1)
     lda player + P_TILE_Y_POS
 
     cmp #CURSOR_MIN_Y
@@ -1276,19 +1268,18 @@
 ; Khine / BudgetArms
 .proc MoveCursorDown
 
-    ; Move to right (cursor_y + 8, tile_cursor_y + 1)
+    ; Move to right (pos_y += 8 and tile_y += 1)
     lda player + P_TILE_Y_POS
     clc 
     adc player + P_CURSOR_SIZE
 
     cmp #CURSOR_MAX_Y
-    bmi @Apply_Move
-        rts 
-
-    @Apply_Move:
+    bpl :+
         inc player + P_TILE_Y_POS
+    :
 
     rts 
+
 
 .endproc
 ; Khine / BudgetArms
@@ -1297,14 +1288,12 @@
 ; Khine / BudgetArms
 .proc MoveCursorLeft
 
-    ; Move to left (cursor_x - 8, tile_cursor_x - 1)
+    ; Move to left (pos_x -= 8 and tile_x -= 1)
     lda player + P_TILE_X_POS
     cmp #CURSOR_MIN_X
-    bne @Apply_Move
-        rts 
-
-    @Apply_Move:
+    beq :+
         dec player + P_TILE_X_POS
+    :
 
     rts 
 
@@ -1321,11 +1310,9 @@
     adc player + P_CURSOR_SIZE
 
     cmp #CURSOR_MAX_X
-    bmi @Apply_Move
-        rts 
-
-    @Apply_Move:
+    bpl :+
         inc player + P_TILE_X_POS
+    :
 
     rts 
 
@@ -1347,14 +1334,15 @@
         jmp Change_Cursor_Sprite 
 
     @Not_Max:
-    inc player + P_CURSOR_SIZE
+        inc player + P_CURSOR_SIZE
 
-    clc 
-    lda player + P_TILE_X_POS
-    adc player + P_CURSOR_SIZE
-    cmp #DISPLAY_SCREEN_WIDTH
-    bcc @No_X_Move_Needed
-        dec player + P_TILE_X_POS
+        clc 
+        lda player + P_TILE_X_POS
+        adc player + P_CURSOR_SIZE
+
+        cmp #DISPLAY_SCREEN_WIDTH
+        bcc @No_X_Move_Needed
+            dec player + P_TILE_X_POS
 
     @No_X_Move_Needed:
 
@@ -1427,12 +1415,14 @@
     clc 
     adc #$01
 
+    ; if a equal to cmp, set a to first tile index (background, aka 0)
+    ; todo: add variable tile_index min/max
     cmp #COLOR_3_TILE_INDEX + 1 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
-    bmi Value_Was_Okay ; branch if not negative
+    bne :+
         lda #BACKGROUND_TILE_INDEX ; set value back to 0
+    :
 
-    Value_Was_Okay:
-        sta player + P_SELECTED_COLOR_INDEX
+    sta player + P_SELECTED_COLOR_INDEX
 
     jsr UpdateColorSelectionOverlayPosition
 
@@ -1449,11 +1439,12 @@
     sec 
     sbc #$01
 
-    bpl Value_Was_Okay ; branch if not negative
-    lda #COLOR_3_TILE_INDEX ; set value back to max index
+    ; if negative flag set, set a to max tile index
+    bpl :+ 
+        lda #COLOR_3_TILE_INDEX
+    :
 
-    Value_Was_Okay:
-        sta player + P_SELECTED_COLOR_INDEX
+    sta player + P_SELECTED_COLOR_INDEX
 
     jsr UpdateColorSelectionOverlayPosition
 
@@ -1501,12 +1492,14 @@
     lda player + P_INPUT_FRAME_COUNT
     clc 
     adc #$01
+    
+    ; if A equal to FRAMES_BETWEEN_MOVEMENT, reset frame counter to 0
     cmp #FRAMES_BETWEEN_MOVEMENT
-    bne Value_Is_Okay
+    bne :+
         lda #$00
+    :
 
-    Value_Is_Okay:
-        sta player + P_INPUT_FRAME_COUNT
+    sta player + P_INPUT_FRAME_COUNT
 
     rts 
 
@@ -1517,15 +1510,17 @@
 ; Khine
 .proc UpdateCursorAfterToolSelection
 
-    lda player + P_SELECTED_TOOL
-    
     ldx #MINIMUM_CURSOR_SIZE
+    
+    lda player + P_SELECTED_TOOL
 
+    ; if selected tool is brush, set current cursor size 
     cmp #BRUSH_TOOL_SELECTED
     bne :+
         ldx player + P_CURSOR_SIZE
     :
 
+    ; if selected tool is eraser, set current cursor size
     cmp #ERASER_TOOL_SELECTED
     bne :+
         ldx player + P_CURSOR_SIZE
@@ -1552,16 +1547,16 @@
     clc 
     adc #$01
 
+    ; if A => tools total amount, set selection to 0
     cmp #TOOLS_TOTAL_AMOUNT
-    bmi Value_Was_Okay ; branch if not negative
+    bmi :+ 
+        lda #00
+    :
 
-        lda #00 ; set value back to 0
+    sta player + P_SELECTED_TOOL
 
-    Value_Was_Okay:
-        sta player + P_SELECTED_TOOL
-
-        jsr UpdateCursorAfterToolSelection
-        jsr UpdateToolSelectionOverlayPosition
+    jsr UpdateCursorAfterToolSelection
+    jsr UpdateToolSelectionOverlayPosition
 
     rts 
 
@@ -1576,10 +1571,11 @@
     sec 
     sbc #$01
 
-    bpl Value_Was_Okay ; branch if not negative
-    lda #TOOLS_TOTAL_AMOUNT - 1 ; set value back to max index
+    ; if A < 0, set tool to max tool
+    bpl :+ 
+        lda #TOOLS_TOTAL_AMOUNT - 1
+    :
 
-    Value_Was_Okay:
     sta player + P_SELECTED_TOOL
 
     jsr UpdateCursorAfterToolSelection
@@ -1601,34 +1597,38 @@
     ldx player + P_INDEX
 
     cpx #PLAYER_1
-    bne Not_Player_1
+    bne :+
         ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
-    Not_Player_1:
+    :
 
     cpx #PLAYER_2
-    bne Not_Player_2
+    bne :+
         ChangePPUNameTableAddr OVERLAY_P2_TOOL_TEXT_OFFSET
-    Not_Player_2:
+    :
+
 
     ; Clear the tiles before drawing again
+    ; todo: make magic number variable
     ldx #$06
     lda #COLOR_1_TILE_INDEX
     @Clear_Loop:
         sta PPU_DATA
-        dex
+        dex 
         bne @Clear_Loop
 
-    ldx player + P_INDEX
 
-    cpx #PLAYER_1
-    bne Not_Player__1
+    lda player + P_INDEX
+
+    cmp #PLAYER_1
+    bne :+
         ChangePPUNameTableAddr OVERLAY_P1_TOOL_TEXT_OFFSET
-    Not_Player__1:
+    :
 
-    cpx #PLAYER_2
-    bne Not_Player__2
+    cmp #PLAYER_2
+    bne :+
         ChangePPUNameTableAddr OVERLAY_P2_TOOL_TEXT_OFFSET
-    Not_Player__2:
+    :
+
 
     lda player + P_SELECTED_TOOL
 
@@ -1752,23 +1752,28 @@
         Start_Menu_Loop:
             lda color_palette_start_menu, x
             sta palette, x
-            inx
+
+            inx 
+
             cpx #PALETTE_SIZE
             bcc Start_Menu_Loop
-        rts
+
+        rts 
     :
 
     cmp #CANVAS_MODE
     bne :+
         ldx #$00
         Canvas_Loop:
-            ; lda color_palette_ui_overlay, x
             lda canvas_palette, x
             sta palette, x
-            inx
+
+            inx 
+
             cpx #PALETTE_SIZE
             bcc Canvas_Loop
-        rts
+
+        rts 
     :
 
     cmp #HELP_MENU_MODE
@@ -1777,10 +1782,13 @@
         Help_Menu_Loop:
             lda color_palette_start_menu, x
             sta palette, x
-            inx
+
+            inx 
+
             cpx #PALETTE_SIZE
             bcc Help_Menu_Loop
-        rts
+
+        rts 
     :
 
     cmp #SAVE_SAVE_MODE
@@ -1834,12 +1842,12 @@
     cmp #SAVE_HEADER_BYTE_2
     bne Canvas_Is_Not_Saved
 
-    jmp Canvas_Is_Saved
 
-    Canvas_Is_Not_Saved:
-        rts 
-
-    Canvas_Is_Saved:
+    ; if reaches here, jump over canvas_is_not_saved, bc the canvas is saved
+    jmp :+
+        Canvas_Is_Not_Saved:
+            rts 
+    :
 
 
     ; Load color palette   

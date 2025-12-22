@@ -104,7 +104,8 @@
         inx 
         bne Clear_Oam
     
-    rts
+    rts 
+
 .endproc
 ; Khine / Template
 
@@ -213,11 +214,11 @@
     ; start loop
     ldy player + P_INDEX
     cpy #PLAYER_1
-    bne P2
+    bne Player_2
 
-    P1:
+    Player_1:
         ldy #$00
-        P1_Loop:
+        Player_1_Loop:
             lda player + P_Y_POS
             clc 
             adc (abs_address_to_access), y
@@ -237,12 +238,12 @@
 
             iny 
             dex 
-            bne P1_Loop
+            bne Player_1_Loop
             jmp End_Loop
 
-    P2:
+    Player_2:
         ldy #$00
-        P2_Loop:
+        Player_2_Loop:
             lda player + P_Y_POS
             clc 
             adc (abs_address_to_access), y
@@ -262,7 +263,7 @@
             
             iny 
             dex 
-            bne P2_Loop
+            bne Player_2_Loop
 
 
     End_Loop:
@@ -385,35 +386,33 @@
     Color_Indicator_P1:
         lda #OVERLAY_P1_COLOR_OFFSET_X
         ldx player + P_SELECTED_COLOR_INDEX
-        beq Skip_Color_Loop_P1
+        beq :+
+            clc 
+            Color_Loop_P1:
+                adc #OVERLAY_COLOR_MULTIPLIER
+                dex 
+                bne Color_Loop_P1
+        :
 
-        clc 
-    Color_Loop_P1:
-        adc #OVERLAY_COLOR_MULTIPLIER
-        dex 
-        bne Color_Loop_P1
-
-    Skip_Color_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_COLOR + OAM_X
 
-    rts 
+        rts 
 
 
     Color_Indicator_P2:
         lda #OVERLAY_P2_COLOR_OFFSET_X
         ldx player + P_SELECTED_COLOR_INDEX
-        beq Skip_Color_Loop_P2
+        beq :+
+            clc 
+            Color_Loop_P2:
+                adc #OVERLAY_COLOR_MULTIPLIER
+                dex 
+                bne Color_Loop_P2
+        :
 
-        clc 
-        Color_Loop_P2:
-            adc #OVERLAY_COLOR_MULTIPLIER
-            dex 
-            bne Color_Loop_P2
-
-    Skip_Color_Loop_P2:
         sta oam + OAM_OFFSET_OVERLAY_P2_COLOR + OAM_X
 
-    rts 
+        rts 
 
 .endproc
 ; Khine
@@ -427,15 +426,14 @@
     Tool_Indicator_P1:
         lda #OVERLAY_P1_TOOL_OFFSET_X
         ldx player + P_SELECTED_TOOL
-        beq Skip_Tool_Loop_P1
+        beq :+
+            clc 
+            Tool_Loop_P1:
+                adc #OVERLAY_TOOL_MULTIPLIER
+                dex 
+                bne Tool_Loop_P1
+        :
 
-        clc 
-    Tool_Loop_P1:
-        adc #OVERLAY_TOOL_MULTIPLIER
-        dex 
-        bne Tool_Loop_P1
-
-    Skip_Tool_Loop_P1:
         sta oam + OAM_OFFSET_OVERLAY_P1_TOOL + OAM_X
 
         lda #OVERLAY_P1_COLOR_OFFSET_Y
@@ -446,22 +444,20 @@
     Tool_Indicator_P2:
         lda #OVERLAY_P2_TOOL_OFFSET_X
         ldx player + P_SELECTED_TOOL
-        beq Skip_Tool_Loop_P2
+        beq :+
+            clc 
+            Tool_Loop_P2:
+                adc #OVERLAY_TOOL_MULTIPLIER
+                dex 
+                bne Tool_Loop_P2
+        :
 
-        clc 
-
-    Tool_Loop_P2:
-        adc #OVERLAY_TOOL_MULTIPLIER
-        dex 
-        bne Tool_Loop_P2
-
-    Skip_Tool_Loop_P2:
         sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_X
 
         lda #OVERLAY_P2_COLOR_OFFSET_Y
         sta oam + OAM_OFFSET_OVERLAY_P2_TOOL + OAM_Y
 
-    rts 
+        rts 
 
 .endproc
 ; Khine
@@ -766,14 +762,13 @@
         ; loop until overflow
         bne Clear_Loop
 
-    Overflow:
-        inc save_ptr + 1
+        Overflow:
+            inc save_ptr + 1
 
-        ; loop until at end of WRAM
-        lda save_ptr + 1
-        cmp #>WRAM_END + 1
-        bne Clear_Loop
-
+            ; loop until at end of WRAM
+            lda save_ptr + 1
+            cmp #>WRAM_END + 1
+            bne Clear_Loop
 
     rts 
 

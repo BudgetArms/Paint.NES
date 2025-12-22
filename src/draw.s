@@ -773,20 +773,19 @@
 
     @X_Is_Max:
 
-    ; r = dx + (dy / 2)
-    clc 
-    lda shape_tool_circle_offset + 1
-    lsr 
-    adc shape_tool_circle_offset
+        ; r = dx + (dy / 2)
+        clc 
+        lda shape_tool_circle_offset + 1
+        lsr 
+        adc shape_tool_circle_offset
 
 
     @Store_Radius:
-
-    ; convert radius from pos to tile pos
-    lsr 
-    lsr 
-    lsr 
-    sta shape_tool_circle_radius
+        ; convert radius from pos to tile pos
+        lsr 
+        lsr 
+        lsr 
+        sta shape_tool_circle_radius
 
     ; if radius is 0, discard drawing 
     lda shape_tool_circle_radius
@@ -882,7 +881,7 @@
             sta PPU_DATA
 
             iny 
-            bne @inner_loop
+            bne @Inner_Loop
 
         lda abs_address_to_access + 1
         clc 
@@ -891,7 +890,7 @@
 
         inx 
         cpx #$04 ; todo: change to variable
-        bne @outer_loop
+        bne @Outer_Loop
 
     rts 
 

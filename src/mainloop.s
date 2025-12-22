@@ -1,7 +1,7 @@
 mainloop:
     ; skip reading controls if and change has not been drawn
     lda nmi_ready
-    cmp #0
+    cmp #$00
     bne mainloop
 
     lda current_program_mode
@@ -50,7 +50,7 @@ mainloop:
 
     End_Of_Loop:
     ; ensure our changes are rendered
-    lda #1
+    lda #$01
     sta nmi_ready
     jmp mainloop
 
@@ -62,28 +62,33 @@ mainloop:
 
     ; Play CocoMelon (song 1) when entering start menu
     lda current_bg_song
-    cmp #1
-    beq @skip_music_start
-        lda #1
+    cmp #$01
+    beq @Skip_Music_Start
+        lda #$01
         jsr famistudio_music_play
-        lda #1
+        lda #$01
         sta current_bg_song
-        lda #0
+        lda #$00
         sta menu_music_started  ; Reset this when leaving menu
-    @skip_music_start:
 
-    Loop_Players:
-        jsr LoadPlayerProperties
-        ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
-        jsr PollGamepad
-        jsr HandleStartMenuInput
+    @Skip_Music_Start:
 
-        jsr SavePlayerProperties
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
-    rts
+        Loop_Players:
+            jsr LoadPlayerProperties
+            ; read the gamepad (updates players_input, input_pressed_this_frame and input_released_this_frame )
+            jsr PollGamepad
+            jsr HandleStartMenuInput
+
+            jsr SavePlayerProperties
+
+            inc current_player_index
+
+            lda current_player_index
+            cmp player_count
+            bne Loop_Players
+
+    rts 
+
 .endproc
 ; Khine
 
@@ -100,11 +105,15 @@ mainloop:
         jsr HandleHelpMenuInput
 
         jsr SavePlayerProperties
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
-    rts
+
+        inc current_player_index
+
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
+
+    rts 
+
 .endproc
 ; Khine
 
@@ -121,11 +130,15 @@ mainloop:
         jsr HandleLoadSaveMenuInput
 
         jsr SavePlayerProperties
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
-    rts
+
+        inc current_player_index
+
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
+
+    rts 
+
 .endproc
 ; BudgetArms
 
@@ -142,11 +155,15 @@ mainloop:
         jsr HandleSaveSaveMenuInput
 
         jsr SavePlayerProperties
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
-    rts
+
+        inc current_player_index
+
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
+
+    rts 
+
 .endproc
 ; BudgetArms
 
@@ -163,11 +180,15 @@ mainloop:
         jsr HandleSelectPlayerMenuInput
 
         jsr SavePlayerProperties
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
-    rts
+        
+        inc current_player_index
+        
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
+
+    rts 
+
 .endproc
 ; BudgetArms
 
@@ -179,24 +200,22 @@ mainloop:
         lda next_program_mode
 
         cmp #CANVAS_MODE
-        bne Next_Not_Canvas
+        bne :++
 
             lda previous_program_mode
             cmp #HELP_MENU_MODE
             bne :+
                 lda next_program_mode
                 sta current_program_mode
-
-
                 jmp Transition_Done
             :
 
             jsr EnterCanvasMode
             jmp Transition_Done
-        Next_Not_Canvas:
+        :
 
         cmp #START_MENU_MODE
-        bne Next_Not_Start_Menu
+        bne :++
 
             lda previous_program_mode
             cmp #HELP_MENU_MODE
@@ -208,31 +227,31 @@ mainloop:
 
             jsr EnterStartMenuMode
             jmp Transition_Done
-        Next_Not_Start_Menu:
+        :
 
         cmp #HELP_MENU_MODE
-        bne Next_Not_Help_Menu
+        bne :+
             jsr EnterHelpMenuMode
             jmp Transition_Done
-        Next_Not_Help_Menu:
+        :
 
         cmp #LOAD_SAVE_MODE
-        bne Next_Not_Load_Save_Menu
+        bne :+
             jsr EnterLoadSaveSelectionMenuMode
             jsr Transition_Done
-        Next_Not_Load_Save_Menu:
+        :
 
         cmp #SAVE_SAVE_MODE
-        bne Next_Not_Save_Save_Menu
+        bne :+
             jsr EnterSaveSaveSelectionMenuMode
             jsr Transition_Done
-        Next_Not_Save_Save_Menu:
+        :
 
         cmp #SELECT_PLAYER_MODE
-        bne Next_Not_Select_Player_Menu
+        bne :+
             jsr EnterSelectPlayerSelectionMenuMode
             jsr Transition_Done
-        Next_Not_Select_Player_Menu:
+        :
 
         Transition_Done:
             jsr LoadPalette
@@ -242,24 +261,26 @@ mainloop:
 
     lda next_program_mode
     cmp #HELP_MENU_MODE
-    bne Next_Not_Help_Mode
+    bne :++
         lda scroll_y_position
         cmp #HELP_MENU_SCROLL_Y
         beq :+
             inc scroll_y_position
         :
-        rts
-    Next_Not_Help_Mode:
+
+        rts 
+
+    :
 
     lda next_program_mode
     cmp #SAVE_SAVE_MODE
-    bne Next_Not_Save_Save_Mode
+    bne :++
         lda previous_program_mode
         cmp #HELP_MENU_MODE
         bne :+
             rts 
         :
-    Next_Not_Save_Save_Mode:
+    :
 
 
     lda scroll_y_position
@@ -278,16 +299,16 @@ mainloop:
 .proc CanvasLoop
     ; Play Gymnopédie (song 0) when entering canvas
     lda current_bg_song
-    cmp #0
-    beq @skip_music_start
-        lda #0
+    cmp #$00
+    beq :+
+        lda #$00
         jsr famistudio_music_play
-        lda #0
+        lda #$00
         sta current_bg_song
-    @skip_music_start:
+    :
 
     ; Reset menu_music_started so CocoMelon can play again next time
-    ; lda #0
+    ; lda #$00
     ; sta menu_music_started
 
     lda #$00
@@ -303,20 +324,23 @@ mainloop:
         sta oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
         jsr UpdateSelectionOverlaysYPos
-        
 
         jsr ConvertCursorPosToTilePositions
         jsr UpdateCursorSpritePosition
 
         jsr SavePlayerProperties
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
+
+        inc current_player_index
+
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
 
     jsr MagicPaletteCopyingSubroutine
     jsr UpdatePlayersCursorPalette
-    rts
+
+    rts 
+
 .endproc
 ; Khine / BudgetArms
 

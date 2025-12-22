@@ -22,7 +22,10 @@
         lda JOYPAD1, x
         and #%00000011  ; todo: make this a variable
         cmp #$01
+
+        ; todo: why is rol done after cmp, change this if possible
         rol player + P_INPUT
+
         bcc Get_Input_Loop
 
     rts 
