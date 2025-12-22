@@ -94,8 +94,10 @@
     sta PPU_CONTROL
 
     lda PPU_STATUS
+
     lda #>PPU_PALETTE_START
     sta PPU_ADDR
+
     ldx #$00 ; transfer the 32 bytes to VRAM
     stx PPU_ADDR
 
@@ -155,8 +157,11 @@
 
 .endproc
 
+
 .proc StartMenuNMI
-    rts
+
+    rts 
+
 .endproc
 
 
@@ -164,17 +169,18 @@
     lda previous_program_mode
     cmp #HELP_MENU_MODE
     bne :+
-        rts
+        rts 
     :
 
     lda next_program_mode
     cmp #HELP_MENU_MODE
     bne :+
-        rts
+        rts 
     :
 
     jsr LoadTilemapWithTransition
-    rts
+    rts 
+
 .endproc
 
 .proc CanvasNMI
@@ -214,3 +220,4 @@
     rts 
 
 .endproc
+
