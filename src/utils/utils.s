@@ -2,16 +2,19 @@
 ; Khine
 .macro LoadCurrentPlayerProperty property
 
+    .local Not_Player_1
+    .local Not_Player_2
+
     ldx current_player_index
     cpx #PLAYER_1
-    bne :+
+    bne Not_Player_1
         lda player_1_properties + property
-    :
+    Not_Player_1:
 
     cpx #PLAYER_2
-    bne :+
+    bne Not_Player_2
         lda player_2_properties + property
-    :
+    Not_Player_2:
 
     sta player + property
 
@@ -22,18 +25,21 @@
 ; Khine
 .macro SaveCurrentPlayerProperty property
 
+    .local Not_Player_1
+    .local Not_Player_2
+
     lda player + property
 
     ldx current_player_index
     cpx #PLAYER_1
-    bne :+
+    bne Not_Player_1
         sta player_1_properties + property
-    :
+    Not_Player_1:
 
     cpx #PLAYER_2
-    bne :+
+    bne Not_Player_2
         sta player_2_properties + property
-    :
+    Not_Player_2:
 
 .endmacro
 ; Khine
@@ -42,18 +48,21 @@
 ; Khine
 .macro SaveValueToPlayerProperty property, value
 
+    .local Not_Player_1
+    .local Not_Player_2
+
     lda value
 
     ldx current_player_index
     cpx #PLAYER_1
-    bne :+
+    bne Not_Player_1
         sta player_1_properties + property
-    :
+    Not_Player_1:
 
     cpx #PLAYER_2
-    bne :+
+    bne Not_Player_2
         sta player_2_properties + property
-    :
+    Not_Player_2:
 
 .endmacro
 ; Khine

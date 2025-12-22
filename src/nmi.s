@@ -180,32 +180,37 @@
 .proc CanvasNMI
     lda #$00
     sta current_player_index
-    Loop_Players:
 
+    Loop_Players:
         LoadCurrentPlayerProperty P_TOOL_USE_FLAG
 
         and #BRUSH_TOOL_ON
-        beq Brush_Not_Used
+        beq :+
             jsr LoadPlayerBrushProperties
             jsr UseBrushTool
+
             SaveValueToPlayerProperty P_TOOL_USE_FLAG, #ALL_TOOLS_OFF
-        Brush_Not_Used:
+        :
 
         LoadCurrentPlayerProperty P_UPDATE_FLAG
 
         cmp #UPDATE_ALL_OFF
-        beq No_Update_Needed
+        beq :+
             jsr LoadPlayerToolTypeProperties
             jsr RefreshToolTextOverlay
+
             SaveCurrentPlayerProperty P_UPDATE_FLAG
-        No_Update_Needed:
+        :
 
-    inc current_player_index
-    lda current_player_index
-    cmp player_count
-    bne Loop_Players
+        inc current_player_index
 
-    Overlay:
-    jsr DrawCursorPositionOverlay
-    rts
+        lda current_player_index
+        cmp player_count
+        bne Loop_Players
+
+        
+        jsr DrawCursorPositionOverlay
+
+    rts 
+
 .endproc
