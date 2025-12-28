@@ -515,7 +515,7 @@
 
     cmp #LOAD_SAVE_MENU_GO_BACK_SELECTION
     bne :+
-        lda SAVE_INVALID_INDEX
+        lda #SAVE_INVALID_INDEX
         sta save_index
 
         TransitionInstantlyToMode #START_MENU_MODE
@@ -585,7 +585,7 @@
 
     cmp #SAVE_SAVE_MENU_GO_BACK_SELECTION
     bne :+
-        lda SAVE_INVALID_INDEX
+        lda #SAVE_INVALID_INDEX
         sta save_index
 
         TransitionInstantlyToMode #HELP_MENU_MODE
