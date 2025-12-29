@@ -195,8 +195,17 @@ mainloop:
 
 ; Khine / BudgetArms
 .proc TransitionLoop
+
     inc mode_transition_time
+
+    lda mode_transition_time
+    cmp #TRANSITION_TIME
+
     bne No_Transition_Yet
+
+        lda #$00
+        sta mode_transition_time
+
         lda next_program_mode
 
         cmp #CANVAS_MODE
@@ -207,6 +216,7 @@ mainloop:
             bne :+
                 lda next_program_mode
                 sta current_program_mode
+
                 jmp Transition_Done
             :
 
@@ -261,12 +271,37 @@ mainloop:
 
     lda next_program_mode
     cmp #HELP_MENU_MODE
-    bne :++
+    bne :+++
         lda scroll_y_position
         cmp #HELP_MENU_SCROLL_Y
-        beq :+
-            inc scroll_y_position
+        bcs :++
+
+            ldx #$00
+            Increment_Scroll_Y_Loop:
+                inc scroll_y_position
+
+                inx 
+
+                lda scroll_y_position
+                cmp #HELP_MENU_SCROLL_Y
+                bne :+
+                    lda #SKIP_TRANSITION_TIME
+                    sta mode_transition_time
+
+                    rts 
+                :
+
+                cpx #SCROLL_SPEED
+                bne Increment_Scroll_Y_Loop
+
+            rts 
         :
+
+        lda #HELP_MENU_SCROLL_Y
+        sta scroll_y_position
+
+        lda #SKIP_TRANSITION_TIME
+        sta mode_transition_time
 
         rts 
 
@@ -282,11 +317,33 @@ mainloop:
         :
     :
 
-
+    ; scroll upwards because you are not going to help menu
     lda scroll_y_position
     cmp #NORMAL_SCROLL_Y
-    beq :+
-        dec scroll_y_position
+    
+    ; skip if scroll y smaller or equal to normal scroll
+    beq :++
+    bcc :++
+
+        ldx #$00
+        Decrement_Scroll_Y_Loop:
+            dec scroll_y_position
+
+            inx 
+
+            lda scroll_y_position
+            cmp #NORMAL_SCROLL_Y
+            bne :+
+                lda #SKIP_TRANSITION_TIME
+                sta mode_transition_time
+
+                rts 
+            :
+
+            cpx #SCROLL_SPEED
+            bne Decrement_Scroll_Y_Loop
+
+        rts 
     :
 
     rts 
