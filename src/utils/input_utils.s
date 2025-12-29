@@ -148,7 +148,7 @@
 
     Check_PAD_B:
         cmp #PAD_B
-        bne :+
+        bne :++
             jsr PlayMenuSelectSFX
             ; cannot use continueprevious mode bc
             ; if help menu -> save menu -> help menu, then previous mode would be save menu
