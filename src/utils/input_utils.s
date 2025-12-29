@@ -143,7 +143,7 @@
                 jmp Stop_Checking
 
             No_Canvas_To_Save:
-            jmp Stop_Checking
+                jmp Stop_Checking
         :
 
     Check_PAD_B:
@@ -159,11 +159,10 @@
             ; else, go to canvas_mode
             lda previous_program_mode
             cmp #START_MENU_MODE
-            bne Previous_Mode_Not_Start_Mode
+            bne :+
                 TransitionToMode #START_MENU_MODE
                 jmp Stop_Checking
-
-            Previous_Mode_Not_Start_Mode:
+            :
 
             TransitionToMode #CANVAS_MODE
             jmp Stop_Checking
@@ -496,7 +495,6 @@
     Check_PAD_START_SELECT:
         cmp #PAD_START_SELECT
         bne :+
-            ;jsr EnterHelpMenuMode
             TransitionToMode #HELP_MENU_MODE
 
             jsr UpdateCanvasPalette
