@@ -887,6 +887,7 @@
         sta abs_address_to_access + 1
 
         inx 
+
         cpx #TRANSITION_SPEED
         bne @Outer_Loop
 
@@ -913,6 +914,7 @@
         lda (abs_address_to_access), y
         sta PPU_DATA
 
+        ; increment abs addr to access
         lda abs_address_to_access
         clc 
         adc #$01
@@ -922,6 +924,7 @@
         adc #$00
         sta abs_address_to_access + 1
 
+        ; increment current transition addr
         lda current_transition_addr
         clc 
         adc #$01
@@ -971,6 +974,7 @@
         sta abs_address_to_access + 1
 
         inx 
+
         cpx #TRANSITION_SPEED
         bne @Outer_Loop
 
