@@ -898,6 +898,46 @@
 
 
 ; Khine
+.proc LoadTilemapToNameTable3
+
+    jsr PPUOff
+
+    ldx PPU_STATUS ; reset address latch
+
+    ldx #>NAME_TABLE_3 ; High bit of the location
+    stx PPU_ADDR
+
+    ldx #<NAME_TABLE_3 ; Low bit of the location
+    stx PPU_ADDR
+
+    ldx #$00
+    @Outer_Loop:
+        ldy #$00
+
+        @Inner_Loop:
+            lda (abs_address_to_access), y
+            sta PPU_DATA
+        
+            iny 
+            bne @Inner_Loop
+
+        lda abs_address_to_access + 1
+        clc 
+        adc #$01
+        sta abs_address_to_access + 1
+
+        inx 
+
+        cpx #TRANSITION_SPEED
+        bne @Outer_Loop
+
+    rts 
+
+.endproc
+; Khine
+
+
+; Khine
 .proc LoadTilemapWithTransition
 
     ldx PPU_STATUS ; reset address latch
@@ -937,46 +977,6 @@
         inx 
         cpx #TRANSITION_SPEED
         bne Loop
-
-    rts 
-
-.endproc
-; Khine
-
-
-; Khine
-.proc LoadTilemapToNameTable3
-
-    jsr PPUOff
-
-    ldx PPU_STATUS ; reset address latch
-
-    ldx #>NAME_TABLE_3 ; High bit of the location
-    stx PPU_ADDR
-
-    ldx #<NAME_TABLE_3 ; Low bit of the location
-    stx PPU_ADDR
-
-    ldx #$00
-    @Outer_Loop:
-        ldy #$00
-
-        @Inner_Loop:
-            lda (abs_address_to_access), y
-            sta PPU_DATA
-        
-            iny 
-            bne @Inner_Loop
-
-        lda abs_address_to_access + 1
-        clc 
-        adc #$01
-        sta abs_address_to_access + 1
-
-        inx 
-
-        cpx #TRANSITION_SPEED
-        bne @Outer_Loop
 
     rts 
 
