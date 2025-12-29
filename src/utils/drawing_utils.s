@@ -57,7 +57,6 @@
     lsr 
     cmp #CURSOR_MAX_Y
     bcs @Not_In_Canvas  
-
     
     jmp @In_Canvas
 
@@ -67,7 +66,6 @@
 
 
     @In_Canvas:
-
 
     ; reset ppu lash
     lda PPU_STATUS
@@ -83,7 +81,6 @@
     sta PPU_DATA 
 
     @Skip_Drawing:
-        lda #$00
 
 .endmacro
 ; BudgetArms

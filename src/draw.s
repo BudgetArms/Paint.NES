@@ -250,27 +250,22 @@
         lda player + P_Y_POS
         sta player + P_SHAPE_TOOL_SECOND_POS + 1
 
-        ; Rectangle
+
         lda player + P_SHAPE_TOOL_TYPE
 
         cmp #SHAPE_TOOL_TYPE_RECTANGLE
-        bne @Not_Rectangle_Type
-
-            ; if rectangle mode
+        bne :+
             jsr DrawShapeRectangle
+
             rts 
+        :
 
-        @Not_Rectangle_Type:
-
-        ; Circle
         cmp #SHAPE_TOOL_TYPE_CIRCLE
-        bne @Not_Circle_Type
-
-            ; if circle mode
+        bne :+
             jsr DrawShapeCircle
-            rts 
 
-        @Not_Circle_Type:
+            rts 
+        :
 
         ; this should never be reached
         rts 

@@ -1222,9 +1222,9 @@
         inc player + P_TILE_ADDR + 1
         clc 
 
-    @SkipHighBitIncrement:
-        dey 
-        bne RowLoop
+        @SkipHighBitIncrement:
+            dey 
+            bne RowLoop
 
     SkipLoop:
         adc player + P_TILE_X_POS
@@ -1236,17 +1236,17 @@
         inc player + P_TILE_ADDR + 1 ; High bit of the location
         clc 
 
-    @SkipHighBitIncrement:
+        @SkipHighBitIncrement:
 
-    ; Add the offset of nametable 1 to the tile index
-    lda #<NAME_TABLE_1
-    adc	player + P_TILE_ADDR
-    sta player + P_TILE_ADDR
+            ; Add the offset of nametable 1 to the tile index
+            lda #<NAME_TABLE_1
+            adc	player + P_TILE_ADDR
+            sta player + P_TILE_ADDR
 
-    lda #>NAME_TABLE_1
-    adc #$00
-    adc player + P_TILE_ADDR + 1
-    sta player + P_TILE_ADDR + 1
+            lda #>NAME_TABLE_1
+            adc #$00
+            adc player + P_TILE_ADDR + 1
+            sta player + P_TILE_ADDR + 1
 
     rts 
 
@@ -1336,12 +1336,12 @@
     ; If not -> increment the brush size
     lda player + P_CURSOR_SIZE
     cmp #MAXIMUM_CURSOR_SIZE
-    bne @Not_Max
+    bne Not_Max
         lda #MINIMUM_CURSOR_SIZE
         sta player + P_CURSOR_SIZE
         jmp Change_Cursor_Sprite 
 
-    @Not_Max:
+    Not_Max:
         inc player + P_CURSOR_SIZE
 
         clc 
@@ -1349,19 +1349,19 @@
         adc player + P_CURSOR_SIZE
 
         cmp #DISPLAY_SCREEN_WIDTH
-        bcc @No_X_Move_Needed
+        bcc No_X_Move_Needed
             dec player + P_TILE_X_POS
 
-    @No_X_Move_Needed:
+    No_X_Move_Needed:
 
     clc 
     lda player + P_TILE_Y_POS
     adc player + P_CURSOR_SIZE
     cmp #DISPLAY_SCREEN_HEIGHT - 1
-    bcc @No_Y_Move_Needed
+    bcc No_Y_Move_Needed
         dec player + P_TILE_Y_POS
 
-    @No_Y_Move_Needed:
+    No_Y_Move_Needed:
 
     Change_Cursor_Sprite:
         jsr LoadCursorSprite
@@ -1714,14 +1714,14 @@
     ldx #$00
     lda palette
 
-    @Loop:
+    Loop:
         sta palette, x
         inx 
         inx 
         inx 
         inx 
         cpx #PALETTE_SIZE
-        bcc @Loop
+        bcc Loop
 
     lda palette + PALETTE_COLOR_BG
     sta palette + PALETTE_COLOR_BG_COPY
