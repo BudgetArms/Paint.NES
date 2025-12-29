@@ -479,7 +479,7 @@
     sta cursor_x_digits + 1     ; tens digit (0-9)
     stx cursor_x_digits + 2     ; ones digit (0-9)
     
-    ; Convert cursor_y to three decimal digits
+    ; Convert pos y to three decimal digits
     lda player_1_properties + P_Y_POS
     sec 
     sbc #CURSOR_MIN_Y * TILE_PIXEL_SIZE

@@ -51,23 +51,6 @@
     lda #NO_MODE
     sta previous_program_mode
 
-    ; todo: remove these comments???
-    ; ; Write sprite 0 to OAM buffer (4 bytes per sprite)
-    ; 	lda cursor_y
-    ; 	sta oam+0             ; Byte 0: Y position
-    ; 	lda #$20 
-    ; 	sta oam+1             ; Byte 1: tile index (which 8x8 tile to display)
-    ; 	lda #$00
-    ; 	sta oam+2             ; Byte 2: attributes (palette, flip, priority bits)
-    ; 	lda cursor_x
-    ; 	sta oam+3             ; Byte 3: X position
-
-    ; OAM attribute byte format (%76543210):
-    ; Bits 0-1: Palette (0-3)
-    ; Bit 5: Priority (0=front, 1=behind background)
-    ; Bit 6: Flip horizontal
-    ; Bit 7: Flip vertical
-
     ; wait for second vBlank
     Wait_Vblank_2:
         bit PPU_STATUS

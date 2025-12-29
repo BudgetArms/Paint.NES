@@ -108,7 +108,7 @@
     lda new_mode
     sta next_program_mode
 
-    lda #SKIP_TRANSITION_MODE
+    lda #SKIP_TRANSITION_TIME
     sta mode_transition_time
 
     jsr StartTransitionAnimation
@@ -330,7 +330,6 @@
 
     clc 
     lda #$00
-    ; ldx tile_cursor_y
     ldx position + 1
     beq @Skip_Loop
 
@@ -1258,7 +1257,7 @@
 ; Khine / BudgetArms
 .proc MoveCursorUp
 
-    ; Move to left (cursor_y - 8, tile_y - 1)
+    ; Move to left (pos_y - 8, tile_y - 1)
     lda player + P_TILE_Y_POS
 
     cmp #CURSOR_MIN_Y
@@ -1425,8 +1424,8 @@
     adc #$01
 
     ; if a equal to cmp, set a to first tile index (background, aka 0)
-    ; todo: add variable tile_index min/max
-    cmp #COLOR_3_TILE_INDEX + 1 ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    ; there are 4 options (including index 0). therefore substracting 4 should always be negative
+    cmp #COLOR_3_TILE_INDEX + 1 
     bne :+
         lda #BACKGROUND_TILE_INDEX ; set value back to 0
     :

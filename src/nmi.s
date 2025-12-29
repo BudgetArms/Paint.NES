@@ -1,65 +1,3 @@
-.proc LoadPlayerBrushProperties
-    lda current_player_index
-
-    cmp #PLAYER_1
-    bne :+
-        lda player_1_properties + P_SELECTED_TOOL
-        sta player + P_SELECTED_TOOL
-        lda player_1_properties + P_SELECTED_COLOR_INDEX
-        sta player + P_SELECTED_COLOR_INDEX
-        lda player_1_properties + P_CURSOR_SIZE
-        sta player + P_CURSOR_SIZE
-        lda player_1_properties + P_TILE_ADDR
-        sta player + P_TILE_ADDR
-        lda player_1_properties + P_TILE_ADDR + 1
-        sta player + P_TILE_ADDR + 1
-        rts
-    :
-
-    cmp #PLAYER_2
-    bne :+
-        lda player_2_properties + P_SELECTED_TOOL
-        sta player + P_SELECTED_TOOL
-        lda player_2_properties + P_SELECTED_COLOR_INDEX
-        sta player + P_SELECTED_COLOR_INDEX
-        lda player_2_properties + P_CURSOR_SIZE
-        sta player + P_CURSOR_SIZE
-        lda player_2_properties + P_TILE_ADDR
-        sta player + P_TILE_ADDR
-        lda player_2_properties + P_TILE_ADDR + 1
-        sta player + P_TILE_ADDR + 1
-        rts 
-    :
-    
-    rts
-.endproc
-
-
-.proc LoadPlayerToolTypeProperties
-
-    lda current_player_index
-
-    cmp #PLAYER_1
-    bne :+
-        lda player_1_properties + P_INDEX
-        sta player + P_INDEX
-        lda player_1_properties + P_SELECTED_TOOL
-        sta player + P_SELECTED_TOOL
-        rts
-    :
-
-    cmp #PLAYER_2
-    bne :+
-        lda player_2_properties + P_INDEX
-        sta player + P_INDEX
-        lda player_2_properties + P_SELECTED_TOOL
-        sta player + P_SELECTED_TOOL
-        rts 
-    :
-    
-    rts
-
-.endproc
 
 .proc nmi
     ; save registers
@@ -70,18 +8,24 @@
     pha 
 
     lda nmi_ready
-    bne :+ ; nmi_ready == 0 not ready to update PPU
-        jmp ppu_update_end
+
+    ; nmi_ready == 0 not ready to update PPU
+    bne :+ 
+        jmp PPU_Update_End
     :
-    cmp #2 ; nmi_ready == 2 turns rendering off
-    bne cont_render
+
+    ; nmi_ready == 2 turns rendering off
+    cmp #$02 
+    bne Cont_Render
         lda #%00000000
         sta PPU_MASK
+
         ldx #0
         stx nmi_ready
-        jmp ppu_update_end
 
-    cont_render:
+        jmp PPU_Update_End
+
+    Cont_Render:
 
     ; transfer sprite OAM data using DMA
     ldx #0
@@ -101,12 +45,12 @@
     ldx #$00 ; transfer the 32 bytes to VRAM
     stx PPU_ADDR
 
-    loop:
+    Loop:
         lda palette, x
         sta PPU_DATA
         inx 
         cpx #PALETTE_SIZE
-        bcc loop
+        bcc Loop
 
     lda current_program_mode
     
@@ -141,7 +85,7 @@
     ; flag PPU update complete
     ldx #0
     stx nmi_ready
-    ppu_update_end:
+    PPU_Update_End:
 
     ; update FamiStudio sound engine
     jsr famistudio_update
@@ -158,6 +102,7 @@
 .endproc
 
 
+; Khine
 .proc StartMenuNMI
 
     rts 
@@ -165,6 +110,7 @@
 .endproc
 
 
+; Khine
 .proc TransitionNMI
     lda previous_program_mode
     cmp #HELP_MENU_MODE
@@ -179,10 +125,14 @@
     :
 
     jsr LoadTilemapWithTransition
+
     rts 
 
 .endproc
+; Khine
 
+
+; Khine
 .proc CanvasNMI
     lda #$00
     sta current_player_index
@@ -220,4 +170,78 @@
     rts 
 
 .endproc
+; Khine
+
+
+; Khine
+.proc LoadPlayerBrushProperties
+    lda current_player_index
+
+    cmp #PLAYER_1
+    bne :+
+        lda player_1_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
+        lda player_1_properties + P_SELECTED_COLOR_INDEX
+        sta player + P_SELECTED_COLOR_INDEX
+        lda player_1_properties + P_CURSOR_SIZE
+        sta player + P_CURSOR_SIZE
+        lda player_1_properties + P_TILE_ADDR
+        sta player + P_TILE_ADDR
+        lda player_1_properties + P_TILE_ADDR + 1
+        sta player + P_TILE_ADDR + 1
+
+        rts 
+    :
+
+    cmp #PLAYER_2
+    bne :+
+        lda player_2_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
+        lda player_2_properties + P_SELECTED_COLOR_INDEX
+        sta player + P_SELECTED_COLOR_INDEX
+        lda player_2_properties + P_CURSOR_SIZE
+        sta player + P_CURSOR_SIZE
+        lda player_2_properties + P_TILE_ADDR
+        sta player + P_TILE_ADDR
+        lda player_2_properties + P_TILE_ADDR + 1
+        sta player + P_TILE_ADDR + 1
+
+        rts 
+    :
+    
+    rts 
+
+.endproc
+; Khine
+
+
+; Khine
+.proc LoadPlayerToolTypeProperties
+
+    lda current_player_index
+
+    cmp #PLAYER_1
+    bne :+
+        lda player_1_properties + P_INDEX
+        sta player + P_INDEX
+        lda player_1_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
+
+        rts 
+    :
+
+    cmp #PLAYER_2
+    bne :+
+        lda player_2_properties + P_INDEX
+        sta player + P_INDEX
+        lda player_2_properties + P_SELECTED_TOOL
+        sta player + P_SELECTED_TOOL
+
+        rts 
+    :
+    
+    rts 
+
+.endproc
+; Khine
 

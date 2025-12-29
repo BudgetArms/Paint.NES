@@ -205,7 +205,6 @@
         lda player + P_X_POS
         sta player + P_SHAPE_TOOL_FIRST_POS
 
-        ;lda cursor_y
         lda player + P_Y_POS
         sta player + P_SHAPE_TOOL_FIRST_POS + 1
 
@@ -219,7 +218,6 @@
         ; Second position set
 
         ; if first pos and second pos the same, rts, else @Use_Second_Position
-        ;lda cursor_x
         lda #$00
         sta shape_tool_same_pos
 
@@ -238,7 +236,7 @@
         lda shape_tool_same_pos
         cmp #$02
         bne :+
-            rts
+            rts 
         :
 
         lda #$00
@@ -666,7 +664,7 @@
             ; add go to next X pos
             clc 
             lda shape_tool_temp_pos
-            adc #$08
+            adc #TILE_PIXEL_SIZE
             sta shape_tool_temp_pos
 
             inx 
@@ -889,7 +887,7 @@
         sta abs_address_to_access + 1
 
         inx 
-        cpx #$04 ; todo: change to variable
+        cpx #TRANSITION_SPEED
         bne @Outer_Loop
 
     rts 
@@ -973,7 +971,7 @@
         sta abs_address_to_access + 1
 
         inx 
-        cpx #$04 ; todo: change to variable
+        cpx #TRANSITION_SPEED
         bne @Outer_Loop
 
     rts 
@@ -1120,7 +1118,6 @@
     sta shape_tool_circle_draw_pos + 1
 
     DrawTile player + P_SELECTED_COLOR_INDEX, shape_tool_circle_draw_pos
-
 
     rts 
 
