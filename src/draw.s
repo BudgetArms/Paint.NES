@@ -8,7 +8,7 @@
     lda player + P_CURSOR_SIZE
 
     cmp #TYPE_CURSOR_NORMAL
-    bne Not_Normal_Cursor
+    bne :++
         lda player + P_SELECTED_TOOL
         cmp #SHAPE_TOOL_SELECTED
         bne :+
@@ -26,10 +26,10 @@
         ldx #OAM_BYTE_SIZE_CURSOR_NORMAL
         jmp Start_Load
 
-    Not_Normal_Cursor:
+    :
 
     cmp #TYPE_CURSOR_MEDIUM
-    bne Not_Medium_Cursor
+    bne :+
 
         lda #<CURSOR_MEDIUM_DATA
         sta abs_address_to_access
@@ -40,10 +40,10 @@
         ldx #OAM_BYTE_SIZE_CURSOR_MEDIUM
         jmp Start_Load
 
-    Not_Medium_Cursor:
+    :
 
     cmp #TYPE_CURSOR_BIG
-    bne Not_Big_Cursor
+    bne :+
 
         lda #<CURSOR_BIG_DATA
         sta abs_address_to_access
@@ -54,7 +54,7 @@
         ldx #OAM_BYTE_SIZE_CURSOR_BIG
         jmp Start_Load
 
-    Not_Big_Cursor:
+    :
 
     Start_Load:
 
@@ -216,7 +216,6 @@
 
     Second_Position:
         ; Second position set
-
         ; if first pos and second pos the same, rts, else @Use_Second_Position
         lda #$00
         sta shape_tool_same_pos
@@ -547,9 +546,9 @@
     ; check where the second pos X is compared to first    
     lda player + P_SHAPE_TOOL_FIRST_POS
     cmp player + P_SHAPE_TOOL_SECOND_POS
-    bcs First_PosX_Right_Of_Second_PosX
+    bcs First_PosX_Right_Of_Second_Pos_X
 
-    First_PosX_Left_Of_Second_PosX:
+    First_PosX_Left_Of_Second_Pos_X:
 
         ; Store rectangle width
         sec  
@@ -564,7 +563,7 @@
         jmp Done_Setting_X
 
 
-    First_PosX_Right_Of_Second_PosX:
+    First_PosX_Right_Of_Second_Pos_X:
 
         ; Store rectangle width
         sec  
@@ -587,9 +586,9 @@
     ; check where the second pos Y is compared to first    
     lda player + P_SHAPE_TOOL_FIRST_POS + 1
     cmp player + P_SHAPE_TOOL_SECOND_POS + 1
-    bcs First_PosY_Below_Second_PosY
+    bcs First_PosY_Below_Second_Pos_Y
 
-    First_PosY_Above_Second_PosY:
+    First_PosY_Above_Second_Pos_Y:
 
         ; Store rectangle height
         sec  
@@ -604,7 +603,7 @@
         jmp Done_Setting_Y
 
 
-    First_PosY_Below_Second_PosY:
+    First_PosY_Below_Second_Pos_Y:
 
         ; Store rectangle height
         sec  
@@ -682,7 +681,7 @@
         iny 
         tya 
 
-        ; * 8
+        ; from tile pos -> screen pos
         asl 
         asl 
         asl 
@@ -694,7 +693,8 @@
 
         cpy shape_tool_rectangle_height
         beq Done_Drawing
-            jmp Row_Loop    ; needs to be a jump bc range
+            ; jump bc branch can only jump relative addr of 1 byte
+            jmp Row_Loop    
 
 
     Done_Drawing:
@@ -755,7 +755,7 @@
     cmp shape_tool_circle_offset + 1
     bcs @X_Is_Max
     
-        ; if dy is max (or equal)
+        ; if dy >= dx, then
         ; r = dy + (dx / 2)
         clc 
         lda shape_tool_circle_offset
@@ -766,6 +766,7 @@
 
     @X_Is_Max:
 
+        ; else
         ; r = dx + (dy / 2)
         clc 
         lda shape_tool_circle_offset + 1
@@ -774,7 +775,7 @@
 
 
     @Store_Radius:
-        ; convert radius from pos to tile pos
+        ; convert radius from screen pos to tile pos
         lsr 
         lsr 
         lsr 

@@ -354,7 +354,7 @@ PALETTE_P2_COLOR      = 21
 
 
 ; Save Tilemap
-SAVE_TILEMAP_OVERFLOW_LOOPS = $04 ; tilemap size: 1k -> 1kB / 256B = 4
+SAVE_TILEMAP_OVERFLOW_LOOPS = $04 ; tilemap size: 1k -> 1kB / 256B (overflow) = 4
 SAVE_TILEMAP = $7000
 SAVE_START_TILEMAP = $7040
 

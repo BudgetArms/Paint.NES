@@ -61,6 +61,8 @@
     jmp @In_Canvas
 
 
+    ; indirect jump because branch cannot jump far enough
+    ; because of the macro
     @Not_In_Canvas:
         jmp @Skip_Drawing
 
@@ -94,7 +96,7 @@
     ldx #$00
 
     Clear_Oam:
-        sta oam,x
+        sta oam, x
         inx 
         inx 
         inx 
@@ -121,9 +123,9 @@
 
     ; empty nametable A
     lda #BACKGROUND_TILE_INDEX
-    ldy #CANVAS_ROWS ; clear 30 rows
+    ldy #CANVAS_ROWS
     Row_Loop:
-        ldx #CANVAS_COLUMNS ; 32 columns
+        ldx #CANVAS_COLUMNS
         Column_Loop:
             sta PPU_DATA
             dex 
@@ -141,7 +143,9 @@
 ; BudgetArms
 .proc UpdateCursorSpritePosition
 
-    ; Multiply TILE_X/TILE_Y POS by 8 to get X/Y POS
+    ; Tile pos -> screen pos
+
+
     lda #$00
     ldx player + P_TILE_X_POS
     beq :+
@@ -162,7 +166,9 @@
             dex 
             bne Adding_Y_Loop
     :
+
     sta player + P_Y_POS
+
 
     lda player + P_CURSOR_SIZE
 
@@ -759,13 +765,13 @@
         ; loop until overflow
         bne Clear_Loop
 
-        Overflow:
-            inc save_ptr + 1
+        ; overflow
+        inc save_ptr + 1
 
-            ; loop until at end of WRAM
-            lda save_ptr + 1
-            cmp #>WRAM_END + 1
-            bne Clear_Loop
+        ; loop until at end of WRAM
+        lda save_ptr + 1
+        cmp #>WRAM_END + 1
+        bne Clear_Loop
 
     rts 
 

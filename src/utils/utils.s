@@ -605,30 +605,30 @@
     lda oam + OAM_OFFSET_START_MENU_CURSOR + OAM_Y
 
     cmp #SELECT_PLAYER_MENU_1_PLAYER_SELECTION
-    bne :+
+    bne :++
         lda #01
         sta player_count
 
         lda save_index
         cmp #SAVE_INVALID_INDEX
-        beq @Not_Loading_Save_1
+        beq :+
             jsr LoadCanvasFromWRAM
-        @Not_Loading_Save_1:
+        :
 
         TransitionToMode #CANVAS_MODE
         rts 
     :
 
     cmp #SELECT_PLAYER_MENU_2_PLAYERS_SELECTION
-    bne :+
+    bne :++
         lda #02
         sta player_count
 
         lda save_index
         cmp #SAVE_INVALID_INDEX
-        beq @Not_Loading_Save_2
+        beq :+
             jsr LoadCanvasFromWRAM
-        @Not_Loading_Save_2:
+        :
 
         TransitionToMode #CANVAS_MODE
         rts 
@@ -857,8 +857,8 @@
     lda #SAVE_INVALID_INDEX
     sta save_index
 
-    ; save save -> help will not update nametable 3
-    ; so, force it
+    ; save save screen -> help screen doesn't update nametable 3
+    ; so, I update it manually
     
     lda #<Help_Menu_Tilemap
     sta abs_address_to_access
@@ -1212,31 +1212,31 @@
     clc 
     lda #$00
     ldy player + P_TILE_Y_POS
-    beq SkipLoop
+    beq Skip_Loop
 
-    RowLoop:
+    Row_Loop:
         adc #DISPLAY_SCREEN_WIDTH
         ; Check for carry bit and then increment the high bit when carry is set
-        bcc @SkipHighBitIncrement
+        bcc @Skip_High_Bit_Increment
 
         inc player + P_TILE_ADDR + 1
         clc 
 
-        @SkipHighBitIncrement:
+        @Skip_High_Bit_Increment:
             dey 
-            bne RowLoop
+            bne Row_Loop
 
-    SkipLoop:
+    Skip_Loop:
         adc player + P_TILE_X_POS
         sta player + P_TILE_ADDR
 
         ; Increment the high bit position if there is a remaining carry flag set
-        bcc @SkipHighBitIncrement
+        bcc @Skip_High_Bit_Increment
         
         inc player + P_TILE_ADDR + 1 ; High bit of the location
         clc 
 
-        @SkipHighBitIncrement:
+        @Skip_High_Bit_Increment:
 
             ; Add the offset of nametable 1 to the tile index
             lda #<NAME_TABLE_1
@@ -1336,12 +1336,12 @@
     ; If not -> increment the brush size
     lda player + P_CURSOR_SIZE
     cmp #MAXIMUM_CURSOR_SIZE
-    bne Not_Max
+    bne Not_Max_Size
         lda #MINIMUM_CURSOR_SIZE
         sta player + P_CURSOR_SIZE
         jmp Change_Cursor_Sprite 
 
-    Not_Max:
+    Not_Max_Size:
         inc player + P_CURSOR_SIZE
 
         clc 
