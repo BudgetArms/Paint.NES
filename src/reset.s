@@ -1,7 +1,7 @@
 .proc reset
 
     sei			; mask interrupts
-    lda #0
+    lda #$00
     sta PPU_CONTROL	; disable NMI
     sta PPU_MASK	; disable rendering
     sta APU_DM_CONTROL	; disable DMC IRQ

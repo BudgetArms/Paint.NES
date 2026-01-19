@@ -512,7 +512,7 @@
     ; Output: A = quotient, X = remainder
 
     stx divide_by_x_divisor     ; Store divisor in zero page
-    ldy #0                      ; Y will hold quotient
+    ldy #$00                      ; Y will hold quotient
 
     Divide_Loop:
         cmp divide_by_x_divisor     ; Compare A with divisor

@@ -422,7 +422,7 @@
 
         ; Move Up
         lda fill_current_addr + 1
-        sbc #0
+        sbc #$00
         sta fill_neighbor_addr + 1
         
         ; If neighbor tile (up) is filled, try down
@@ -450,7 +450,7 @@
 
         ; set neighbor tile (high)
         lda fill_current_addr + 1
-        adc #0
+        adc #$0
         sta fill_neighbor_addr + 1
 
         ; If neighbor tile (down) is filled, try left
@@ -472,12 +472,12 @@
         ; set neighbor tile (low) 
         sec 
         lda fill_current_addr
-        sbc #1
+        sbc #$01
         sta fill_neighbor_addr
 
         ; set neighbor tile (high) 
         lda fill_current_addr + 1
-        sbc #0
+        sbc #$00
         sta fill_neighbor_addr + 1
 
 
@@ -500,12 +500,12 @@
         ; Set fill_neighbor low byte address to right neighbor
         clc 
         lda fill_current_addr
-        adc #1
+        adc #$01
         sta fill_neighbor_addr
 
         ; Set fill_neighbor high byte address to right neighbor
         lda fill_current_addr + 1
-        adc #0
+        adc #$00
         sta fill_neighbor_addr + 1
 
         ; Check if color right is target color, if not LoopEnd

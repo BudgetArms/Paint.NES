@@ -40,15 +40,9 @@ player_2_properties: .res P_PROPERTY_SIZE
 
 current_player_index: .res 1
 player: .res P_PROPERTY_SIZE
+
 ; tile position output
 tile_position_output: .res 2
-
-; Shape Tool
-;player + P_SHAPE_TOOL_TYPE: .res 1
-;player + P_SHAPE_TOOL_FIRST_SET: .res 1
-
-;player + P_SHAPE_TOOL_FIRST_POS: .res 2
-;player + P_SHAPE_TOOL_SECOND_POS: .res 2
 
 ; Shape Tool
 shape_tool_same_pos: .res 1
@@ -228,46 +222,26 @@ FAMISTUDIO_DPCM_OFF             = $c000
 ;***************************************
 ; default palette table; 16 entries for tiles and 16 entries for sprites
 .segment "RODATA"
-START_MENU_PALETTE:
-;.byte $00, $3c, $2c, $01
-;.byte $00, $3d, $05, $0f
-;.byte $00, $0d, $24, $31
-;.byte $00, $1c, $3c, $0f
-;.byte GRAY, BLACK, BLUE, RED
-;.byte $0f,$00,$10,$30
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
-
-default_palette:
-;bg tiles/ text
-;.byte OFFWHITE, RED, GREEN, BLUE
-;.byte OFFWHITE,OFFWHITE,RED,BLACK
-;.byte OFFWHITE,BLACK,$24,$2c ; pink and blue
-;.byte OFFWHITE,GREEN,BLUE,BLACK
-;.byte GRAY, BLACK, BLUE, RED
-;.byte $0f,$00,$10,$30
-;.byte $0f,$05,$16,$27
-;.byte $0f,$0b,$1a,$29
 
 color_palette_ui_overlay:
-    .byte OFFWHITE, RED, GREEN, BLUE
-    .byte OFFWHITE, $0f, $24, RED
-    .byte OFFWHITE, $0f, PINK, CYAN
-    .byte OFFWHITE, $0f, GREEN, BLUE
-    .byte OFFWHITE, WHITE, WHITE, RED
-    .byte OFFWHITE, WHITE, WHITE,$30
-    .byte OFFWHITE,$05,$16,$27
-    .byte OFFWHITE,$0b,$1a,$29
+    .byte OFFWHITE, RED,    GREEN,  BLUE
+    .byte OFFWHITE, $0f,    $24,    RED
+    .byte OFFWHITE, $0f,    PINK,   CYAN
+    .byte OFFWHITE, $0f,    GREEN,  BLUE
+    .byte OFFWHITE, WHITE,  WHITE,  RED
+    .byte OFFWHITE, WHITE,  WHITE,  $30
+    .byte OFFWHITE, $05,    $16,    $27
+    .byte OFFWHITE, $0b,    $1a,    $29
 
 color_palette_start_menu:
-    .byte $2d,$05,$09,$01
-    .byte $2d,$3d,$05,$0f
-    .byte $2d,LIGHT_TEAL,DARK_TEAL,$31
-    .byte $2d,DARK_TEAL,LIGHT_TEAL,DARK_TEAL
-    .byte GRAY, BLACK, BLUE, RED
-    .byte $0f,$00,$10,$30
-    .byte $2d,$3c,$1c,$31
-    .byte $0f,$0b,$1a,$29
+    .byte $2d,  $05,        $09,        $01
+    .byte $2d,  $3d,        $05,        $0f
+    .byte $2d,  LIGHT_TEAL, DARK_TEAL,  $31
+    .byte $2d,  DARK_TEAL,  LIGHT_TEAL, DARK_TEAL
+    .byte GRAY, BLACK,      BLUE,       RED
+    .byte $0f,  $00,        $10,        $30
+    .byte $2d,  $3c,        $1c,        $31
+    .byte $0f,  $0b,        $1a,        $29
 
 ; EXAMPLE_DATA:
     ; .byte EXAMPLE_Y_POS, TILEINDEX_EXAMPLE,   %10000001, $10

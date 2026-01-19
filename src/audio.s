@@ -5,7 +5,7 @@
     ; Initialize FamiStudio sound engine
     ldx #.lobyte(music_data_untitled) ; Sets the address of the background music
     ldy #.hibyte(music_data_untitled)
-    lda #1  ; 0 = NTSC, 1 = PAL
+    lda #$01  ; 0 = NTSC, 1 = PAL
     jsr famistudio_init
 
     ; Initialize SFX
@@ -14,11 +14,11 @@
     jsr famistudio_sfx_init
 
     ; Start playing first song (song index 1)
-    lda #1
+    lda #$01
     jsr famistudio_music_play
 
     ; Initialize music state
-    lda #0
+    lda #$00
     sta music_paused
     sta current_bg_song
     sta menu_music_started

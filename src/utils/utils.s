@@ -606,7 +606,7 @@
 
     cmp #SELECT_PLAYER_MENU_1_PLAYER_SELECTION
     bne :++
-        lda #01
+        lda #$01
         sta player_count
 
         lda save_index
@@ -621,7 +621,7 @@
 
     cmp #SELECT_PLAYER_MENU_2_PLAYERS_SELECTION
     bne :++
-        lda #02
+        lda #$02
         sta player_count
 
         lda save_index
@@ -1558,7 +1558,7 @@
     ; if A => tools total amount, set selection to 0
     cmp #TOOLS_TOTAL_AMOUNT
     bmi :+ 
-        lda #00
+        lda #$00
     :
 
     sta player + P_SELECTED_TOOL

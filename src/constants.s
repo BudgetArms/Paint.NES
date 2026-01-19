@@ -1,4 +1,4 @@
-; Define PPU Registers
+; PPU Registers
 PPU_CONTROL = $2000 ; PPU Control Register 1 (Write)
 PPU_MASK    = $2001 ; PPU Control Register 2 (Write)
 PPU_STATUS  = $2002; PPU Status Register (Read)
@@ -25,11 +25,11 @@ PPU_ATTRIBUTE_TABLLE_3  = $2FC0
 PPU_PALETTE_START = $3F00
 PALETTE_SIZE = 32
 
-; Define APU Registers
+; APU Registers
 APU_DM_CONTROL  = $4010 ; APU Delta Modulation Control Register (Write)
 APU_CLOCK       = $4015 ; APU Sound/Vertical Clock Signal Register (Read/Write)
 
-;cpu oam data
+; Cpu oam data
 CPU_OAM_PTR = $0200
 
 ; Joystick/Controller values
@@ -98,7 +98,7 @@ PAD_SELECT_DOWN     = PAD_SELECT + PAD_DOWN
 PAD_SELECT_LEFT     = PAD_SELECT + PAD_LEFT
 PAD_SELECT_RIGHT    = PAD_SELECT + PAD_RIGHT
 
-; name tables
+; Name tables
 NAME_TABLE_1 = $2000
 ATTR_TABLE_1 = $23C0
 NAME_TABLE_2 = $2400
@@ -107,7 +107,7 @@ NAME_TABLE_3 = $2C00
 ATTR_TABLE_3 = $2FC0
 ATTR_TABLE_SIZE = $40
 
-;WRAM
+; WRAM
 WRAM_START = $6000
 WRAM_END   = $7FFF
 
@@ -116,9 +116,7 @@ CANVAS_START_ADDRESS = $2040
 CANVAS_ROWS = 26
 CANVAS_COLUMNS = 32
 
-
-
-; display
+; Display
 DISPLAY_REFRESH_RATE_HZ = 50
 DISPLAY_SCREEN_WIDTH    = 32
 DISPLAY_SCREEN_HEIGHT   = 30
@@ -132,7 +130,7 @@ BUTTON_HOLD_TIME_FAST       = (DISPLAY_REFRESH_RATE_HZ + 1) / 2
 BUTTON_HOLD_TIME_INSTANTLY  = 1
 FRAMES_BETWEEN_MOVEMENT     = 8
 
-; program modes
+; Program modes
 NO_MODE             = %00000001
 START_MENU_MODE     = %00000010
 LOAD_SAVE_MODE      = %00000100
@@ -159,19 +157,19 @@ CURSOR_MAX_X = 32
 CURSOR_MIN_Y = 2
 CURSOR_MAX_Y = 28
 
-; cursor types
+; Cursor types
 TYPE_CURSOR_NORMAL  = $01
 TYPE_CURSOR_MEDIUM  = $02
 TYPE_CURSOR_BIG     = $03
 
-; cursor start type (at startup)
+; Cursor start type (at startup)
 CURSOR_STARTUP_SIZE = TYPE_CURSOR_NORMAL
 
-; cursor types min/max
+; Cursor types min/max
 MINIMUM_CURSOR_SIZE   = TYPE_CURSOR_NORMAL
 MAXIMUM_CURSOR_SIZE   = TYPE_CURSOR_BIG
 
-; tile indexes
+; Tile indexes
 TILEINDEX_STAR = $F0
 
 TILEINDEX_CURSOR_SMALL_TOP_LEFT = $10
@@ -191,7 +189,7 @@ OAM_X           = $03
 OAM_OFFSCREEN   = $FF
 
 
-; oam data sizes
+; OAM data sizes
 OAM_BYTE_SIZE_START_MENU_CURSOR = $04    ;  4 bytes
 
 OAM_BYTE_SIZE_CURSOR_NORMAL  = $04       ;  4 bytes
@@ -204,7 +202,7 @@ OAM_SPRITE_SIZE_CURSOR_NORMAL = $01      ; 1 sprite
 OAM_SPRITE_SIZE_CURSOR_MEDIUM = $04      ; 4 sprites
 OAM_SPRITE_SIZE_CURSOR_BIG    = $08      ; 8 sprites
 
-; oam offsets are not same as tile indexes
+; OAM offsets are not same as tile indexes
 OAM_OFFSET_P1_CURSOR            = $00 ; 32 bytes -> END $19
 OAM_OFFSET_P2_CURSOR            = $20 ; 32 bytes -> END $39
 OAM_OFFSET_START_MENU_CURSOR    = $40 ;  4 bytes -> END $43
@@ -214,7 +212,6 @@ OAM_OFFSET_OVERLAY_P1_COLOR     = $4C
 OAM_OFFSET_OVERLAY_P1_TOOL      = $50
 OAM_OFFSET_OVERLAY_P2_COLOR     = $54
 OAM_OFFSET_OVERLAY_P2_TOOL      = $58
-
 
 OAM_OFFSET_CURSOR_BIG_BOTTOM_LEFT   = $00
 OAM_OFFSET_CURSOR_BIG_LEFT          = $04
@@ -305,10 +302,8 @@ SAVE_SAVE_MENU_GO_BACK_SELECTION    = SAVE_SAVE_MENU_SAVE_3_SELECTION + (TILE_PI
 
 
 ; CHR Offsets
-LETTER_OFFSET = $60
-DIGIT_OFFSET = $DB
-; CHR Offsets
-
+LETTER_OFFSET   = $60
+DIGIT_OFFSET    = $DB
 
 ; Fill Tool VRAM structure
 PPU_VRAM_MASK_X_POS         = %00011111
@@ -317,7 +312,7 @@ PPU_VRAM_MASK_Y_POS_HIGH    = %00000011
 
 
 ; Tools
-TOOLS_TOTAL_AMOUNT = 5
+TOOLS_TOTAL_AMOUNT      = 5
 BRUSH_TOOL_SELECTED    = $00
 ERASER_TOOL_SELECTED   = $01
 FILL_TOOL_SELECTED     = $02
@@ -326,12 +321,12 @@ CLEAR_TOOL_SELECTED    = $04
 TEXT_TOOL_SELECTED     = $05 ; this tool is not used yet but I put it here so the cmp works in my PlayToolSoundEffect subroutine
 
 
-;Color values
+; Color values
 WHITE       = $30
 OFFWHITE    = $10
 GRAY        = $00
 RED         = $05
-GREEN       = $0a
+GREEN       = $0A
 BLUE        = $01
 LIGHT_BLUE  = $31
 BLACK       = $3F
@@ -355,25 +350,29 @@ PALETTE_P2_COLOR      = 21
 
 ; Save Tilemap
 SAVE_TILEMAP_OVERFLOW_LOOPS = $04 ; tilemap size: 1k -> 1kB / 256B (overflow) = 4
-SAVE_TILEMAP = $7000
-SAVE_START_TILEMAP = $7040
+SAVE_TILEMAP        = $7000
+SAVE_START_TILEMAP  = $7040
 
 ; Save sytem
 SAVE_INVALID_INDEX = $FF
 
+
+; Save Size = 2 check bytes, 32 palette bytes + width * height / 4
+; Storing the canvas alone is 276B
+; And therefor is the save address offset by 304 (bytes)
 SAVE_ADDR_START = WRAM_START
-; Storing whole canvas (including overlays), it's max 276B
-; so offset: 304B ($0130), for rounding
 SAVE_ADDR_SAVES_OFFSET_0 = 304 * 0  
 SAVE_ADDR_SAVES_OFFSET_1 = 304 * 1
 SAVE_ADDR_SAVES_OFFSET_2 = 304 * 2 
 SAVE_ADDR_SAVES_OFFSET_3 = 304 * 3 
 
+; Check Bytes
 SAVE_HEADER_BYTE_1 = $DE
 SAVE_HEADER_BYTE_2 = $AD
 
+; 
 SAVE_HEADER_COLOR_VALUE_OFFSET  = $02
-SAVE_HEADER_COLOR_VALUE_SIZE    = 32
+SAVE_HEADER_COLOR_VALUE_SIZE    = PALETTE_SIZE
 
 SAVE_DATA_START_OFFSET  = SAVE_HEADER_COLOR_VALUE_OFFSET + SAVE_HEADER_COLOR_VALUE_SIZE
 SAVE_COLOR_OFFSET       = $02

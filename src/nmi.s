@@ -20,7 +20,7 @@
         lda #%00000000
         sta PPU_MASK
 
-        ldx #0
+        ldx #$00
         stx nmi_ready
 
         jmp PPU_Update_End
@@ -28,7 +28,7 @@
     Cont_Render:
 
     ; transfer sprite OAM data using DMA
-    ldx #0
+    ldx #$00
     stx PPU_OAMADDR
     lda #>oam
     sta PPU_OAMDMA
@@ -83,7 +83,7 @@
     :
     sta PPU_MASK
     ; flag PPU update complete
-    ldx #0
+    ldx #$00
     stx nmi_ready
     PPU_Update_End:
 
