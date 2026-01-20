@@ -5,7 +5,7 @@
     ; Initialize FamiStudio sound engine
     ldx #.lobyte(music_data_untitled) ; Sets the address of the background music
     ldy #.hibyte(music_data_untitled)
-    lda #$01  ; 0 = NTSC, 1 = PAL
+    lda #$00  ; non 0 = NTSC, 0 = PAL
     jsr famistudio_init
 
     ; Initialize SFX
