@@ -97,7 +97,6 @@ music_paused: .res 1    ; this is a flag changing this does not actually pause t
 
 ; Track currently selected background song (0 = Gymnopédie, 1 = CocoMelon)
 current_bg_song: .res 1
-menu_music_started: .res 1
 
 ; Save system
 save_temp_byte: .res 1

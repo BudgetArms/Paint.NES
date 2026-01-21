@@ -68,8 +68,6 @@ mainloop:
         jsr famistudio_music_play
         lda #$01
         sta current_bg_song
-        lda #$00
-        sta menu_music_started  ; Reset this when leaving menu
 
     @Skip_Music_Start:
 

@@ -21,7 +21,6 @@
     lda #$00
     sta music_paused
     sta current_bg_song
-    sta menu_music_started
 
     rts 
 
