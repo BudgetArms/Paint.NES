@@ -124,11 +124,11 @@
 .proc PlayMenuSelectSFX
     ; Play the same DPCM sample used by the Text tool on menu selection
     ; Also play on the square channel
-    lda #$05    ; todo: make this magic number a variable ????
+    lda #$05    ;(index 5)
     ldx #FAMISTUDIO_SFX_CH0  ; Square channel
     jsr famistudio_sfx_play
     
-    lda #$05    ; todo: make this magic number a variable ???
+    lda #$05    ;(index 5)
     jsr famistudio_sfx_sample_play
 
     rts 
