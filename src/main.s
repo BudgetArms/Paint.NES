@@ -90,10 +90,6 @@ scroll_y_position: .res 1
 player_count: .res 1
 loop_index: .res 1
 
-; Sound engine variables
-sfx_temp: .res 1        ; Temporary storage for SFX operations
-sfx_channel: .res 1     ; SFX channel to use
-music_paused: .res 1    ; this is a flag changing this does not actually pause the music
 
 ; Track currently selected background song (0 = Gymnopédie, 1 = CocoMelon)
 current_bg_song: .res 1

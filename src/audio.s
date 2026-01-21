@@ -18,8 +18,7 @@
     jsr famistudio_music_play
 
     ; Initialize music state
-    lda #$00
-    sta music_paused
+    lda #$01
     sta current_bg_song
 
     rts 
