@@ -307,10 +307,6 @@ mainloop:
         sta current_bg_song
     :
 
-    ; todo: needs to be removed???
-    ; Reset menu_music_started so CocoMelon can play again next time
-    ; lda #$00
-    ; sta menu_music_started
 
     lda #$00
     sta current_player_index
